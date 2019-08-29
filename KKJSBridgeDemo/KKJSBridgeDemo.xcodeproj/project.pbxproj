@@ -1,0 +1,521 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		04FDA27033AE256E32BD6612 /* libPods-KKJSBridgeDemo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 12B3C3553C0548E73E4F24BB /* libPods-KKJSBridgeDemo.a */; };
+		7C31E06B2317F97600152D06 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C31E06A2317F97600152D06 /* AppDelegate.m */; };
+		7C31E06E2317F97600152D06 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C31E06D2317F97600152D06 /* ViewController.m */; };
+		7C31E0712317F97600152D06 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7C31E06F2317F97600152D06 /* Main.storyboard */; };
+		7C31E0732317F97B00152D06 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7C31E0722317F97B00152D06 /* Assets.xcassets */; };
+		7C31E0762317F97B00152D06 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7C31E0742317F97B00152D06 /* LaunchScreen.storyboard */; };
+		7C31E0792317F97B00152D06 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C31E0782317F97B00152D06 /* main.m */; };
+		7C31E08C231803DB00152D06 /* WebViewJavascriptBridge.js in Resources */ = {isa = PBXBuildFile; fileRef = 7C31E088231803DB00152D06 /* WebViewJavascriptBridge.js */; };
+		7C31E08D231803DB00152D06 /* WebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C31E089231803DB00152D06 /* WebViewController.m */; };
+		7C31E0912318047500152D06 /* client302.html in Resources */ = {isa = PBXBuildFile; fileRef = 7C31E08E2318047500152D06 /* client302.html */; };
+		7C31E0922318047500152D06 /* index.html in Resources */ = {isa = PBXBuildFile; fileRef = 7C31E08F2318047500152D06 /* index.html */; };
+		7C31E0932318047500152D06 /* server.js in Resources */ = {isa = PBXBuildFile; fileRef = 7C31E0902318047500152D06 /* server.js */; };
+		7C31E0952318049600152D06 /* BinaryCookieReader.py in Resources */ = {isa = PBXBuildFile; fileRef = 7C31E0942318049600152D06 /* BinaryCookieReader.py */; };
+		7C31E09923181B8B00152D06 /* ModuleA.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C31E09823181B8B00152D06 /* ModuleA.m */; };
+		7C31E09C23181BA000152D06 /* ModuleDefault.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C31E09B23181BA000152D06 /* ModuleDefault.m */; };
+		7C31E09F23181C5F00152D06 /* ModuleContext.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C31E09E23181C5F00152D06 /* ModuleContext.m */; };
+		7C31E0A52318244E00152D06 /* ModuleB.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C31E0A42318244E00152D06 /* ModuleB.m */; };
+		7C31E0A723182B5400152D06 /* moduleTest.html in Resources */ = {isa = PBXBuildFile; fileRef = 7C31E0A623182B5400152D06 /* moduleTest.html */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		12B3C3553C0548E73E4F24BB /* libPods-KKJSBridgeDemo.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-KKJSBridgeDemo.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		7C31E0662317F97600152D06 /* KKJSBridgeDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KKJSBridgeDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		7C31E0692317F97600152D06 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		7C31E06A2317F97600152D06 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		7C31E06C2317F97600152D06 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		7C31E06D2317F97600152D06 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		7C31E0702317F97600152D06 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		7C31E0722317F97B00152D06 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		7C31E0752317F97B00152D06 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		7C31E0772317F97B00152D06 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		7C31E0782317F97B00152D06 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		7C31E088231803DB00152D06 /* WebViewJavascriptBridge.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = WebViewJavascriptBridge.js; sourceTree = "<group>"; };
+		7C31E089231803DB00152D06 /* WebViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WebViewController.m; sourceTree = "<group>"; };
+		7C31E08A231803DB00152D06 /* WebViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebViewController.h; sourceTree = "<group>"; };
+		7C31E08E2318047500152D06 /* client302.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = client302.html; sourceTree = "<group>"; };
+		7C31E08F2318047500152D06 /* index.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; };
+		7C31E0902318047500152D06 /* server.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = server.js; sourceTree = "<group>"; };
+		7C31E0942318049600152D06 /* BinaryCookieReader.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = BinaryCookieReader.py; sourceTree = "<group>"; };
+		7C31E09723181B8B00152D06 /* ModuleA.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ModuleA.h; sourceTree = "<group>"; };
+		7C31E09823181B8B00152D06 /* ModuleA.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ModuleA.m; sourceTree = "<group>"; };
+		7C31E09A23181BA000152D06 /* ModuleDefault.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ModuleDefault.h; sourceTree = "<group>"; };
+		7C31E09B23181BA000152D06 /* ModuleDefault.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ModuleDefault.m; sourceTree = "<group>"; };
+		7C31E09D23181C5F00152D06 /* ModuleContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ModuleContext.h; sourceTree = "<group>"; };
+		7C31E09E23181C5F00152D06 /* ModuleContext.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ModuleContext.m; sourceTree = "<group>"; };
+		7C31E0A32318244E00152D06 /* ModuleB.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ModuleB.h; sourceTree = "<group>"; };
+		7C31E0A42318244E00152D06 /* ModuleB.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ModuleB.m; sourceTree = "<group>"; };
+		7C31E0A623182B5400152D06 /* moduleTest.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = moduleTest.html; sourceTree = "<group>"; };
+		E4439BA0A6CBDEA87FB01283 /* Pods-KKJSBridgeDemo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KKJSBridgeDemo.release.xcconfig"; path = "Pods/Target Support Files/Pods-KKJSBridgeDemo/Pods-KKJSBridgeDemo.release.xcconfig"; sourceTree = "<group>"; };
+		EF6A7197B5A25080AF60C416 /* Pods-KKJSBridgeDemo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KKJSBridgeDemo.debug.xcconfig"; path = "Pods/Target Support Files/Pods-KKJSBridgeDemo/Pods-KKJSBridgeDemo.debug.xcconfig"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		7C31E0632317F97600152D06 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				04FDA27033AE256E32BD6612 /* libPods-KKJSBridgeDemo.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		4B3E49F64AC49E7FFB281966 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				EF6A7197B5A25080AF60C416 /* Pods-KKJSBridgeDemo.debug.xcconfig */,
+				E4439BA0A6CBDEA87FB01283 /* Pods-KKJSBridgeDemo.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
+		7C31E05D2317F97600152D06 = {
+			isa = PBXGroup;
+			children = (
+				7C31E0682317F97600152D06 /* KKJSBridgeDemo */,
+				7C31E0672317F97600152D06 /* Products */,
+				4B3E49F64AC49E7FFB281966 /* Pods */,
+				AB36E054270E6DB65CCF557B /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		7C31E0672317F97600152D06 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				7C31E0662317F97600152D06 /* KKJSBridgeDemo.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		7C31E0682317F97600152D06 /* KKJSBridgeDemo */ = {
+			isa = PBXGroup;
+			children = (
+				7C31E086231803DB00152D06 /* Demo */,
+				7C31E082231803DB00152D06 /* Software */,
+				7C31E0692317F97600152D06 /* AppDelegate.h */,
+				7C31E06A2317F97600152D06 /* AppDelegate.m */,
+				7C31E06C2317F97600152D06 /* ViewController.h */,
+				7C31E06D2317F97600152D06 /* ViewController.m */,
+				7C31E06F2317F97600152D06 /* Main.storyboard */,
+				7C31E0722317F97B00152D06 /* Assets.xcassets */,
+				7C31E0742317F97B00152D06 /* LaunchScreen.storyboard */,
+				7C31E0772317F97B00152D06 /* Info.plist */,
+				7C31E0782317F97B00152D06 /* main.m */,
+			);
+			path = KKJSBridgeDemo;
+			sourceTree = "<group>";
+		};
+		7C31E082231803DB00152D06 /* Software */ = {
+			isa = PBXGroup;
+			children = (
+				7C31E083231803DB00152D06 /* CookieViewer */,
+				7C31E084231803DB00152D06 /* Server */,
+			);
+			path = Software;
+			sourceTree = "<group>";
+		};
+		7C31E083231803DB00152D06 /* CookieViewer */ = {
+			isa = PBXGroup;
+			children = (
+				7C31E0942318049600152D06 /* BinaryCookieReader.py */,
+			);
+			path = CookieViewer;
+			sourceTree = "<group>";
+		};
+		7C31E084231803DB00152D06 /* Server */ = {
+			isa = PBXGroup;
+			children = (
+				7C31E0A623182B5400152D06 /* moduleTest.html */,
+				7C31E08E2318047500152D06 /* client302.html */,
+				7C31E08F2318047500152D06 /* index.html */,
+				7C31E0902318047500152D06 /* server.js */,
+			);
+			path = Server;
+			sourceTree = "<group>";
+		};
+		7C31E086231803DB00152D06 /* Demo */ = {
+			isa = PBXGroup;
+			children = (
+				7C31E09623181B7300152D06 /* Module */,
+				7C31E087231803DB00152D06 /* JS */,
+				7C31E08A231803DB00152D06 /* WebViewController.h */,
+				7C31E089231803DB00152D06 /* WebViewController.m */,
+			);
+			path = Demo;
+			sourceTree = "<group>";
+		};
+		7C31E087231803DB00152D06 /* JS */ = {
+			isa = PBXGroup;
+			children = (
+				7C31E088231803DB00152D06 /* WebViewJavascriptBridge.js */,
+			);
+			path = JS;
+			sourceTree = "<group>";
+		};
+		7C31E09623181B7300152D06 /* Module */ = {
+			isa = PBXGroup;
+			children = (
+				7C31E09723181B8B00152D06 /* ModuleA.h */,
+				7C31E09823181B8B00152D06 /* ModuleA.m */,
+				7C31E0A32318244E00152D06 /* ModuleB.h */,
+				7C31E0A42318244E00152D06 /* ModuleB.m */,
+				7C31E09A23181BA000152D06 /* ModuleDefault.h */,
+				7C31E09B23181BA000152D06 /* ModuleDefault.m */,
+				7C31E09D23181C5F00152D06 /* ModuleContext.h */,
+				7C31E09E23181C5F00152D06 /* ModuleContext.m */,
+			);
+			path = Module;
+			sourceTree = "<group>";
+		};
+		AB36E054270E6DB65CCF557B /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				12B3C3553C0548E73E4F24BB /* libPods-KKJSBridgeDemo.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		7C31E0652317F97600152D06 /* KKJSBridgeDemo */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7C31E07C2317F97B00152D06 /* Build configuration list for PBXNativeTarget "KKJSBridgeDemo" */;
+			buildPhases = (
+				C329AE1645C142223FD804FB /* [CP] Check Pods Manifest.lock */,
+				7C31E0622317F97600152D06 /* Sources */,
+				7C31E0632317F97600152D06 /* Frameworks */,
+				7C31E0642317F97600152D06 /* Resources */,
+				54FC6C05B6B793438877BAA6 /* [CP] Copy Pods Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = KKJSBridgeDemo;
+			productName = KKJSBridgeDemo;
+			productReference = 7C31E0662317F97600152D06 /* KKJSBridgeDemo.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		7C31E05E2317F97600152D06 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 1010;
+				ORGANIZATIONNAME = karosli;
+				TargetAttributes = {
+					7C31E0652317F97600152D06 = {
+						CreatedOnToolsVersion = 10.1;
+					};
+				};
+			};
+			buildConfigurationList = 7C31E0612317F97600152D06 /* Build configuration list for PBXProject "KKJSBridgeDemo" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 7C31E05D2317F97600152D06;
+			productRefGroup = 7C31E0672317F97600152D06 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				7C31E0652317F97600152D06 /* KKJSBridgeDemo */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		7C31E0642317F97600152D06 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7C31E0762317F97B00152D06 /* LaunchScreen.storyboard in Resources */,
+				7C31E0922318047500152D06 /* index.html in Resources */,
+				7C31E0732317F97B00152D06 /* Assets.xcassets in Resources */,
+				7C31E0932318047500152D06 /* server.js in Resources */,
+				7C31E0712317F97600152D06 /* Main.storyboard in Resources */,
+				7C31E08C231803DB00152D06 /* WebViewJavascriptBridge.js in Resources */,
+				7C31E0952318049600152D06 /* BinaryCookieReader.py in Resources */,
+				7C31E0912318047500152D06 /* client302.html in Resources */,
+				7C31E0A723182B5400152D06 /* moduleTest.html in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		54FC6C05B6B793438877BAA6 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${SRCROOT}/Pods/Target Support Files/Pods-KKJSBridgeDemo/Pods-KKJSBridgeDemo-resources.sh",
+				"${PODS_ROOT}/../../KKJSBridge/KKJSBridge/JS/KKJSBridge.js",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/KKJSBridge.js",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-KKJSBridgeDemo/Pods-KKJSBridgeDemo-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		C329AE1645C142223FD804FB /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-KKJSBridgeDemo-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		7C31E0622317F97600152D06 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7C31E06E2317F97600152D06 /* ViewController.m in Sources */,
+				7C31E0792317F97B00152D06 /* main.m in Sources */,
+				7C31E06B2317F97600152D06 /* AppDelegate.m in Sources */,
+				7C31E08D231803DB00152D06 /* WebViewController.m in Sources */,
+				7C31E0A52318244E00152D06 /* ModuleB.m in Sources */,
+				7C31E09923181B8B00152D06 /* ModuleA.m in Sources */,
+				7C31E09F23181C5F00152D06 /* ModuleContext.m in Sources */,
+				7C31E09C23181BA000152D06 /* ModuleDefault.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		7C31E06F2317F97600152D06 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				7C31E0702317F97600152D06 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		7C31E0742317F97B00152D06 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				7C31E0752317F97B00152D06 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		7C31E07A2317F97B00152D06 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		7C31E07B2317F97B00152D06 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		7C31E07D2317F97B00152D06 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = EF6A7197B5A25080AF60C416 /* Pods-KKJSBridgeDemo.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 7M2A8Q929Y;
+				INFOPLIST_FILE = KKJSBridgeDemo/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.karosli.KKJSBridgeDemo;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		7C31E07E2317F97B00152D06 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E4439BA0A6CBDEA87FB01283 /* Pods-KKJSBridgeDemo.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 7M2A8Q929Y;
+				INFOPLIST_FILE = KKJSBridgeDemo/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.karosli.KKJSBridgeDemo;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		7C31E0612317F97600152D06 /* Build configuration list for PBXProject "KKJSBridgeDemo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7C31E07A2317F97B00152D06 /* Debug */,
+				7C31E07B2317F97B00152D06 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		7C31E07C2317F97B00152D06 /* Build configuration list for PBXNativeTarget "KKJSBridgeDemo" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7C31E07D2317F97B00152D06 /* Debug */,
+				7C31E07E2317F97B00152D06 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 7C31E05E2317F97600152D06 /* Project object */;
+}

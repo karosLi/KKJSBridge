@@ -1,0 +1,578 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		7C31DFAD2317CB1700152D06 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C31DFAC2317CB1700152D06 /* AppDelegate.m */; };
+		7C31DFB02317CB1700152D06 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C31DFAF2317CB1700152D06 /* ViewController.m */; };
+		7C31DFB32317CB1700152D06 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7C31DFB12317CB1700152D06 /* Main.storyboard */; };
+		7C31DFB52317CB1A00152D06 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7C31DFB42317CB1A00152D06 /* Assets.xcassets */; };
+		7C31DFB82317CB1A00152D06 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7C31DFB62317CB1A00152D06 /* LaunchScreen.storyboard */; };
+		7C31DFBB2317CB1A00152D06 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C31DFBA2317CB1A00152D06 /* main.m */; };
+		7C31E0422317EC0900152D06 /* KKJSBridgeModuleMetaClass.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C31E0112317EC0800152D06 /* KKJSBridgeModuleMetaClass.m */; };
+		7C31E0432317EC0900152D06 /* KKJSBridgeModuleRegister.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C31E0142317EC0800152D06 /* KKJSBridgeModuleRegister.m */; };
+		7C31E0442317EC0900152D06 /* KKJSBridgeMessageDispatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C31E0172317EC0800152D06 /* KKJSBridgeMessageDispatcher.m */; };
+		7C31E0452317EC0900152D06 /* KKJSBridgeMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C31E0182317EC0800152D06 /* KKJSBridgeMessage.m */; };
+		7C31E0462317EC0900152D06 /* KKJSBridgeEngine.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C31E01A2317EC0800152D06 /* KKJSBridgeEngine.m */; };
+		7C31E0472317EC0900152D06 /* KKJSBridgeWeakProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C31E01C2317EC0800152D06 /* KKJSBridgeWeakProxy.m */; };
+		7C31E0482317EC0900152D06 /* KKJSBridgeJSExecutor.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C31E01F2317EC0800152D06 /* KKJSBridgeJSExecutor.m */; };
+		7C31E0492317EC0900152D06 /* KKJSBridgeWeakScriptMessageDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C31E0212317EC0800152D06 /* KKJSBridgeWeakScriptMessageDelegate.m */; };
+		7C31E04A2317EC0900152D06 /* KKJSBridgeLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C31E0232317EC0800152D06 /* KKJSBridgeLogger.m */; };
+		7C31E04B2317EC0900152D06 /* KKJSBridgeModuleCookie.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C31E0272317EC0800152D06 /* KKJSBridgeModuleCookie.m */; };
+		7C31E04C2317EC0900152D06 /* KKJSBridgeModuleXMLHttpRequestDispatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C31E02B2317EC0800152D06 /* KKJSBridgeModuleXMLHttpRequestDispatcher.m */; };
+		7C31E04D2317EC0900152D06 /* KKJSBridgeXMLHttpRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C31E02C2317EC0800152D06 /* KKJSBridgeXMLHttpRequest.m */; };
+		7C31E04E2317EC0900152D06 /* KKJSBridge.js in Resources */ = {isa = PBXBuildFile; fileRef = 7C31E02F2317EC0800152D06 /* KKJSBridge.js */; };
+		7C31E04F2317EC0900152D06 /* KKJSBridgeConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C31E0312317EC0800152D06 /* KKJSBridgeConfig.m */; };
+		7C31E0502317EC0900152D06 /* KKWebView.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C31E0342317EC0800152D06 /* KKWebView.m */; };
+		7C31E0512317EC0900152D06 /* WKWebView+KKWebViewExtension.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C31E0362317EC0800152D06 /* WKWebView+KKWebViewExtension.m */; };
+		7C31E0522317EC0900152D06 /* KKWebViewCookieManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C31E03A2317EC0800152D06 /* KKWebViewCookieManager.m */; };
+		7C31E0532317EC0900152D06 /* WKWebView+KKWebViewReusable.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C31E03D2317EC0800152D06 /* WKWebView+KKWebViewReusable.m */; };
+		7C31E0542317EC0900152D06 /* KKWebViewPool.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C31E0402317EC0800152D06 /* KKWebViewPool.m */; };
+		7C31E081231802BC00152D06 /* KKJSBridge.ts in Resources */ = {isa = PBXBuildFile; fileRef = 7C31E080231802BC00152D06 /* KKJSBridge.ts */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		7C31DFA82317CB1700152D06 /* KKJSBridge.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KKJSBridge.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		7C31DFAB2317CB1700152D06 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		7C31DFAC2317CB1700152D06 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		7C31DFAE2317CB1700152D06 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		7C31DFAF2317CB1700152D06 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		7C31DFB22317CB1700152D06 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		7C31DFB42317CB1A00152D06 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		7C31DFB72317CB1A00152D06 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		7C31DFB92317CB1A00152D06 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		7C31DFBA2317CB1A00152D06 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		7C31E00F2317EC0800152D06 /* KKJSBridgeEngine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KKJSBridgeEngine.h; sourceTree = "<group>"; };
+		7C31E0112317EC0800152D06 /* KKJSBridgeModuleMetaClass.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KKJSBridgeModuleMetaClass.m; sourceTree = "<group>"; };
+		7C31E0122317EC0800152D06 /* KKJSBridgeModuleRegister.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KKJSBridgeModuleRegister.h; sourceTree = "<group>"; };
+		7C31E0132317EC0800152D06 /* KKJSBridgeModuleMetaClass.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KKJSBridgeModuleMetaClass.h; sourceTree = "<group>"; };
+		7C31E0142317EC0800152D06 /* KKJSBridgeModuleRegister.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KKJSBridgeModuleRegister.m; sourceTree = "<group>"; };
+		7C31E0162317EC0800152D06 /* KKJSBridgeMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KKJSBridgeMessage.h; sourceTree = "<group>"; };
+		7C31E0172317EC0800152D06 /* KKJSBridgeMessageDispatcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KKJSBridgeMessageDispatcher.m; sourceTree = "<group>"; };
+		7C31E0182317EC0800152D06 /* KKJSBridgeMessage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KKJSBridgeMessage.m; sourceTree = "<group>"; };
+		7C31E0192317EC0800152D06 /* KKJSBridgeMessageDispatcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KKJSBridgeMessageDispatcher.h; sourceTree = "<group>"; };
+		7C31E01A2317EC0800152D06 /* KKJSBridgeEngine.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KKJSBridgeEngine.m; sourceTree = "<group>"; };
+		7C31E01C2317EC0800152D06 /* KKJSBridgeWeakProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KKJSBridgeWeakProxy.m; sourceTree = "<group>"; };
+		7C31E01D2317EC0800152D06 /* KKJSBridgeWeakScriptMessageDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KKJSBridgeWeakScriptMessageDelegate.h; sourceTree = "<group>"; };
+		7C31E01E2317EC0800152D06 /* KKJSBridgeLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KKJSBridgeLogger.h; sourceTree = "<group>"; };
+		7C31E01F2317EC0800152D06 /* KKJSBridgeJSExecutor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KKJSBridgeJSExecutor.m; sourceTree = "<group>"; };
+		7C31E0202317EC0800152D06 /* KKJSBridgeWeakProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KKJSBridgeWeakProxy.h; sourceTree = "<group>"; };
+		7C31E0212317EC0800152D06 /* KKJSBridgeWeakScriptMessageDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KKJSBridgeWeakScriptMessageDelegate.m; sourceTree = "<group>"; };
+		7C31E0222317EC0800152D06 /* KKJSBridgeJSExecutor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KKJSBridgeJSExecutor.h; sourceTree = "<group>"; };
+		7C31E0232317EC0800152D06 /* KKJSBridgeLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KKJSBridgeLogger.m; sourceTree = "<group>"; };
+		7C31E0262317EC0800152D06 /* KKJSBridgeModuleCookie.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KKJSBridgeModuleCookie.h; sourceTree = "<group>"; };
+		7C31E0272317EC0800152D06 /* KKJSBridgeModuleCookie.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KKJSBridgeModuleCookie.m; sourceTree = "<group>"; };
+		7C31E0292317EC0800152D06 /* KKJSBridgeXMLHttpRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KKJSBridgeXMLHttpRequest.h; sourceTree = "<group>"; };
+		7C31E02A2317EC0800152D06 /* KKJSBridgeModuleXMLHttpRequestDispatcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KKJSBridgeModuleXMLHttpRequestDispatcher.h; sourceTree = "<group>"; };
+		7C31E02B2317EC0800152D06 /* KKJSBridgeModuleXMLHttpRequestDispatcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KKJSBridgeModuleXMLHttpRequestDispatcher.m; sourceTree = "<group>"; };
+		7C31E02C2317EC0800152D06 /* KKJSBridgeXMLHttpRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KKJSBridgeXMLHttpRequest.m; sourceTree = "<group>"; };
+		7C31E02D2317EC0800152D06 /* KKJSBridgeAjaxDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KKJSBridgeAjaxDelegate.h; sourceTree = "<group>"; };
+		7C31E02F2317EC0800152D06 /* KKJSBridge.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = KKJSBridge.js; sourceTree = "<group>"; };
+		7C31E0312317EC0800152D06 /* KKJSBridgeConfig.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KKJSBridgeConfig.m; sourceTree = "<group>"; };
+		7C31E0322317EC0800152D06 /* KKJSBridgeConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KKJSBridgeConfig.h; sourceTree = "<group>"; };
+		7C31E0342317EC0800152D06 /* KKWebView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KKWebView.m; sourceTree = "<group>"; };
+		7C31E0362317EC0800152D06 /* WKWebView+KKWebViewExtension.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "WKWebView+KKWebViewExtension.m"; sourceTree = "<group>"; };
+		7C31E0372317EC0800152D06 /* WKWebView+KKWebViewExtension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "WKWebView+KKWebViewExtension.h"; sourceTree = "<group>"; };
+		7C31E0392317EC0800152D06 /* KKWebViewCookieManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KKWebViewCookieManager.h; sourceTree = "<group>"; };
+		7C31E03A2317EC0800152D06 /* KKWebViewCookieManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KKWebViewCookieManager.m; sourceTree = "<group>"; };
+		7C31E03B2317EC0800152D06 /* KKWebView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KKWebView.h; sourceTree = "<group>"; };
+		7C31E03D2317EC0800152D06 /* WKWebView+KKWebViewReusable.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "WKWebView+KKWebViewReusable.m"; sourceTree = "<group>"; };
+		7C31E03E2317EC0800152D06 /* KKWebViewPool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KKWebViewPool.h; sourceTree = "<group>"; };
+		7C31E03F2317EC0800152D06 /* WKWebView+KKWebViewReusable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "WKWebView+KKWebViewReusable.h"; sourceTree = "<group>"; };
+		7C31E0402317EC0800152D06 /* KKWebViewPool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KKWebViewPool.m; sourceTree = "<group>"; };
+		7C31E0412317EC0900152D06 /* KKJSBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KKJSBridge.h; sourceTree = "<group>"; };
+		7C31E080231802BC00152D06 /* KKJSBridge.ts */ = {isa = PBXFileReference; explicitFileType = sourcecode.javascript; fileEncoding = 4; path = KKJSBridge.ts; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		7C31DFA52317CB1700152D06 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		7C31DF9F2317CB1700152D06 = {
+			isa = PBXGroup;
+			children = (
+				7C31DFAA2317CB1700152D06 /* KKJSBridge */,
+				7C31DFA92317CB1700152D06 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		7C31DFA92317CB1700152D06 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				7C31DFA82317CB1700152D06 /* KKJSBridge.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		7C31DFAA2317CB1700152D06 /* KKJSBridge */ = {
+			isa = PBXGroup;
+			children = (
+				7C31DFC12317E7D600152D06 /* KKJSBridge */,
+				7C31E07F231802BC00152D06 /* TS */,
+				7C31DFAB2317CB1700152D06 /* AppDelegate.h */,
+				7C31DFAC2317CB1700152D06 /* AppDelegate.m */,
+				7C31DFAE2317CB1700152D06 /* ViewController.h */,
+				7C31DFAF2317CB1700152D06 /* ViewController.m */,
+				7C31DFB12317CB1700152D06 /* Main.storyboard */,
+				7C31DFB42317CB1A00152D06 /* Assets.xcassets */,
+				7C31DFB62317CB1A00152D06 /* LaunchScreen.storyboard */,
+				7C31DFB92317CB1A00152D06 /* Info.plist */,
+				7C31DFBA2317CB1A00152D06 /* main.m */,
+			);
+			path = KKJSBridge;
+			sourceTree = "<group>";
+		};
+		7C31DFC12317E7D600152D06 /* KKJSBridge */ = {
+			isa = PBXGroup;
+			children = (
+				7C31E0412317EC0900152D06 /* KKJSBridge.h */,
+				7C31E00F2317EC0800152D06 /* KKJSBridgeEngine.h */,
+				7C31E01A2317EC0800152D06 /* KKJSBridgeEngine.m */,
+				7C31E02E2317EC0800152D06 /* JS */,
+				7C31E0302317EC0800152D06 /* Config */,
+				7C31E0152317EC0800152D06 /* Dispatcher */,
+				7C31E0242317EC0800152D06 /* Modules */,
+				7C31E0102317EC0800152D06 /* Register */,
+				7C31E01B2317EC0800152D06 /* Util */,
+				7C31E0332317EC0800152D06 /* View */,
+			);
+			path = KKJSBridge;
+			sourceTree = "<group>";
+		};
+		7C31E0102317EC0800152D06 /* Register */ = {
+			isa = PBXGroup;
+			children = (
+				7C31E0122317EC0800152D06 /* KKJSBridgeModuleRegister.h */,
+				7C31E0142317EC0800152D06 /* KKJSBridgeModuleRegister.m */,
+				7C31E0132317EC0800152D06 /* KKJSBridgeModuleMetaClass.h */,
+				7C31E0112317EC0800152D06 /* KKJSBridgeModuleMetaClass.m */,
+			);
+			path = Register;
+			sourceTree = "<group>";
+		};
+		7C31E0152317EC0800152D06 /* Dispatcher */ = {
+			isa = PBXGroup;
+			children = (
+				7C31E0162317EC0800152D06 /* KKJSBridgeMessage.h */,
+				7C31E0182317EC0800152D06 /* KKJSBridgeMessage.m */,
+				7C31E0192317EC0800152D06 /* KKJSBridgeMessageDispatcher.h */,
+				7C31E0172317EC0800152D06 /* KKJSBridgeMessageDispatcher.m */,
+			);
+			path = Dispatcher;
+			sourceTree = "<group>";
+		};
+		7C31E01B2317EC0800152D06 /* Util */ = {
+			isa = PBXGroup;
+			children = (
+				7C31E0222317EC0800152D06 /* KKJSBridgeJSExecutor.h */,
+				7C31E01F2317EC0800152D06 /* KKJSBridgeJSExecutor.m */,
+				7C31E0202317EC0800152D06 /* KKJSBridgeWeakProxy.h */,
+				7C31E01C2317EC0800152D06 /* KKJSBridgeWeakProxy.m */,
+				7C31E01D2317EC0800152D06 /* KKJSBridgeWeakScriptMessageDelegate.h */,
+				7C31E0212317EC0800152D06 /* KKJSBridgeWeakScriptMessageDelegate.m */,
+				7C31E01E2317EC0800152D06 /* KKJSBridgeLogger.h */,
+				7C31E0232317EC0800152D06 /* KKJSBridgeLogger.m */,
+			);
+			path = Util;
+			sourceTree = "<group>";
+		};
+		7C31E0242317EC0800152D06 /* Modules */ = {
+			isa = PBXGroup;
+			children = (
+				7C31E0252317EC0800152D06 /* Cookie */,
+				7C31E0282317EC0800152D06 /* Ajax */,
+			);
+			path = Modules;
+			sourceTree = "<group>";
+		};
+		7C31E0252317EC0800152D06 /* Cookie */ = {
+			isa = PBXGroup;
+			children = (
+				7C31E0262317EC0800152D06 /* KKJSBridgeModuleCookie.h */,
+				7C31E0272317EC0800152D06 /* KKJSBridgeModuleCookie.m */,
+			);
+			path = Cookie;
+			sourceTree = "<group>";
+		};
+		7C31E0282317EC0800152D06 /* Ajax */ = {
+			isa = PBXGroup;
+			children = (
+				7C31E02A2317EC0800152D06 /* KKJSBridgeModuleXMLHttpRequestDispatcher.h */,
+				7C31E02B2317EC0800152D06 /* KKJSBridgeModuleXMLHttpRequestDispatcher.m */,
+				7C31E0292317EC0800152D06 /* KKJSBridgeXMLHttpRequest.h */,
+				7C31E02C2317EC0800152D06 /* KKJSBridgeXMLHttpRequest.m */,
+				7C31E02D2317EC0800152D06 /* KKJSBridgeAjaxDelegate.h */,
+			);
+			path = Ajax;
+			sourceTree = "<group>";
+		};
+		7C31E02E2317EC0800152D06 /* JS */ = {
+			isa = PBXGroup;
+			children = (
+				7C31E02F2317EC0800152D06 /* KKJSBridge.js */,
+			);
+			path = JS;
+			sourceTree = "<group>";
+		};
+		7C31E0302317EC0800152D06 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				7C31E0322317EC0800152D06 /* KKJSBridgeConfig.h */,
+				7C31E0312317EC0800152D06 /* KKJSBridgeConfig.m */,
+			);
+			path = Config;
+			sourceTree = "<group>";
+		};
+		7C31E0332317EC0800152D06 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				7C31E03B2317EC0800152D06 /* KKWebView.h */,
+				7C31E0342317EC0800152D06 /* KKWebView.m */,
+				7C31E0352317EC0800152D06 /* Extension */,
+				7C31E0382317EC0800152D06 /* CookieManager */,
+				7C31E03C2317EC0800152D06 /* WebViewPool */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		7C31E0352317EC0800152D06 /* Extension */ = {
+			isa = PBXGroup;
+			children = (
+				7C31E0372317EC0800152D06 /* WKWebView+KKWebViewExtension.h */,
+				7C31E0362317EC0800152D06 /* WKWebView+KKWebViewExtension.m */,
+			);
+			path = Extension;
+			sourceTree = "<group>";
+		};
+		7C31E0382317EC0800152D06 /* CookieManager */ = {
+			isa = PBXGroup;
+			children = (
+				7C31E0392317EC0800152D06 /* KKWebViewCookieManager.h */,
+				7C31E03A2317EC0800152D06 /* KKWebViewCookieManager.m */,
+			);
+			path = CookieManager;
+			sourceTree = "<group>";
+		};
+		7C31E03C2317EC0800152D06 /* WebViewPool */ = {
+			isa = PBXGroup;
+			children = (
+				7C31E03E2317EC0800152D06 /* KKWebViewPool.h */,
+				7C31E0402317EC0800152D06 /* KKWebViewPool.m */,
+				7C31E03F2317EC0800152D06 /* WKWebView+KKWebViewReusable.h */,
+				7C31E03D2317EC0800152D06 /* WKWebView+KKWebViewReusable.m */,
+			);
+			path = WebViewPool;
+			sourceTree = "<group>";
+		};
+		7C31E07F231802BC00152D06 /* TS */ = {
+			isa = PBXGroup;
+			children = (
+				7C31E080231802BC00152D06 /* KKJSBridge.ts */,
+			);
+			path = TS;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		7C31DFA72317CB1700152D06 /* KKJSBridge */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7C31DFBE2317CB1A00152D06 /* Build configuration list for PBXNativeTarget "KKJSBridge" */;
+			buildPhases = (
+				7C31DFA42317CB1700152D06 /* Sources */,
+				7C31DFA52317CB1700152D06 /* Frameworks */,
+				7C31DFA62317CB1700152D06 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = KKJSBridge;
+			productName = KKJSBridge;
+			productReference = 7C31DFA82317CB1700152D06 /* KKJSBridge.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		7C31DFA02317CB1700152D06 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 1010;
+				ORGANIZATIONNAME = karosli;
+				TargetAttributes = {
+					7C31DFA72317CB1700152D06 = {
+						CreatedOnToolsVersion = 10.1;
+					};
+				};
+			};
+			buildConfigurationList = 7C31DFA32317CB1700152D06 /* Build configuration list for PBXProject "KKJSBridge" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 7C31DF9F2317CB1700152D06;
+			productRefGroup = 7C31DFA92317CB1700152D06 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				7C31DFA72317CB1700152D06 /* KKJSBridge */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		7C31DFA62317CB1700152D06 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7C31DFB82317CB1A00152D06 /* LaunchScreen.storyboard in Resources */,
+				7C31DFB52317CB1A00152D06 /* Assets.xcassets in Resources */,
+				7C31DFB32317CB1700152D06 /* Main.storyboard in Resources */,
+				7C31E04E2317EC0900152D06 /* KKJSBridge.js in Resources */,
+				7C31E081231802BC00152D06 /* KKJSBridge.ts in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		7C31DFA42317CB1700152D06 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7C31E0442317EC0900152D06 /* KKJSBridgeMessageDispatcher.m in Sources */,
+				7C31E04D2317EC0900152D06 /* KKJSBridgeXMLHttpRequest.m in Sources */,
+				7C31DFB02317CB1700152D06 /* ViewController.m in Sources */,
+				7C31E04F2317EC0900152D06 /* KKJSBridgeConfig.m in Sources */,
+				7C31E0522317EC0900152D06 /* KKWebViewCookieManager.m in Sources */,
+				7C31E0422317EC0900152D06 /* KKJSBridgeModuleMetaClass.m in Sources */,
+				7C31E0492317EC0900152D06 /* KKJSBridgeWeakScriptMessageDelegate.m in Sources */,
+				7C31E0542317EC0900152D06 /* KKWebViewPool.m in Sources */,
+				7C31E0462317EC0900152D06 /* KKJSBridgeEngine.m in Sources */,
+				7C31E0502317EC0900152D06 /* KKWebView.m in Sources */,
+				7C31E04A2317EC0900152D06 /* KKJSBridgeLogger.m in Sources */,
+				7C31E0512317EC0900152D06 /* WKWebView+KKWebViewExtension.m in Sources */,
+				7C31DFBB2317CB1A00152D06 /* main.m in Sources */,
+				7C31E0532317EC0900152D06 /* WKWebView+KKWebViewReusable.m in Sources */,
+				7C31DFAD2317CB1700152D06 /* AppDelegate.m in Sources */,
+				7C31E0432317EC0900152D06 /* KKJSBridgeModuleRegister.m in Sources */,
+				7C31E04B2317EC0900152D06 /* KKJSBridgeModuleCookie.m in Sources */,
+				7C31E04C2317EC0900152D06 /* KKJSBridgeModuleXMLHttpRequestDispatcher.m in Sources */,
+				7C31E0482317EC0900152D06 /* KKJSBridgeJSExecutor.m in Sources */,
+				7C31E0452317EC0900152D06 /* KKJSBridgeMessage.m in Sources */,
+				7C31E0472317EC0900152D06 /* KKJSBridgeWeakProxy.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		7C31DFB12317CB1700152D06 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				7C31DFB22317CB1700152D06 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		7C31DFB62317CB1A00152D06 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				7C31DFB72317CB1A00152D06 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		7C31DFBC2317CB1A00152D06 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		7C31DFBD2317CB1A00152D06 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		7C31DFBF2317CB1A00152D06 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 7M2A8Q929Y;
+				INFOPLIST_FILE = KKJSBridge/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MACH_O_TYPE = staticlib;
+				PRODUCT_BUNDLE_IDENTIFIER = com.karosli.KKJSBridge;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		7C31DFC02317CB1A00152D06 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 7M2A8Q929Y;
+				INFOPLIST_FILE = KKJSBridge/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MACH_O_TYPE = staticlib;
+				PRODUCT_BUNDLE_IDENTIFIER = com.karosli.KKJSBridge;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		7C31DFA32317CB1700152D06 /* Build configuration list for PBXProject "KKJSBridge" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7C31DFBC2317CB1A00152D06 /* Debug */,
+				7C31DFBD2317CB1A00152D06 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		7C31DFBE2317CB1A00152D06 /* Build configuration list for PBXNativeTarget "KKJSBridge" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7C31DFBF2317CB1A00152D06 /* Debug */,
+				7C31DFC02317CB1A00152D06 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 7C31DFA02317CB1700152D06 /* Project object */;
+}
