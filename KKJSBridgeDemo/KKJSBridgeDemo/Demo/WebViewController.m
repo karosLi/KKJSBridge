@@ -41,6 +41,7 @@
     NSLog(@"WebViewController dealloc");
 }
 
+#pragma mark - 初始化
 - (instancetype)initWithUrl:(NSString *)url {
     if (self = [super initWithNibName:nil bundle:nil]) {
         _url = [url copy];
@@ -65,8 +66,15 @@
     _jsBridgeEngine = [KKJSBridgeEngine bridgeForWebView:self.webView];
     _jsBridgeEngine.config.enableAjaxHook = YES;
     
+    [self compatibleWebViewJavascriptBridge];
     [self registerModule];
     [self loadRequest];
+}
+
+- (void)compatibleWebViewJavascriptBridge {
+    NSString *jsString = [[NSString alloc] initWithContentsOfFile:[[NSBundle bundleForClass:self.class] pathForResource:@"WebViewJavascriptBridge" ofType:@"js"] encoding:NSUTF8StringEncoding error:NULL];
+    WKUserScript *userScript = [[WKUserScript alloc] initWithSource:jsString injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:NO];
+    [self.webView.configuration.userContentController addUserScript:userScript];
 }
 
 - (void)registerModule {
@@ -83,6 +91,7 @@
     [self.jsBridgeEngine.moduleRegister registerModuleClass:ModuleB.class withContext:context];
 }
 
+#pragma mark - 声明周期
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self setupView];

@@ -14,9 +14,11 @@
 
 - 支持 ajax hook 避免 body 丢失
 
-- cookie 统一管理
+- Cookie 统一管理
 
 - WKWebView 复用
+
+- 兼容 WebViewJavascriptBridge
 
 
 
