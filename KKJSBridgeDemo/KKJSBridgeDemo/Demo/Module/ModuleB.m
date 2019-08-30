@@ -10,7 +10,7 @@
 #import <KKJSBridge/KKJSBridge.h>
 #import "ModuleContext.h"
 
-@interface ModuleB()
+@interface ModuleB()<KKJSBridgeModule>
 
 @property (nonatomic, weak) ModuleContext *context;
 
@@ -20,6 +20,10 @@
 
 + (nonnull NSString *)moduleName {
     return @"b";
+}
+
++ (BOOL)isSingleton {
+    return YES;
 }
 
 //+ (NSOperationQueue *)methodInvokeQueue {

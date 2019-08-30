@@ -20,6 +20,7 @@
 </head>
 <body>
 	<button onclick="invokeModuleDefaultFunction()">调用默认模块功能去监听事件</button>
+    <button onclick="invokeModuleDefaultFunctionToTransferMsg()">调用默认模块功能去转发消息</button>
     <button onclick="invokeModuleAFunction()">调用模块A功能给a+1并返回结果</button>
 	<button onclick="invokeModuleBFunction()">调用模块B功能获取VC的标题</button>
 </body>
@@ -43,6 +44,12 @@
         
         window.KKJSBridge.call(null, 'callToTriggerEvent', {}, function(res) {
             
+        });
+    }
+
+    function invokeModuleDefaultFunctionToTransferMsg() {
+        window.KKJSBridge.call('default', 'method', {a:4}, function(res) {
+            console.log('receive method desc of default module：', res.desc);
         });
     }
 

@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
  2、前期模块规划混乱，后期想要治理模块
  
  例子：本模块的 method 方法，会被映射到 b 模块的 method 方法
- + (nullable NSDictionary<NSString *, NSString *> *)methodInvokeMapper {
+ + (nonnull NSDictionary<NSString *, NSString *> *)methodInvokeMapper {
     return @{@"method": @"b.method"};
  }
 

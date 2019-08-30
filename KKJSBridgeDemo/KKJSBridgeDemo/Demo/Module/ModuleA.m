@@ -8,7 +8,10 @@
 
 #import "ModuleA.h"
 #import <KKJSBridge/KKJSBridge.h>
-#import "ModuleContext.h"
+
+@interface ModuleA()<KKJSBridgeModule>
+
+@end
 
 @implementation ModuleA
 
