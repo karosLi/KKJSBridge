@@ -12,8 +12,6 @@ c_build_version='c'
 ################# End Constant ########################
 
 ################# Get Parameters ############################
-#private repo srouce
-privatePods=""
 #pod spec file
 podspecFile=""
 build_version_type=$c_build_version
@@ -24,7 +22,6 @@ function usage()
   echo "Upload component to private repo"
   echo ""
   echo "Options for upload:"
-  echo "-r, --repo STRING REQUIRED The repo source." 
   echo "-f, --file STRING REQUIRED The podspec file." 
   echo "-v, --versiontype STRING The version type. Valid values are: a, b, c. Example: if version is 1.0.1, then a is 1, b is 0, c is 1." 
   echo "-m, --message STRING The check in message." 
@@ -36,13 +33,6 @@ function usage()
 while getopts "r:f:v:m:" option  
 do   
     case "$option" in   
-    	r)  
-            privatePods=$OPTARG
-            ;;  
-
-        repo)  
-            privatePods=$OPTARG
-            ;; 
     	f)  
             podspecFile=$OPTARG
             ;;  
@@ -174,18 +164,13 @@ function checkInAndMakeTag() {
 ################ Upload function ############################
 function upload() {
 	local podspecFile=$1
-	pod trunk push ${privatePods} ${podspecFile} --verbose --allow-warnings
+	pod trunk push ${podspecFile} --verbose --allow-warnings
 }
 
 ################# End upload function ############################
 
 ################# Main function ############################
 function checkParams() {
-	if [[ ${privatePods} = "" ]]; then
-		usage
-		exit
-	fi
-
 	if [[ ${podspecFile} = "" ]]; then
 		usage
 		exit

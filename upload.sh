@@ -39,4 +39,4 @@ if [[ ${checkInMessage} = "" ]]; then
 		exit
 	fi
 
-./uploadRepo.sh -r master -f KKJSBridge.podspec -m ${checkInMessage}
+./uploadRepo.sh -f KKJSBridge.podspec -m ${checkInMessage}
