@@ -1,5 +1,13 @@
 # KKJSBridge
 
+一站式解决 WKWebView 支持离线包，Ajax 请求和 Cookie 同步的问题 (基于 Ajax Hook 和 Cookie Hook)
+
+
+
+
+
+
+
 ## KKJSBridge 支持的功能
 
 - 基于 MessageHandler 搭建通信层
@@ -22,6 +30,97 @@
 
 - 兼容 WebViewJavascriptBridge
 
+## 用法
+
+从复用池取出缓存的 WKWebView，并开启 ajax hook
+
+```objectivec
+- (void)commonInit {
+    _webView = [[KKWebViewPool sharedInstance] dequeueWebViewWithClass:KKWebView.class webViewHolder:self];
+    _webView.configuration.allowsInlineMediaPlayback = YES;
+    _webView.configuration.preferences.minimumFontSize = 12;
+    _webView.hybirdDelegate = self;
+    _jsBridgeEngine = [KKJSBridgeEngine bridgeForWebView:self.webView];
+    _jsBridgeEngine.config.enableAjaxHook = YES;
+
+    [self registerModule];
+}
+```
+
+注册模块
+
+```objectivec
+- (void)registerModule {
+ ModuleContext *context = [ModuleContext new];
+ context.vc = self;
+ context.scrollView = self.webView.scrollView;
+ context.name = @"上下文";
+ // 注册 默认模块
+ [self.jsBridgeEngine.moduleRegister registerModuleClass:ModuleDefault.class];
+ // 注册 模块A
+ [self.jsBridgeEngine.moduleRegister registerModuleClass:ModuleA.class];
+ // 注册 模块B 并带入上下文
+ [self.jsBridgeEngine.moduleRegister registerModuleClass:ModuleB.class withContext:context];
+ // 注册 模块C
+ [self.jsBridgeEngine.moduleRegister registerModuleClass:ModuleC.class];
+}
+```
+
+模块定义
+
+```objectivec
+@interface ModuleB()<KKJSBridgeModule>
+
+@property (nonatomic, weak) ModuleContext *context;
+
+@end
+
+@implementation ModuleB
+
+// 模块名称
++ (nonnull NSString *)moduleName {
+    return @"b";
+}
+
+// 单例模块
++ (BOOL)isSingleton {
+    return YES;
+}
+
+// 模块初始化方法，支持上下文带入
+- (instancetype)initWithEngine:(KKJSBridgeEngine *)engine context:(id)context {
+    if (self = [super init]) {
+        _context = context;
+        NSLog(@"ModuleB 初始化并带上 %@", self.context.name);
+    }
+    
+    return self;
+}
+
+// 模块提供的方法
+- (void)callToGetVCTitle:(KKJSBridgeEngine *)engine params:(NSDictionary *)params responseCallback:(void (^)(NSDictionary *responseData))responseCallback {
+    responseCallback ? responseCallback(@{@"title": self.context.vc.navigationItem.title ? self.context.vc.navigationItem.title : @""}) : nil;
+}
+```
+
+JS 侧调用方式
+
+```javascript
+window.KKJSBridge.call('b', 'callToGetVCTitle', {}, function(res) {
+    console.log('receive vc title：', res.title);
+});
+```
+
+
+
 ## TODO
 
-- 支持 fetch 的 ajax hook
+- [ ] Fetch hook。 虽然现在大多数 H5 页面的异步请求都是基于 ajax 实现的，随着 Fetch 的慢慢普及，后面也会多起来。
+
+## 参考
+
+- [Ajax-hook](https://github.com/wendux/Ajax-hook)
+
+- [HybridPageKit](https://github.com/dequan1331/HybridPageKit)
+
+- [kerkee_ios](https://github.com/kercer/kerkee_ios)
