@@ -2,6 +2,11 @@
 declare interface Window {
   [name: string]: any // window 下不做校验
 }
+
+interface ArrayConstructor {
+  from<T, U>(arrayLike: ArrayLike<T>, mapfn: (v: T, k: number) => U, thisArg?: any): Array<U>;
+  from<T>(arrayLike: ArrayLike<T>): Array<T>;
+}
   
 ; (function (window: Window) {
   /**

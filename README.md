@@ -1,7 +1,5 @@
 # KKJSBridge
 
-
-
 ## KKJSBridge 支持的功能
 
 - 基于 MessageHandler 搭建通信层
@@ -14,13 +12,13 @@
 
 - 支持 ajax hook 避免 body 丢失
 
+- Native 和 H5 侧都可以控制 ajax hook 开关
+
 - Cookie 统一管理
 
 - WKWebView 复用
 
 - 兼容 WebViewJavascriptBridge
-
-
 
 ## TODO
 
