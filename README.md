@@ -26,6 +26,28 @@
 
 - 兼容 WebViewJavascriptBridge
 
+
+
+## Demo
+
+模块化调用 JSAPI
+
+![模块化调用 JSAPI](https://github.com/karosLi/KKJSBridge/blob/master/Demo1.gif)
+
+
+
+ajax hook 演示
+
+![ajax hook 演示](https://github.com/karosLi/KKJSBridge/blob/master/Demo2.gif)
+
+
+
+淘宝 ajax hook 演示
+
+![淘宝 ajax hook 演示](https://github.com/karosLi/KKJSBridge/blob/master/Demo3.gif)
+
+
+
 ## 用法
 
 从复用池取出缓存的 WKWebView，并开启 ajax hook
@@ -89,7 +111,7 @@
         _context = context;
         NSLog(@"ModuleB 初始化并带上 %@", self.context.name);
     }
-    
+
     return self;
 }
 
@@ -106,8 +128,6 @@ window.KKJSBridge.call('b', 'callToGetVCTitle', {}, function(res) {
     console.log('receive vc title：', res.title);
 });
 ```
-
-
 
 ## TODO
 
