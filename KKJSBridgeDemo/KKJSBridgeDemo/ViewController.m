@@ -24,7 +24,7 @@
     NSString *url = @"";
     {
         // 测试JSBridge
-        url = @"http://127.0.0.1:50000/moduleTest";
+//        url = @"http://127.0.0.1:50000/moduleTest";
     }
     {
         // 测试 ajax 和 set-cookie
@@ -36,7 +36,7 @@
     }
     {
         // 测试第三方网站 ajax 请求
-//        url = @"https://m.taobao.com";
+        url = @"https://m.taobao.com";
     }
     
     WebViewController *web = [[WebViewController alloc] initWithUrl:url];
