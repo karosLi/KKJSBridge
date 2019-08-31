@@ -55,6 +55,24 @@ ajax hook 演示
 从复用池取出缓存的 WKWebView，并开启 ajax hook
 
 ```objectivec
++ (void)load {
+    __block id observer = [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidFinishLaunchingNotification object:nil queue:nil usingBlock:^(NSNotification * _Nonnull note) {
+        [self prepareWebView];
+        [[NSNotificationCenter defaultCenter] removeObserver:observer];
+    }];
+}
+
++ (void)prepareWebView {
+    // 预先缓存一个 webView
+    [KKWebView configCustomUAWithType:KKWebViewConfigUATypeAppend UAString:@"KKJSBridge/1.0.0"];
+    [[KKWebViewPool sharedInstance] enqueueWebViewWithClass:KKWebView.class];
+}
+
+- (void)dealloc {
+    // 回收到复用池
+    [[KKWebViewPool sharedInstance] enqueueWebView:self.webView];
+}
+
 - (void)commonInit {
     _webView = [[KKWebViewPool sharedInstance] dequeueWebViewWithClass:KKWebView.class webViewHolder:self];
     _webView.configuration.allowsInlineMediaPlayback = YES;
