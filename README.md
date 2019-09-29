@@ -18,7 +18,11 @@
 
 - 支持 ajax hook 避免 body 丢失
 
-- Native 和 H5 侧都可以控制 ajax hook 开关
+- Native 侧控制 ajax hook
+
+- 支持表单数据，支持图片上传
+
+- 支持 ajax 请求外部代理
 
 - Cookie 统一管理
 
@@ -149,6 +153,12 @@ window.KKJSBridge.call('b', 'callToGetVCTitle', {}, function(res) {
    //In Podfile
    pod "KKJSBridge"
    ```
+   
+## 更新历史
+### 2019.9.29
+- 仅保留 Native 侧控制 ajax hook，主要是避免 ajax hook 时机不对时，会造成首次 hook 失败。
+- 支持表单数据，支持图片上传
+- 支持 ajax 请求外部代理
 
 ## TODO
 
@@ -161,3 +171,5 @@ window.KKJSBridge.call('b', 'callToGetVCTitle', {}, function(res) {
 - [HybridPageKit](https://github.com/dequan1331/HybridPageKit)
 
 - [kerkee_ios](https://github.com/kercer/kerkee_ios)
+
+
