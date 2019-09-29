@@ -44,6 +44,9 @@ ajax hook 演示
 
 ![淘宝 ajax hook 演示](https://github.com/karosLi/KKJSBridge/blob/master/Demo3.gif)
 
+ajax 发送表单 演示
+![淘宝 ajax hook 演示](https://github.com/karosLi/KKJSBridge/blob/master/Demo4.gif)
+
 ## 用法
 
 从复用池取出缓存的 WKWebView，并开启 ajax hook

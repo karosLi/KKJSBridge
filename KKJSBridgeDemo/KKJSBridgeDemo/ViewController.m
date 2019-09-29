@@ -28,7 +28,7 @@
     }
     {
         // 测试 ajax 和 set-cookie
-        url = @"http://127.0.0.1:50000/index";
+//        url = @"http://127.0.0.1:50000/index";
     }
     {
         // 测试服务器端重定向
@@ -37,6 +37,10 @@
     {
         // 测试第三方网站 ajax 请求
 //        url = @"https://m.taobao.com";
+    }
+    {
+        // 测试表单
+        url = @"http://127.0.0.1:50000/formData";
     }
     
     WebViewController *web = [[WebViewController alloc] initWithUrl:url];
