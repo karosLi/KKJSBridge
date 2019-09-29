@@ -10,6 +10,17 @@
 #import <WebKit/WebKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
+@interface KKJSBridgeFormDataFile : NSObject
+
+@property (nonatomic, copy) NSString *key;
+@property (nonatomic, copy) NSString *fileName;
+@property (nonatomic, assign) NSUInteger lastModified;
+@property (nonatomic, assign) NSUInteger size;
+@property (nonatomic, copy) NSString *type;
+@property (nonatomic, copy) NSData *data;
+
+@end
+
 @class KKJSBridgeXMLHttpRequest;
 
 @protocol KKJSBridgeModuleXMLHttpRequestDelegate <NSObject>
@@ -34,6 +45,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)open:(NSString *)method url:(NSString *)url userAgent:(NSString *)userAgent referer:(NSString *)referer;
 - (void)send;
 - (void)send:(id)data;
+- (void)sendFormData:(NSDictionary *)params withFileDatas:(NSArray<KKJSBridgeFormDataFile *> *)fileDatas;
 - (void)setRequestHeader:(NSString *)headerName headerValue:(NSString *)headerValue;
 - (void)overrideMimeType:(NSString *)mimeType;
 - (BOOL)isOpened;

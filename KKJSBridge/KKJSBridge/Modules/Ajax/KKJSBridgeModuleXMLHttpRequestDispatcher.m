@@ -91,11 +91,52 @@
     if (xhr) {
         id data = params[@"data"];
         BOOL isByteData = [params[@"isByteData"] boolValue];
+        BOOL isFormData = [params[@"isFormData"] boolValue];
         if (data) {
-            if (isByteData && [data isKindOfClass:NSArray.class]) {
+            if (isByteData && [data isKindOfClass:NSArray.class]) { // 字节数据特殊处理
                 NSArray *arrayData = (NSArray *)data;
                 NSData *byteData = [self convertToDataFromUInt8Array:arrayData];
                 [xhr send:byteData];
+            } else if (isFormData) { // 表单特殊处理
+                NSArray<NSString *> *fileKeys = data[@"fileKeys"];
+                NSArray<NSArray *> *formData = data[@"formData"];
+                NSMutableDictionary *params = [NSMutableDictionary dictionary];
+                NSMutableArray<KKJSBridgeFormDataFile *> *fileDatas = [NSMutableArray array];
+                
+                for (NSArray *pair in formData) {
+                    if (pair.count < 2) {
+                        continue;
+                    }
+                    
+                    NSString *key = pair[0];
+                    if ([fileKeys containsObject:key]) {// 说明存储的是个文件数据
+                        NSDictionary *fileJson = pair[1];
+                        KKJSBridgeFormDataFile *fileData = [KKJSBridgeFormDataFile new];
+                        fileData.key = key;
+                        fileData.size = [fileJson[@"size"] unsignedIntegerValue];
+                        fileData.type = fileJson[@"type"];
+                        
+                        if (fileJson[@"name"] && [fileJson[@"name"] length] > 0) {
+                            fileData.fileName = fileJson[@"name"];
+                        } else {
+                            fileData.fileName = fileData.key;
+                        }
+                        if (fileJson[@"lastModified"] && [fileJson[@"lastModified"] unsignedIntegerValue] > 0) {
+                            fileData.lastModified = [fileJson[@"lastModified"] unsignedIntegerValue];
+                        }
+                        if ([fileJson[@"data"] isKindOfClass:NSString.class]) {
+                            NSString *base64 = (NSString *)fileJson[@"data"];
+                            NSData *byteData = [self convertToDataFromBase64:base64];
+                            fileData.data = byteData;
+                        }
+                        
+                        [fileDatas addObject:fileData];
+                    } else {
+                        params[key] = pair[1];
+                    }
+                }
+                
+                [xhr sendFormData:params withFileDatas:fileDatas];
             } else {
                 [xhr send:data];
             }
@@ -115,6 +156,21 @@
     
     NSData *byteData= [NSData dataWithBytes:bytes length:array.count];
     return byteData;
+}
+
+- (NSData *)convertToDataFromBase64:(NSString *)base64 {
+    // data:image/png;base64,iVBORw0...
+    NSArray<NSString *> *components = [base64 componentsSeparatedByString:@","];
+    if (components.count != 2) {
+        return nil;
+    }
+    
+    NSString *splitBase64 = components.lastObject;
+    NSUInteger paddedLength = splitBase64.length + (splitBase64.length % 4);
+    NSString *fixBase64 = [splitBase64 stringByPaddingToLength:paddedLength withString:@"=" startingAtIndex:0];
+    NSData *data = [[NSData alloc] initWithBase64EncodedString:fixBase64 options:NSDataBase64DecodingIgnoreUnknownCharacters];
+    
+    return data;
 }
 
 - (void)setRequestHeader:(KKJSBridgeEngine *)engine params:(NSDictionary *)params responseCallback:(void (^)(NSDictionary *responseData))responseCallback {

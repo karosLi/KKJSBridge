@@ -26,29 +26,19 @@
 
 - 兼容 WebViewJavascriptBridge
 
-
-
 ## Demo
 
 模块化调用 JSAPI
 
 ![模块化调用 JSAPI](https://github.com/karosLi/KKJSBridge/blob/master/Demo1.gif)
 
-
-
 ajax hook 演示
 
 ![ajax hook 演示](https://github.com/karosLi/KKJSBridge/blob/master/Demo2.gif)
 
-
-
 淘宝 ajax hook 演示
 
 ![淘宝 ajax hook 演示](https://github.com/karosLi/KKJSBridge/blob/master/Demo3.gif)
-
-
-
-
 
 ## 用法
 
@@ -148,6 +138,17 @@ window.KKJSBridge.call('b', 'callToGetVCTitle', {}, function(res) {
     console.log('receive vc title：', res.title);
 });
 ```
+
+
+
+## 安装
+
+1. CocoaPods
+   
+   ```objectivec
+   //In Podfile
+   pod "KKJSBridge"
+   ```
 
 ## TODO
 

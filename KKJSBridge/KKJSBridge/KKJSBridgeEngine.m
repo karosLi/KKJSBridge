@@ -55,7 +55,7 @@ static NSString * const KKJSBridgeMessageName = @"KKJSBridgeMessage";
 - (void)commonInit {
     _moduleRegister = [KKJSBridgeModuleRegister new];
     _dispatcher = [[KKJSBridgeMessageDispatcher alloc] initWithEngine:self];
-    _config = [KKJSBridgeConfig new];// 用于记录外部配置
+    _config = [[KKJSBridgeConfig alloc] initWithEngine:self];// 用于记录外部配置
 }
 
 #pragma mark - 安装
@@ -80,7 +80,6 @@ static NSString * const KKJSBridgeMessageName = @"KKJSBridgeMessage";
 - (void)setupDefaultModuleRegister {
     [self.moduleRegister registerModuleClass:KKJSBridgeModuleXMLHttpRequestDispatcher.class];
     [self.moduleRegister registerModuleClass:KKJSBridgeModuleCookie.class];
-    [self.moduleRegister registerModuleClass:KKJSBridgeConfig.class];
 }
 
 #pragma mark - WKScriptMessageHandler

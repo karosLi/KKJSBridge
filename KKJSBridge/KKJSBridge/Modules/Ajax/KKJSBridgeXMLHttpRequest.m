@@ -12,12 +12,13 @@
 #import "KKJSBridgeLogger.h"
 #import "KKJSBridgeWeakProxy.h"
 #import "KKJSBridgeAjaxDelegate.h"
+#import "KKJSBridgeURLRequestSerialization.h"
 
 /**
  https://developer.mozilla.org/zh-CN/docs/Web/API/XMLHttpRequest
  
- readyState:0 status:0 statusText:
- readyState:1 status:0 statusText:
+ readyState:0 status:200 statusText:
+ readyState:1 status:200 statusText:
  readyState:2 status:200 statusText:OK
  readyState:3 status:200 statusText:OK
  readyState:4 status:200 statusText:OK
@@ -32,8 +33,8 @@ typedef NS_ENUM(NSInteger, KKJSBridgeXMLHttpRequestState) {
 };
 
 typedef NS_ENUM(NSInteger, KKJSBridgeXMLHttpRequestStatus) {
-    KKJSBridgeXMLHttpRequestStatusUnset = 0,
-    KKJSBridgeXMLHttpRequestStatusOpened = 0,
+    KKJSBridgeXMLHttpRequestStatusUnset = 200,
+    KKJSBridgeXMLHttpRequestStatusOpened = 200,
     KKJSBridgeXMLHttpRequestStatusHeaderReceived = 200,
     KKJSBridgeXMLHttpRequestStatusLoading = 200,
     KKJSBridgeXMLHttpRequestStatusDone = 200
@@ -41,6 +42,10 @@ typedef NS_ENUM(NSInteger, KKJSBridgeXMLHttpRequestStatus) {
 
 static NSString * const KKJSBridgeXMLHttpRequestStatusTextInit = @"";
 static NSString * const KKJSBridgeXMLHttpRequestStatusTextOK = @"OK";
+
+@implementation KKJSBridgeFormDataFile
+
+@end
 
 @interface KKJSBridgeXMLHttpRequest()<NSURLSessionDelegate, KKJSBridgeAjaxDelegate>
 
@@ -177,6 +182,16 @@ static NSString * const KKJSBridgeXMLHttpRequestStatusTextOK = @"OK";
     }
     
     self.request.HTTPBody = actualData;
+    [self send];
+}
+
+- (void)sendFormData:(NSDictionary *)params withFileDatas:(NSArray<KKJSBridgeFormDataFile *> *)fileDatas {
+    KKJSBridgeURLRequestSerialization *serializer = [KKJSBridgeXMLHttpRequest urlRequestSerialization];
+    self.request = [serializer multipartFormRequestWithRequest:self.request parameters:params constructingBodyWithBlock:^(id<KKJSBridgeMultipartFormData>  _Nonnull formData) {
+        for (KKJSBridgeFormDataFile *fileData in fileDatas) {
+            [formData appendPartWithFileData:fileData.data name:fileData.key fileName:fileData.fileName mimeType:fileData.type];
+        }
+    } error:nil];
     [self send];
 }
 
@@ -432,6 +447,18 @@ static NSString * const KKJSBridgeXMLHttpRequestStatusTextOK = @"OK";
 
 + (void)evaluateJSToSetAjaxProperties:(NSDictionary *)json inWebView:(WKWebView *)webView {
     [KKJSBridgeJSExecutor evaluateJavaScriptFunction:@"window._XHR.setProperties" withJson:json inWebView:webView completionHandler:nil];
+}
+
+#pragma mark - LKJSBridgeURLRequestSerialization
+
++ (KKJSBridgeURLRequestSerialization *)urlRequestSerialization {
+    static KKJSBridgeURLRequestSerialization *instance;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        instance = [KKJSBridgeURLRequestSerialization new];
+    });
+    
+    return instance;
 }
 
 @end

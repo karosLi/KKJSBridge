@@ -1,5 +1,55 @@
+// npm install
+// tsc
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+var __values = (this && this.__values) || function (o) {
+    var m = typeof Symbol === "function" && o[Symbol.iterator], i = 0;
+    if (m) return m.call(o);
+    return {
+        next: function () {
+            if (o && i >= o.length) o = void 0;
+            return { value: o && o[i++], done: !o };
+        }
+    };
+};
 ;
 (function (window) {
+    if (window.KKJSBridge) {
+        return;
+    }
     ;
     var KKJSBridge = /** @class */ (function () {
         function KKJSBridge() {
@@ -76,6 +126,133 @@
     // 初始化 KKJSBridge
     var KKJSBridgeInstance = new KKJSBridge();
     /**
+     * KKJSBridge 工具
+     */
+    var KKJSBridgeUtil = /** @class */ (function () {
+        function KKJSBridgeUtil() {
+        }
+        KKJSBridgeUtil.convertFormDataToJson = function (formData, callback) {
+            var _this = this;
+            var promise = new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
+                var e_1, _a, formDataJson, formDataFileKeys, formDatas, i, pair, key, value, fileName, singleKeyValue, formDataFile, _b, _c, pair, key, value, singleKeyValue, formDataFile, e_1_1;
+                return __generator(this, function (_d) {
+                    switch (_d.label) {
+                        case 0:
+                            formDataJson = {};
+                            formDataFileKeys = [];
+                            formDatas = [];
+                            if (!formData._entries) return [3 /*break*/, 7];
+                            i = 0;
+                            _d.label = 1;
+                        case 1:
+                            if (!(i < formData._entries.length)) return [3 /*break*/, 6];
+                            pair = formData._entries[i];
+                            key = pair[0];
+                            value = pair[1];
+                            fileName = pair.length > 2 ? pair[2] : null;
+                            singleKeyValue = [];
+                            singleKeyValue.push(key);
+                            if (!(value instanceof File || value instanceof Blob)) return [3 /*break*/, 3];
+                            return [4 /*yield*/, KKJSBridgeUtil.convertFileToJson(value)];
+                        case 2:
+                            formDataFile = _d.sent();
+                            if (fileName) { // 文件名需要处理下
+                                formDataFile.name = fileName;
+                            }
+                            singleKeyValue.push(formDataFile);
+                            formDataFileKeys.push(key);
+                            return [3 /*break*/, 4];
+                        case 3:
+                            singleKeyValue.push(value);
+                            _d.label = 4;
+                        case 4:
+                            formDatas.push(singleKeyValue);
+                            _d.label = 5;
+                        case 5:
+                            i++;
+                            return [3 /*break*/, 1];
+                        case 6: return [3 /*break*/, 16];
+                        case 7:
+                            _d.trys.push([7, 14, 15, 16]);
+                            _b = __values(formData.entries()), _c = _b.next();
+                            _d.label = 8;
+                        case 8:
+                            if (!!_c.done) return [3 /*break*/, 13];
+                            pair = _c.value;
+                            key = pair[0];
+                            value = pair[1];
+                            singleKeyValue = [];
+                            singleKeyValue.push(key);
+                            if (!(value instanceof File || value instanceof Blob)) return [3 /*break*/, 10];
+                            return [4 /*yield*/, KKJSBridgeUtil.convertFileToJson(value)];
+                        case 9:
+                            formDataFile = _d.sent();
+                            singleKeyValue.push(formDataFile);
+                            formDataFileKeys.push(key);
+                            return [3 /*break*/, 11];
+                        case 10:
+                            singleKeyValue.push(value);
+                            _d.label = 11;
+                        case 11:
+                            formDatas.push(singleKeyValue);
+                            _d.label = 12;
+                        case 12:
+                            _c = _b.next();
+                            return [3 /*break*/, 8];
+                        case 13: return [3 /*break*/, 16];
+                        case 14:
+                            e_1_1 = _d.sent();
+                            e_1 = { error: e_1_1 };
+                            return [3 /*break*/, 16];
+                        case 15:
+                            try {
+                                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                            }
+                            finally { if (e_1) throw e_1.error; }
+                            return [7 /*endfinally*/];
+                        case 16:
+                            formDataJson['fileKeys'] = formDataFileKeys;
+                            formDataJson['formData'] = formDatas;
+                            resolve(formDataJson);
+                            return [2 /*return*/];
+                    }
+                });
+            }); });
+            promise.then(function (json) {
+                callback(json);
+            }).catch(function (error) {
+                console.log(error);
+            });
+        };
+        /**
+         * 读取单个文件数据，并转成 base64，最后返回 json 对象
+         * @param file
+         */
+        KKJSBridgeUtil.convertFileToJson = function (file) {
+            return new Promise(function (resolve, reject) {
+                var reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = function (ev) {
+                    var base64 = ev.target.result;
+                    var formDataFile = {
+                        name: file instanceof File ? file.name : '',
+                        lastModified: file instanceof File ? file.lastModified : 0,
+                        size: file.size,
+                        type: file.type,
+                        data: base64
+                    };
+                    resolve(formDataFile);
+                    return null;
+                };
+                reader.onerror = function (ev) {
+                    reject(Error("formdata 表单读取文件数据失败"));
+                    return null;
+                };
+            });
+        };
+        return KKJSBridgeUtil;
+    }());
+    /**
      * 生成 AJAX Proxy
      * https://github.com/wendux/Ajax-hook/blob/master/src/ajaxhook.js
      */
@@ -151,6 +328,13 @@
             function hookFunction(fun) {
                 return function () {
                     var args = [].slice.call(arguments);
+                    /**
+                    if (proxy[fun] && proxy[fun].call(this, args, this.xhr)) {
+                        return;
+                    }
+    
+                    需求上是需要在方法代理时，也把代理的值返回出去，所以这里修改了源码。
+                     */
                     if (proxy[fun]) {
                         return proxy[fun].call(this, args, this.xhr);
                     }
@@ -169,6 +353,21 @@
         return ob;
     }
     window._hookAjaxProxy = hookAjaxProxy();
+    /**
+     * Hook FormData，由于低版本的 FormData 没有支持 entries() 等遍历 api，所以只是在 ajax send 里遍历，是无法获取到具体的值的，
+     * 所以针对低版本的 iOS 系统做 Hook FormData 处理。
+     */
+    var originAppend = window.FormData.prototype['append'];
+    var originEntries = window.FormData.prototype['entries'];
+    if (!originEntries) {
+        window.FormData.prototype['append'] = function () {
+            if (!this._entries) {
+                this._entries = [];
+            }
+            this._entries.push(arguments);
+            return originAppend.apply(this, arguments);
+        };
+    }
     /**
      * AJAX Proxy 配置
      */
@@ -228,7 +427,7 @@
                         value: {},
                         writable: true,
                         enumerable: true
-                    }
+                    },
                 });
             }
             if (!xhr.isCached) { // 避免重复缓存
@@ -304,16 +503,7 @@
             },
             response: {
                 getter: function (v, xhr) {
-                    function str2ArrayBuffer(str) {
-                        var buf = new ArrayBuffer(str.length * 2); // 2 bytes for each char
-                        var bufView = new Uint16Array(buf);
-                        for (var i = 0, strLen = str.length; i < strLen; i++) {
-                            bufView[i] = str.charCodeAt(i);
-                        }
-                        return buf;
-                    }
-                    // 懒加载返回 response array buffer
-                    return str2ArrayBuffer(xhr.callbackProperties.responseText);
+                    return xhr.callbackProperties.responseText;
                 }
             },
             //拦截回调
@@ -323,7 +513,7 @@
                 }
             },
             onload: function (xhr) {
-                console.log("onload called: %O", xhr);
+                // console.log("onload called: %O", xhr);
             },
             //拦截方法
             open: function (arg, xhr) {
@@ -342,24 +532,40 @@
                     "href": window.location.href,
                     "referer": document.referrer != "" ? document.referrer : null,
                     "useragent": navigator.userAgent,
-                    "async": async
+                    "async": async,
                 });
                 return true;
             },
             send: function (arg, xhr) {
+                var _this = this;
                 console.log("send called:", arg[0]);
                 var data = arg[0];
                 if (data) {
-                   var isByteData = false;
-                   if (data instanceof Uint8Array) {
-                       data = Array.from(data);
-                       isByteData = true;
-                   }
-                    window.KKJSBridge.call(_XHR.moduleName, 'send', {
-                        "id": this.id,
-                        "isByteData": isByteData,
-                        "data": data
-                    });
+                    if (data instanceof Uint8Array) {
+                        // 特殊处理字节数据
+                        data = Array.from(data);
+                        window.KKJSBridge.call(_XHR.moduleName, 'send', {
+                            "id": this.id,
+                            "isByteData": true,
+                            "data": data
+                        });
+                    }
+                    else if (data instanceof FormData) {
+                        // formData 表单
+                        KKJSBridgeUtil.convertFormDataToJson(data, function (json) {
+                            window.KKJSBridge.call(_XHR.moduleName, 'send', {
+                                "id": _this.id,
+                                "isFormData": true,
+                                "data": json
+                            });
+                        });
+                    }
+                    else {
+                        window.KKJSBridge.call(_XHR.moduleName, 'send', {
+                            "id": this.id,
+                            "data": data
+                        });
+                    }
                 }
                 else {
                     window.KKJSBridge.call(_XHR.moduleName, 'send', {
@@ -369,7 +575,7 @@
                 return true;
             },
             overrideMimeType: function (arg, xhr) {
-                console.log("overrideMimeType called:", arg[0]);
+                // console.log("overrideMimeType called:", arg[0]);
                 _XHR.cacheXHRIfNeed(this);
                 var mimetype = arg[0];
                 window.KKJSBridge.call(_XHR.moduleName, 'overrideMimeType', {
@@ -386,7 +592,7 @@
                 return true;
             },
             setRequestHeader: function (arg, xhr) {
-                console.log("setRequestHeader called:", arg[0], arg[1]);
+                // console.log("setRequestHeader called:", arg[0], arg[1]);
                 var headerName = arg[0];
                 var headerValue = arg[1];
                 window.KKJSBridge.call(_XHR.moduleName, 'setRequestHeader', {
@@ -397,7 +603,7 @@
                 return true;
             },
             getAllResponseHeaders: function (arg, xhr) {
-                console.log("getAllResponseHeaders called");
+                // console.log("getAllResponseHeaders called");
                 var strHeaders = '';
                 for (var name_1 in this.callbackProperties.headers) {
                     strHeaders += (name_1 + ": " + this.callbackProperties.headers[name_1] + "\r\n");
@@ -405,7 +611,7 @@
                 return strHeaders;
             },
             getResponseHeader: function (arg, xhr) {
-                console.log("getAllResponseHeaders called:", arg[0]);
+                console.log("getResponseHeader called:", arg[0]);
                 var headerName = arg[0];
                 var strHeaders = '';
                 var upperCaseHeaderName = headerName.toUpperCase();
@@ -414,7 +620,7 @@
                         strHeaders = this.callbackProperties.headers[name_2];
                 }
                 return strHeaders;
-            }
+            },
         });
     }
     function unHookAjax() {
@@ -429,7 +635,7 @@
         // 静态属性和方法
         _COOKIE.moduleName = 'cookie';
         /**
-         * 删除已经已经处理过的请求
+         * 通过重新定义 cookie 属性来进行 cookie hook
          */
         _COOKIE.hookCookie = function () {
             try {
@@ -440,11 +646,11 @@
                         configurable: true,
                         enumerable: true,
                         get: function () {
-                            console.log('getCookie');
+                            // console.log('getCookie');
                             return cookieDesc.get.call(document);
                         },
                         set: function (val) {
-                            console.log('setCookie');
+                            // console.log('setCookie');
                             cookieDesc.set.call(document, val);
                             window.KKJSBridge.call(_COOKIE.moduleName, 'setCookie', {
                                 "cookie": val
@@ -480,46 +686,18 @@
     var KKJSBridgeConfig = /** @class */ (function () {
         function KKJSBridgeConfig() {
         }
-        // 静态属性和方法
-        KKJSBridgeConfig.moduleName = 'bridgeConfig';
         KKJSBridgeConfig.init = function () {
             window.KKJSBridge = KKJSBridgeInstance; // 设置新的 JSBridge 作为全局对象
-            window.LeFitWebViewJavascriptBridge = LeFitWebViewJavascriptBridge; // 兼容旧的底层 JSBridge 对象
-        };
-        KKJSBridgeConfig.loadConfigFromNative = function () {
-            window.KKJSBridge.call(KKJSBridgeConfig.moduleName, 'fetchConfig', {}, function (data) {
-                var isAjaxHook = data["isEnableAjaxHook"];
-                // 如果是来自 native 侧自己的设置，则不需要再次通知 native 侧已经修改了 ajax hook 的值
-                KKJSBridgeConfig.enableAjaxHookWithNotify(isAjaxHook, false);
-            });
         };
         /**
-         * 开启 ajax hook，方便 H5 自己控制是否开启 ajax hook
+         * 开启 ajax hook
          */
         KKJSBridgeConfig.enableAjaxHook = function (enable) {
-            KKJSBridgeConfig.enableAjaxHookWithNotify(enable, true);
-        };
-        /**
-         * 开启 ajax hook 并 通知 native，方便 H5 自己控制是否开启 ajax hook
-         */
-        KKJSBridgeConfig.enableAjaxHookWithNotify = function (enable, notifyNative) {
-            function _innerEnableAjaxHook(enable) {
-                if (enable) {
-                    hookAjax();
-                }
-                else {
-                    unHookAjax();
-                }
-            }
-            if (notifyNative) { // 是否需要通知到 native 侧，当需要通知 native 侧时，需要在通知后再来执行 H5 侧的开关修改
-                window.KKJSBridge.call(KKJSBridgeConfig.moduleName, 'receiveConfig', { isEnableAjaxHook: enable }, function (data) {
-                    console.log("h5 control ajaxHook ", enable);
-                    _innerEnableAjaxHook(enable);
-                });
+            if (enable) {
+                hookAjax();
             }
             else {
-                console.log("native control ajaxHook ", enable);
-                _innerEnableAjaxHook(enable);
+                unHookAjax();
             }
         };
         /**
@@ -530,16 +708,11 @@
             var KKJSBridgeReadyEvent = document.createEvent("Events");
             KKJSBridgeReadyEvent.initEvent("KKJSBridgeReady");
             document.dispatchEvent(KKJSBridgeReadyEvent);
-            // 告诉 H5 旧的 LeFitWebViewJavascriptBridge 已经 ready
-            var LeFitWebViewJavascriptBridgeReadyEvent = document.createEvent("Events");
-            LeFitWebViewJavascriptBridgeReadyEvent.initEvent("LeFitWebViewJavascriptBridgeReady");
-            document.dispatchEvent(LeFitWebViewJavascriptBridgeReadyEvent);
         };
         return KKJSBridgeConfig;
     }());
     window.KKJSBridgeConfig = KKJSBridgeConfig;
     window.KKJSBridgeConfig.init(); // JSBridge 配置初始化
-    window.KKJSBridgeConfig.loadConfigFromNative(); // 加载 native 上的配置
     // window.KKJSBridgeConfig.enableAjaxHook(true); // 默认不开启 ajax hook
     window.KKJSBridgeConfig.bridgeReady();
 })(window);

@@ -10,36 +10,28 @@
 #import "KKJSBridgeJSExecutor.h"
 #import "KKJSBridgeEngine.h"
 
-@interface KKJSBridgeConfig()<KKJSBridgeModule>
+@interface KKJSBridgeConfig()
+
+@property (nonatomic, weak) KKJSBridgeEngine *engine;
 
 @end
 
 @implementation KKJSBridgeConfig
 
-+ (nonnull NSString *)moduleName {
-    return @"bridgeConfig";
-}
-
-+ (BOOL)isSingleton {
-    return true;
-}
-
-#pragma mark - 把外部设置提供给 JSBridge
-- (void)fetchConfig:(KKJSBridgeEngine *)engine params:(NSDictionary *)params responseCallback:(void (^)(NSDictionary *responseData))responseCallback {
-    NSMutableDictionary *config = [NSMutableDictionary dictionary];
-    config[@"isEnableAjaxHook"] = @(engine.config.isEnableAjaxHook);
-    
-    responseCallback ? responseCallback(config) : nil;
-}
-
-#pragma mark - 接受来自 JSBridge 的设置
-- (void)receiveConfig:(KKJSBridgeEngine *)engine params:(NSDictionary *)params responseCallback:(void (^)(NSDictionary *responseData))responseCallback {
-    if (params[@"isEnableAjaxHook"]) {
-        BOOL isAjaxHook = [params[@"isEnableAjaxHook"] boolValue];
-        engine.config.enableAjaxHook = isAjaxHook;
+- (instancetype)initWithEngine:(KKJSBridgeEngine *)engine {
+    if (self = [super init]) {
+        _engine = engine;
     }
     
-    responseCallback ? responseCallback(nil) : nil;
+    return self;
+}
+
+- (void)setEnableAjaxHook:(BOOL)enableAjaxHook {
+    _enableAjaxHook = enableAjaxHook;
+    
+    WKUserScript *userScript = [[WKUserScript alloc] initWithSource:[NSString stringWithFormat:@"window.KKJSBridgeConfig.enableAjaxHook(%@)", [NSNumber numberWithBool:enableAjaxHook]] injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:NO];
+    [self.engine.webView.configuration.userContentController addUserScript:userScript];
 }
 
 @end
+

@@ -24,11 +24,11 @@
     NSString *url = @"";
     {
         // 测试JSBridge
-        url = @"http://127.0.0.1:50000/moduleTest";
+//        url = @"http://127.0.0.1:50000/moduleTest";
     }
     {
         // 测试 ajax 和 set-cookie
-//        url = @"http://127.0.0.1:50000/index";
+        url = @"http://127.0.0.1:50000/index";
     }
     {
         // 测试服务器端重定向

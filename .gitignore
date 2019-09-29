@@ -1,3 +1,5 @@
 KKJSBridgeDemo/KKJSBridgeDemo.xcworkspace/xcuserdata
 *.swp
 .DS_Store
+KKJSBridge/TS/node_modules/*
+KKJSBridge/TS/package-lock.json

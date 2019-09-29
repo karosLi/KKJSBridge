@@ -7,6 +7,7 @@
 //
 
 #import "WebViewController.h"
+#import <AFNetworking/AFNetworking.h>
 #import <KKJSBridge/KKJSBridge.h>
 #import "ModuleContext.h"
 #import "ModuleA.h"
@@ -14,7 +15,7 @@
 #import "ModuleC.h"
 #import "ModuleDefault.h"
 
-@interface WebViewController ()<KKWebViewDelegate>
+@interface WebViewController ()<KKWebViewDelegate, KKJSBridgeAjaxDelegateManager>
 
 @property (nonatomic, strong, readwrite) KKWebView *webView;
 @property (nonatomic, copy, readwrite) NSString *url;
@@ -66,6 +67,7 @@
     _webView.hybirdDelegate = self;
     _jsBridgeEngine = [KKJSBridgeEngine bridgeForWebView:self.webView];
     _jsBridgeEngine.config.enableAjaxHook = YES;
+    _jsBridgeEngine.config.ajaxDelegateManager = self; // 请求外部代理处理，可以借助 AFN 网络库来发送请求
     
     [self compatibleWebViewJavascriptBridge];
     [self registerModule];
@@ -92,6 +94,28 @@
     [self.jsBridgeEngine.moduleRegister registerModuleClass:ModuleB.class withContext:context];
     // 注册 模块C
     [self.jsBridgeEngine.moduleRegister registerModuleClass:ModuleC.class];
+}
+
+#pragma mark - LKJSBridgeAjaxDelegateManager
+- (NSURLSessionDataTask *)dataTaskWithRequest:(NSURLRequest *)request callbackDelegate:(NSObject<KKJSBridgeAjaxDelegate> *)callbackDelegate {
+    return [[self.class ajaxSesstionManager] dataTaskWithRequest:request uploadProgress:^(NSProgress * _Nonnull uploadProgress) {
+        [callbackDelegate JSBridgeAjaxInProcessing:callbackDelegate];
+    } downloadProgress:^(NSProgress * _Nonnull downloadProgress) {
+        [callbackDelegate JSBridgeAjaxInProcessing:callbackDelegate];
+    } completionHandler:^(NSURLResponse * _Nonnull response, id  _Nullable responseObject, NSError * _Nullable error) {
+        [callbackDelegate JSBridgeAjaxDidCompletion:callbackDelegate response:response responseObject:responseObject error:error];
+    }];
+}
+
++ (AFURLSessionManager *)ajaxSesstionManager {
+    static AFURLSessionManager *instance;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
+        instance = [[AFURLSessionManager alloc] initWithSessionConfiguration:configuration];
+    });
+    
+    return instance;
 }
 
 #pragma mark - 声明周期
