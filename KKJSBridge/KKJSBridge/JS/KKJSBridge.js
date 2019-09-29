@@ -667,19 +667,7 @@ var __values = (this && this.__values) || function (o) {
     }());
     window._COOKIE = _COOKIE;
     window._COOKIE.hookCookie();
-    /**
-     * 兼容旧版本的 LeFitWebViewJavascriptBridge（基于 iframe 通信）
-     */
-    var LeFitWebViewJavascriptBridge = {
-        init: function (func) {
-        },
-        registerHandler: function (handlerName, handler) {
-            KKJSBridgeInstance.on(handlerName, handler);
-        },
-        callHandler: function (handlerName, data, responseCallback) {
-            KKJSBridgeInstance.call(null, handlerName, data, responseCallback);
-        }
-    };
+    
     /**
      * KKJSBridge 配置
      */

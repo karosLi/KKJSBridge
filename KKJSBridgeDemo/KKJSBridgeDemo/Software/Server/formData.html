@@ -30,8 +30,9 @@
         var file = document.getElementById('file').files[0];
 
         var formData = new FormData();
+        formData.append('key', 'bbbb');
         formData.append('token', 'RSxpQIxNIS2vo0vuQR3HX701ddS9fdlUnQ5jV8u1:rKwNt9zzmjn1FodGG03k-McLF28=:eyJzY29wZSI6Imthcm9zcGljcyIsImRlYWRsaW5lIjoxNTY5Nzg4OTQwfQ==');
-        formData.append('file', file, 'bbbb');
+        formData.append('file', file);
         
         var xhr = new XMLHttpRequest();
         xhr.open('POST', 'http://upload.qiniup.com/', true);

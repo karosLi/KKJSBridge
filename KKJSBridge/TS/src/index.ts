@@ -716,21 +716,6 @@ declare interface FormDataFile {
   window._COOKIE.hookCookie();
 
   /**
-   * 兼容旧版本的 LeFitWebViewJavascriptBridge（基于 iframe 通信）
-   */
-  let LeFitWebViewJavascriptBridge: any = {
-    init: (func: Function) => {
-
-    },
-    registerHandler: (handlerName: string, handler: OldEventCallback) => {
-      KKJSBridgeInstance.on(handlerName, handler);
-    },
-    callHandler: (handlerName: string, data: {}, responseCallback: Callback) => {
-      KKJSBridgeInstance.call(null, handlerName, data, responseCallback);
-    }
-  };
-
-  /**
    * KKJSBridge 配置
    */
   class KKJSBridgeConfig {
