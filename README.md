@@ -20,7 +20,7 @@
 
 - Native 侧控制 ajax hook
 
-- 支持表单数据，支持图片上传
+- 支持表单数据，支持图片上传（表单虽好，可不要依赖哈）
 
 - 支持 ajax 请求外部代理
 
@@ -73,9 +73,24 @@ ajax hook 演示
     _webView.configuration.preferences.minimumFontSize = 12;
     _webView.hybirdDelegate = self;
     _jsBridgeEngine = [KKJSBridgeEngine bridgeForWebView:self.webView];
-    _jsBridgeEngine.config.enableAjaxHook = YES;
+    _jsBridgeEngine.config.enableAjaxHook = YES; // 开启 ajax hook
+    _jsBridgeEngine.config.ajaxDelegateManager = self; // 请求外部代理处理，可以借助 AFN 网络库来发送请求
 
     [self registerModule];
+}
+
+#pragma mark - LKJSBridgeAjaxDelegateManager
+- (NSURLSessionDataTask *)dataTaskWithRequest:(NSURLRequest *)request callbackDelegate:(NSObject<KKJSBridgeAjaxDelegate> *)callbackDelegate {
+    // 使用 AFN 发送 ajax 请求 
+    NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
+    AFURLSessionManager *manage = [[AFURLSessionManager alloc] initWithSessionConfiguration:configuration];
+    return [manage dataTaskWithRequest:request uploadProgress:^(NSProgress * _Nonnull uploadProgress) {
+        [callbackDelegate JSBridgeAjaxInProcessing:callbackDelegate];
+    } downloadProgress:^(NSProgress * _Nonnull downloadProgress) {
+        [callbackDelegate JSBridgeAjaxInProcessing:callbackDelegate];
+    } completionHandler:^(NSURLResponse * _Nonnull response, id  _Nullable responseObject, NSError * _Nullable error) {
+        [callbackDelegate JSBridgeAjaxDidCompletion:callbackDelegate response:response responseObject:responseObject error:error];
+    }];
 }
 ```
 
