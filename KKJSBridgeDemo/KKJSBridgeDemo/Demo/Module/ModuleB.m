@@ -26,7 +26,7 @@
     return YES;
 }
 
-//+ (NSOperationQueue *)methodInvokeQueue {
+//- (NSOperationQueue *)methodInvokeQueue {
 //    static NSOperationQueue *queue;
 //    static dispatch_once_t onceToken;
 //    dispatch_once(&onceToken, ^{

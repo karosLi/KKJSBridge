@@ -14,7 +14,7 @@
 @interface KKJSBridgeModuleXMLHttpRequestDispatcher()<KKJSBridgeModule, KKJSBridgeModuleXMLHttpRequestDelegate>
 
 @property (nonatomic, copy) NSMutableDictionary *xhrMap;
-@property (nonatomic, copy) NSLock *lock;
+@property (nonatomic, copy) NSOperationQueue *queue;
 
 @end
 
@@ -28,23 +28,18 @@
     return true;
 }
 
-+ (NSOperationQueue *)methodInvokeQueue {
-    static NSOperationQueue *queue;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        queue = [NSOperationQueue new];
-    });
-    
-    return queue;
-}
-
 - (instancetype)initWithEngine:(KKJSBridgeEngine *)engine context:(id)context {
     if (self = [super init]) {
         _xhrMap = [NSMutableDictionary dictionary];
-        _lock = [NSLock new];
+        _queue = [NSOperationQueue new];
+        _queue.maxConcurrentOperationCount = 1;
     }
     
     return self;
+}
+
+- (NSOperationQueue *)methodInvokeQueue {
+    return self.queue;
 }
 
 - (void)create:(KKJSBridgeEngine *)engine params:(NSDictionary *)params responseCallback:(void (^)(NSDictionary *responseData))responseCallback {
@@ -219,28 +214,22 @@
     KKJSBridgeXMLHttpRequest *xhr = [[KKJSBridgeXMLHttpRequest alloc] initWithObjectId:objectId engine:engine];
     xhr.delegate = self;
     
-    [self.lock lock];
     [self.xhrMap setValue:xhr forKey:[self uniqueIdWithWebView:engine.webView objectId:objectId]];
-    [self.lock unlock];
     
     return xhr;
 }
 
 - (KKJSBridgeXMLHttpRequest *)getXHR:(WKWebView *)webView objectId:(NSNumber *)objectId {
-    [self.lock lock];
     KKJSBridgeXMLHttpRequest *xhr = self.xhrMap[[self uniqueIdWithWebView:webView objectId:objectId]];
-    [self.lock unlock];
     
     return xhr;
 }
 
 - (void)freeXMLHttpRequestObject:(WKWebView *)webView objectId:(NSNumber *)objectId {
     if (objectId) {
-        [self.lock lock];
         NSString *uniqueString = [self uniqueIdWithWebView:webView objectId:objectId];
         [KKJSBridgeXMLHttpRequest evaluateJSToDeleteAjaxCache:objectId inWebView:webView];
         [self.xhrMap removeObjectForKey:uniqueString];
-        [self.lock unlock];
     }
 }
 

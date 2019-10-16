@@ -136,8 +136,8 @@ typedef void (^KKJSBridgeMessageCallback)(NSDictionary *responseData);
      获取方法调用 Queue
      */
     NSOperationQueue *methodInvokeQueue;
-    if ([moduleClass respondsToSelector:@selector(methodInvokeQueue)]) {
-        methodInvokeQueue = [moduleClass methodInvokeQueue];
+    if ([instance respondsToSelector:@selector(methodInvokeQueue)]) {
+        methodInvokeQueue = [instance methodInvokeQueue];
     }
     if (!methodInvokeQueue) {
         methodInvokeQueue = [NSOperationQueue mainQueue];
