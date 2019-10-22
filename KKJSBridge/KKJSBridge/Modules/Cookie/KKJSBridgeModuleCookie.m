@@ -21,6 +21,10 @@
     return @"cookie";
 }
 
++ (BOOL)isSingleton {
+    return true;
+}
+
 /**
  Hook cookie 修改操作，把 WKWebView cookie 同步给 NSHTTPCookieStorage
  
