@@ -96,7 +96,7 @@
     [self.jsBridgeEngine.moduleRegister registerModuleClass:ModuleC.class];
 }
 
-#pragma mark - LKJSBridgeAjaxDelegateManager
+#pragma mark - KKJSBridgeAjaxDelegateManager
 - (NSURLSessionDataTask *)dataTaskWithRequest:(NSURLRequest *)request callbackDelegate:(NSObject<KKJSBridgeAjaxDelegate> *)callbackDelegate {
     return [[self.class ajaxSesstionManager] dataTaskWithRequest:request uploadProgress:^(NSProgress * _Nonnull uploadProgress) {
         [callbackDelegate JSBridgeAjaxInProcessing:callbackDelegate];

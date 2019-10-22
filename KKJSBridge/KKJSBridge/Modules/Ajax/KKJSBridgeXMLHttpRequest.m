@@ -449,7 +449,7 @@ static NSString * const KKJSBridgeXMLHttpRequestStatusTextOK = @"OK";
     [KKJSBridgeJSExecutor evaluateJavaScriptFunction:@"window._XHR.setProperties" withJson:json inWebView:webView completionHandler:nil];
 }
 
-#pragma mark - LKJSBridgeURLRequestSerialization
+#pragma mark - KKJSBridgeURLRequestSerialization
 
 + (KKJSBridgeURLRequestSerialization *)urlRequestSerialization {
     static KKJSBridgeURLRequestSerialization *instance;

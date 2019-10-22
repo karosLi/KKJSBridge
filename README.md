@@ -82,7 +82,7 @@ ajax 发送表单 演示
     [self registerModule];
 }
 
-#pragma mark - LKJSBridgeAjaxDelegateManager
+#pragma mark - KKJSBridgeAjaxDelegateManager
 - (NSURLSessionDataTask *)dataTaskWithRequest:(NSURLRequest *)request callbackDelegate:(NSObject<KKJSBridgeAjaxDelegate> *)callbackDelegate {
     // 使用 AFN 发送 ajax 请求 
     NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];

@@ -53,7 +53,7 @@ static NSString * const KKJSBridgeMessageName = @"KKJSBridgeMessage";
 }
 
 - (void)commonInit {
-    _moduleRegister = [KKJSBridgeModuleRegister new];
+    _moduleRegister = [[KKJSBridgeModuleRegister alloc] initWithEngine:self];
     _dispatcher = [[KKJSBridgeMessageDispatcher alloc] initWithEngine:self];
     _config = [[KKJSBridgeConfig alloc] initWithEngine:self];// 用于记录外部配置
 }

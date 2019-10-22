@@ -7,18 +7,23 @@
 //
 
 #import "KKJSBridgeModuleRegister.h"
+#import <objc/message.h>
 
 @interface KKJSBridgeModuleRegister()
 
+@property (nonatomic, weak) KKJSBridgeEngine *engine;
 @property (nonatomic, copy) NSMutableDictionary *moduleMetaClassMap;
+@property (nonatomic, copy) NSMutableDictionary *singletonMetaClassMap;
 
 @end
 
 @implementation KKJSBridgeModuleRegister
 
-- (instancetype)init {
+- (instancetype)initWithEngine:(KKJSBridgeEngine *)engine {
     if (self = [super init]) {
+        _engine = engine;
         _moduleMetaClassMap = [NSMutableDictionary dictionary];
+        _singletonMetaClassMap = [NSMutableDictionary dictionary];
     }
     
     return self;
@@ -29,6 +34,10 @@
 }
 
 - (KKJSBridgeModuleMetaClass *)registerModuleClass:(Class<KKJSBridgeModule>)moduleClass withContext:(id _Nullable)context {
+    return [self registerModuleClass:moduleClass withContext:context initialize:NO];
+}
+
+- (KKJSBridgeModuleMetaClass *)registerModuleClass:(Class<KKJSBridgeModule>)moduleClass withContext:(id _Nullable)context initialize:(BOOL)initialize {
     if (!moduleClass) {
         return nil;
     }
@@ -49,6 +58,11 @@
     
     KKJSBridgeModuleMetaClass *moduleMetaClass = [[KKJSBridgeModuleMetaClass alloc] initWithModuleName:moduleName moduleClass:moduleClass isSingleton:isSingleton context:context];
     self.moduleMetaClassMap[moduleName] = moduleMetaClass;
+    
+    if (initialize) {
+        [self generateInstanceFromMetaClass:moduleMetaClass];
+    }
+    
     return moduleMetaClass;
 }
 
@@ -57,6 +71,45 @@
         return nil;
     }
     return self.moduleMetaClassMap[moduleName];
+}
+
+- (id)generateInstanceFromMetaClass:(KKJSBridgeModuleMetaClass *)metaClass {
+    Class nativeClass = metaClass.moduleClass;
+    NSString *moduleName = metaClass.moduleName;
+    
+    id context = metaClass.context;
+    
+    NSString *initContextMethodName = @"initWithEngine:context:";
+    SEL initContextMethodSEL = NSSelectorFromString(initContextMethodName);
+    
+    /**
+     模块初始化
+     */
+    id instance;
+    if (metaClass.isSingleton) { // 单例模块需要先从缓存里取，如果不存在则需要创建，并保存到缓存里
+        id cacheInstance = self.singletonMetaClassMap[moduleName];
+        if (!cacheInstance) {
+            id allocClass = [nativeClass alloc];
+            if ([allocClass respondsToSelector:initContextMethodSEL]) { // 先处理上下文
+                cacheInstance = ((id (*)(id, SEL, KKJSBridgeEngine *, id))objc_msgSend)(allocClass, initContextMethodSEL, self.engine, context);
+            } else {
+                cacheInstance = [[nativeClass alloc] init];
+            }
+            
+            self.singletonMetaClassMap[moduleName] = cacheInstance;
+        }
+        
+        instance = cacheInstance;
+    } else {
+        id allocClass = [nativeClass alloc];
+        if ([allocClass respondsToSelector:initContextMethodSEL]) { // 先处理上下文
+            instance = ((id (*)(id, SEL, KKJSBridgeEngine *, id))objc_msgSend)(allocClass, initContextMethodSEL, self.engine, context);
+        } else {
+            instance = [[nativeClass alloc] init];
+        }
+    }
+    
+    return instance;
 }
 
 @end

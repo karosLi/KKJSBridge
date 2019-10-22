@@ -44,6 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface KKJSBridgeModuleRegister : NSObject
 
+- (instancetype)initWithEngine:(KKJSBridgeEngine *)engine;
 
 /**
  注册模块
@@ -63,12 +64,31 @@ NS_ASSUME_NONNULL_BEGIN
 - (KKJSBridgeModuleMetaClass *)registerModuleClass:(Class<KKJSBridgeModule>)moduleClass withContext:(id _Nullable)context;
 
 /**
+ 注册模块并带上上下文，并决定是否提前初始化一次
+ 
+ @param moduleClass 模块类
+ @param context 上下文
+ @param initialize 是否需要初始化
+ @return 模块元类
+ */
+- (KKJSBridgeModuleMetaClass *)registerModuleClass:(Class<KKJSBridgeModule>)moduleClass withContext:(id _Nullable)context initialize:(BOOL)initialize;
+
+
+/**
  根据模块名称获取模块元类
 
  @param moduleName 模块名称
  @return 模块元类
  */
 - (KKJSBridgeModuleMetaClass *)getModuleMetaClassByModuleName:(NSString *)moduleName;
+
+/**
+ 生成模块实例
+ 
+ @param metaClass 模块类
+ @return 模块实例
+ */
+- (id)generateInstanceFromMetaClass:(KKJSBridgeModuleMetaClass *)metaClass;
 
 @end
 

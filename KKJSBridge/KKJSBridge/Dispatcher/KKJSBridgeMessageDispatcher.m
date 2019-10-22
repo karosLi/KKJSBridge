@@ -20,7 +20,6 @@ typedef void (^KKJSBridgeMessageCallback)(NSDictionary *responseData);
 
 @property (nonatomic, weak) KKJSBridgeEngine *engine;
 @property (nonatomic, strong) NSOperationQueue *dispatchQueue;
-@property (nonatomic, copy) NSMutableDictionary *singletonMetaClassMap;
 
 @end
 
@@ -31,7 +30,6 @@ typedef void (^KKJSBridgeMessageCallback)(NSDictionary *responseData);
         _engine = engine;
         _dispatchQueue = [NSOperationQueue new];
         _dispatchQueue.maxConcurrentOperationCount = 1;
-        _singletonMetaClassMap = [NSMutableDictionary dictionary];
     }
     
     return self;
@@ -101,36 +99,10 @@ typedef void (^KKJSBridgeMessageCallback)(NSDictionary *responseData);
         }
     }
     
-    id allocClass = [nativeClass alloc];
-    id context = metaClass.context;
-    
-    NSString *initContextMethodName = @"initWithEngine:context:";
-    SEL initContextMethodSEL = NSSelectorFromString(initContextMethodName);
-    
     /**
      模块初始化
      */
-    id instance;
-    if (metaClass.isSingleton) { // 单例模块需要先从缓存里取，如果不存在则需要创建，并保存到缓存里
-        id cacheInstance = self.singletonMetaClassMap[moduleName];
-        if (!cacheInstance) {
-            if ([allocClass respondsToSelector:initContextMethodSEL]) { // 先处理上下文
-                cacheInstance = ((id (*)(id, SEL, KKJSBridgeEngine *, id))objc_msgSend)(allocClass, initContextMethodSEL, self.engine, context);
-            } else {
-                cacheInstance = [[nativeClass alloc] init];
-            }
-            
-            self.singletonMetaClassMap[moduleName] = cacheInstance;
-        }
-        
-        instance = cacheInstance;
-    } else {
-        if ([allocClass respondsToSelector:initContextMethodSEL]) { // 先处理上下文
-            instance = ((id (*)(id, SEL, KKJSBridgeEngine *, id))objc_msgSend)(allocClass, initContextMethodSEL, self.engine, context);
-        } else {
-            instance = [[nativeClass alloc] init];
-        }
-    }
+    id instance = [self.engine.moduleRegister generateInstanceFromMetaClass:metaClass];
     
     /**
      获取方法调用 Queue
