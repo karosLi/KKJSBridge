@@ -173,8 +173,11 @@ window.KKJSBridge.call('b', 'callToGetVCTitle', {}, function(res) {
    ```
    
 ## 更新历史
+### 2019.10.22
+- 增加模块注册支持首次初始化
+
 ### 2019.9.29
-- 仅保留 Native 侧控制 ajax hook，主要是避免 ajax hook 时机不对时，会造成首次 hook 失败。
+- 仅保留 Native 侧控制 ajax hook，主要是避免 ajax hook 时机不对时，会造成首次 hook 失败
 - 支持表单数据，支持图片上传
 - 支持 ajax 请求外部代理
 
