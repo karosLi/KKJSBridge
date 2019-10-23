@@ -44,6 +44,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable __kindof KKWebView *)dequeueWebViewWithClass:(Class)webViewClass webViewHolder:(nullable NSObject *)webViewHolder;
 
 /**
+ 构建 webView configuration，作为所有复用 webView 提供预先的默认 configuration
+ 
+ @param block 构建 block
+ */
+- (void)makeWebViewConfiguration:(void(^)(WKWebViewConfiguration *configuration))block;
+
+/**
  创建一个 webview，并且将它放入到回收池中
  */
 - (void)enqueueWebViewWithClass:(Class)webViewClass;

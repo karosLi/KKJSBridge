@@ -35,6 +35,11 @@
 + (void)prepareWebView {
     // 预先缓存一个 webView
     [KKWebView configCustomUAWithType:KKWebViewConfigUATypeAppend UAString:@"KKJSBridge/1.0.0"];
+    [[KKWebViewPool sharedInstance] makeWebViewConfiguration:^(WKWebViewConfiguration * _Nonnull configuration) {
+        // 必须前置配置，否则会造成属性不生效的问题
+        configuration.allowsInlineMediaPlayback = YES;
+        configuration.preferences.minimumFontSize = 12;
+    }];
     [[KKWebViewPool sharedInstance] enqueueWebViewWithClass:KKWebView.class];
 }
 
@@ -62,8 +67,6 @@
 
 - (void)commonInit {
     _webView = [[KKWebViewPool sharedInstance] dequeueWebViewWithClass:KKWebView.class webViewHolder:self];
-    _webView.configuration.allowsInlineMediaPlayback = YES;
-    _webView.configuration.preferences.minimumFontSize = 12;
     _webView.hybirdDelegate = self;
     _jsBridgeEngine = [KKJSBridgeEngine bridgeForWebView:self.webView];
     _jsBridgeEngine.config.enableAjaxHook = YES;

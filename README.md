@@ -173,6 +173,8 @@ window.KKJSBridge.call('b', 'callToGetVCTitle', {}, function(res) {
    ```
    
 ## 更新历史
+### 2019.10.23
+- 提供统一配置 configuration 方法，有些属性必须前置配置，否则会不生效
 ### 2019.10.22
 - 增加模块注册支持首次初始化
 

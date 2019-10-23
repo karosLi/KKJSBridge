@@ -13,6 +13,7 @@
 @property (nonatomic, strong, readwrite) dispatch_semaphore_t lock;
 @property (nonatomic, strong, readwrite) NSMutableDictionary<NSString *, NSMutableSet< __kindof KKWebView *> *> *dequeueWebViews;
 @property (nonatomic, strong, readwrite) NSMutableDictionary<NSString *, NSMutableSet< __kindof KKWebView *> *> *enqueueWebViews;
+@property (nonatomic, copy) void(^makeWebViewConfigurationBlock)(WKWebViewConfiguration *configuration);
 @end
 
 @implementation KKWebViewPool
@@ -68,6 +69,10 @@
     __kindof KKWebView *dequeueWebView = [self _getWebViewWithClass:webViewClass];
     dequeueWebView.holderObject = webViewHolder;
     return dequeueWebView;
+}
+
+- (void)makeWebViewConfiguration:(void(^)(WKWebViewConfiguration *configuration))block {
+    self.makeWebViewConfigurationBlock = block;
 }
 
 - (void)enqueueWebViewWithClass:(Class)webViewClass {
@@ -285,7 +290,11 @@
 }
 
 - (__kindof KKWebView *)generateInstanceWithWebViewClass:(Class)webViewClass {
-    return [[webViewClass alloc] initWithFrame:CGRectZero configuration:[WKWebViewConfiguration new]];
+    WKWebViewConfiguration *config = [WKWebViewConfiguration new];
+    if (self.makeWebViewConfigurationBlock) {
+        self.makeWebViewConfigurationBlock(config);
+    }
+    return [[webViewClass alloc] initWithFrame:CGRectZero configuration:config];
 }
 
 @end
