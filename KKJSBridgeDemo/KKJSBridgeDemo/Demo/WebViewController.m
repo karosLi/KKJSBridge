@@ -107,12 +107,13 @@
     }];
 }
 
-+ (AFURLSessionManager *)ajaxSesstionManager {
-    static AFURLSessionManager *instance;
++ (AFHTTPSessionManager *)ajaxSesstionManager {
+    static AFHTTPSessionManager *instance;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
-        instance = [[AFURLSessionManager alloc] initWithSessionConfiguration:configuration];
+        instance = [[AFHTTPSessionManager alloc] initWithSessionConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
+        instance.requestSerializer = [AFHTTPRequestSerializer serializer];
+        instance.responseSerializer = [AFHTTPResponseSerializer serializer];
     });
     
     return instance;
