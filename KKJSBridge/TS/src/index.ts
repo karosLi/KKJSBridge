@@ -498,8 +498,14 @@ declare interface FormDataFile {
           xhr.onprogress();
         }
 
-        if (xhr.callbackProperties.readyState === xhr.DONE && xhr.onload) {
-          xhr.onload();
+        if (xhr.callbackProperties.readyState === xhr.DONE) {
+          if (xhr.onload) {
+            xhr.onload();
+          }
+        
+          var load = document.createEvent("Events");
+          load.initEvent("load");
+          xhr.dispatchEvent(load);
         }
       }
     };
