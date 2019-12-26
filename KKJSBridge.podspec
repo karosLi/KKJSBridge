@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "KKJSBridge"
-  s.version      = "1.0.10"
+  s.version      = "1.0.11"
   s.summary      = "One-stop solution for WKWebView to support offline resource，Ajax request and cookie sync issues."
   s.description  = <<-DESC
                    One-stop solution for WKWebView to support offline resource，Ajax request and cookie sync issues
