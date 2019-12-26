@@ -443,6 +443,10 @@ var __values = (this && this.__values) || function (o) {
             var jsonObj = JSON.parse(jsonString);
             var id = jsonObj.id;
             var xhr = _XHR.cache[id];
+            if (jsonObj.readyState === xhr.DONE) {
+                // 防止重复利用 xhr 对象发送请求而导致 id 不变的问题
+                xhr.isCached = false;
+            }
             if (xhr) {
                 // 保存回调对象，对象子属性的处理放在了 hook 里。因为 xhr 代理对象的可读属性（readyState,status,statusText,responseText）都是从实际 xhr 拷贝过来的，相应的我们也是不能直接对这些可读属性赋值的
                 xhr.callbackProperties = jsonObj;
