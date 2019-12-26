@@ -181,7 +181,10 @@ static NSString * const KKJSBridgeXMLHttpRequestStatusTextOK = @"OK";
         actualData = data;
     }
     
-    self.request.HTTPBody = actualData;
+    if (actualData) {
+        self.request.HTTPBody = actualData;
+    }
+    
     [self send];
 }
 
