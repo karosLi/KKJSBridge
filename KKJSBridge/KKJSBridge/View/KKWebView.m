@@ -152,10 +152,12 @@
                                                        handler:^(UIAlertAction *_Nonnull action) {
                                                            completionHandler();
                                                        }])];
-    if ([self _topPresentedViewController].presentingViewController) {
+    
+    UIViewController *topPresentedViewController = [self _topPresentedViewController];
+    if (topPresentedViewController.presentingViewController) {
         completionHandler();
     } else {
-        [[self _topPresentedViewController] presentViewController:alertController animated:YES completion:nil];
+        [topPresentedViewController presentViewController:alertController animated:YES completion:nil];
     }
 }
 
@@ -181,10 +183,11 @@
                                                            completionHandler(YES);
                                                        }])];
     
-    if ([self _topPresentedViewController].presentingViewController) {
+    UIViewController *topPresentedViewController = [self _topPresentedViewController];
+    if (topPresentedViewController.presentingViewController) {
         completionHandler(NO);
     } else {
-        [[self _topPresentedViewController] presentViewController:alertController animated:YES completion:nil];
+        [topPresentedViewController presentViewController:alertController animated:YES completion:nil];
     }
 }
 
@@ -226,10 +229,11 @@
                                                            completionHandler(nil);
                                                        }])];
     
-    if ([self _topPresentedViewController].presentingViewController) {
+    UIViewController *topPresentedViewController = [self _topPresentedViewController];
+    if (topPresentedViewController.presentingViewController) {
         completionHandler(nil);
     } else {
-        [[self _topPresentedViewController] presentViewController:alertController animated:YES completion:nil];
+        [topPresentedViewController presentViewController:alertController animated:YES completion:nil];
     }
 }
 
