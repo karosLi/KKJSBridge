@@ -13,6 +13,9 @@
 
 @interface KKWebView() <WKNavigationDelegate, WKUIDelegate>
 
+/// A real delegate of the class.
+@property (nonatomic, weak) id<WKNavigationDelegate> realNavigationDelegate;
+
 @end
 
 @implementation KKWebView
@@ -60,6 +63,7 @@
 }
 
 #pragma mark - WKNavigationDelegate
+
 // 1、在发送请求之前，决定是否跳转
 - (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
     
@@ -71,39 +75,15 @@
         [KKWebViewCookieManager syncRequestCookie:(NSMutableURLRequest *)navigationAction.request];
     }
 
-    BOOL isResponse = NO;
-    id<WKNavigationDelegate> mainDelegate = self.hybirdDelegate;
-    
+    id<WKNavigationDelegate> mainDelegate = self.realNavigationDelegate;
     if ([mainDelegate respondsToSelector:@selector(webView:decidePolicyForNavigationAction:decisionHandler:)]) {
         [mainDelegate webView:webView decidePolicyForNavigationAction:navigationAction decisionHandler:decisionHandler];
-        isResponse = YES;
-    }
-    
-    if (!isResponse) {
-        // for webview reuse
+    } else {
         decisionHandler(WKNavigationActionPolicyAllow);
     }
 }
 
-// 2、开始加载页面内容时调用
-- (void)webView:(WKWebView *)webView didStartProvisionalNavigation:(null_unspecified WKNavigation *)navigation {
-    id<WKNavigationDelegate> mainDelegate = self.hybirdDelegate;
-    
-    if ([mainDelegate respondsToSelector:@selector(webView:didStartProvisionalNavigation:)]) {
-        [mainDelegate webView:webView didStartProvisionalNavigation:navigation];
-    }
-}
-
-// 当加载的页面内容有错误时调用
-- (void)webView:(WKWebView *)webView didFailProvisionalNavigation:(null_unspecified WKNavigation *)navigation withError:(NSError *)error {
-    id<WKNavigationDelegate> mainDelegate = self.hybirdDelegate;
-    
-    if ([mainDelegate respondsToSelector:@selector(webView:didFailProvisionalNavigation:withError:)]) {
-        [mainDelegate webView:webView didFailProvisionalNavigation:navigation withError:error];
-    }
-}
-
-// 3、在收到响应后，决定是否跳转
+// 2、在收到响应后，决定是否跳转
 - (void)webView:(WKWebView *)webView decidePolicyForNavigationResponse:(WKNavigationResponse *)navigationResponse decisionHandler:(void (^)(WKNavigationResponsePolicy))decisionHandler {
     // iOS 12 之后，响应头里 Set-Cookie 不再返回。 所以这里针对系统版本做区分处理。
     if (@available(iOS 11.0, *)) {
@@ -118,31 +98,17 @@
         }
     }
     
-    BOOL isResponse = NO;
-    id<WKNavigationDelegate> mainDelegate = self.hybirdDelegate;
-    
+    id<WKNavigationDelegate> mainDelegate = self.realNavigationDelegate;
     if ([mainDelegate respondsToSelector:@selector(webView:decidePolicyForNavigationResponse:decisionHandler:)]) {
         [mainDelegate webView:webView decidePolicyForNavigationResponse:navigationResponse decisionHandler:decisionHandler];
-        isResponse = YES;
-    }
-    
-    if (!isResponse) {
+    } else {
         decisionHandler(WKNavigationResponsePolicyAllow);
     }
 }
 
-// 4、当开始接收页面内容时调用
-- (void)webView:(WKWebView *)webView didCommitNavigation:(null_unspecified WKNavigation *)navigation {
-    id<WKNavigationDelegate> mainDelegate = self.hybirdDelegate;
-    
-    if ([mainDelegate respondsToSelector:@selector(webView:didCommitNavigation:)]) {
-        [mainDelegate webView:webView didCommitNavigation:navigation];
-    }
-}
-
-// 5、页面跳转完成时调用
+// 3、页面跳转完成时调用
 - (void)webView:(WKWebView *)webView didFinishNavigation:(null_unspecified WKNavigation *)navigation {
-    id<WKNavigationDelegate> mainDelegate = self.hybirdDelegate;
+    id<WKNavigationDelegate> mainDelegate = self.realNavigationDelegate;
     
     if ([mainDelegate respondsToSelector:@selector(webView:didFinishNavigation:)]) {
         [mainDelegate webView:webView didFinishNavigation:navigation];
@@ -152,47 +118,13 @@
     [self prepareNextWebViewIfNeed];
 }
 
-// 页面跳转失败时调用
-- (void)webView:(WKWebView *)webView didFailNavigation:(null_unspecified WKNavigation *)navigation withError:(NSError *)error {
-    id<WKNavigationDelegate> mainDelegate = self.hybirdDelegate;
-    
-    if ([mainDelegate respondsToSelector:@selector(webView:didFailNavigation:withError:)]) {
-        [mainDelegate webView:webView didFailNavigation:navigation withError:error];
-    }
-}
-
-// 6、需要校验服务器可信度时调用
+// 4、需要校验服务器可信度时调用
 - (void)webView:(WKWebView *)webView didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential * _Nullable credential))completionHandler {
-    BOOL isResponse = NO;
-    id<WKNavigationDelegate> mainDelegate = self.hybirdDelegate;
-    
+    id<WKNavigationDelegate> mainDelegate = self.realNavigationDelegate;
     if ([mainDelegate respondsToSelector:@selector(webView:didReceiveAuthenticationChallenge:completionHandler:)]) {
         [mainDelegate webView:webView didReceiveAuthenticationChallenge:challenge completionHandler:completionHandler];
-        isResponse = YES;
-    }
-    
-    if (!isResponse) {
+    } else {
         completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
-    }
-}
-
-// 接收到服务器302重定向时调用
-- (void)webView:(WKWebView *)webView didReceiveServerRedirectForProvisionalNavigation:(null_unspecified WKNavigation *)navigation {
-    id<WKNavigationDelegate> mainDelegate = self.hybirdDelegate;
-    
-    if ([mainDelegate respondsToSelector:@selector(webView:didReceiveServerRedirectForProvisionalNavigation:)]) {
-        [mainDelegate webView:webView didReceiveServerRedirectForProvisionalNavigation:navigation];
-    }
-}
-
-// 当页面内容进程中断时调用
-- (void)webViewWebContentProcessDidTerminate:(WKWebView *)webView {
-    if (@available(iOS 9.0, *)) {
-        id<WKNavigationDelegate> mainDelegate = self.hybirdDelegate;
-        
-        if ([mainDelegate respondsToSelector:@selector(webViewWebContentProcessDidTerminate:)]) {
-            [mainDelegate webViewWebContentProcessDidTerminate:webView];
-        }
     }
 }
 
@@ -325,6 +257,35 @@
         [[KKWebViewPool sharedInstance] enqueueWebViewWithClass:self.class];
     }
 }
+
+
+#pragma mark -
+#pragma mark WKNavigationDelegate Forwarder
+
+- (void)setNavigationDelegate:(id<WKNavigationDelegate>)navigationDelegate
+{
+    self.realNavigationDelegate = (navigationDelegate != self ? navigationDelegate : nil);
+    super.navigationDelegate = navigationDelegate ? self : nil;
+}
+
+- (BOOL)respondsToSelector:(SEL)aSelector
+{
+    return [super respondsToSelector:aSelector] || [_realNavigationDelegate respondsToSelector:aSelector];
+}
+
+- (NSMethodSignature *)methodSignatureForSelector:(SEL)aSelector
+{
+    return [super methodSignatureForSelector:aSelector] ?: [(id)_realNavigationDelegate methodSignatureForSelector:aSelector];
+}
+
+- (void)forwardInvocation:(NSInvocation *)invocation
+{
+    id delegate = _realNavigationDelegate;
+    if ([delegate respondsToSelector:invocation.selector]) {
+        [invocation invokeWithTarget:delegate];
+    }
+}
+
 
 #pragma mark - process
 /**
