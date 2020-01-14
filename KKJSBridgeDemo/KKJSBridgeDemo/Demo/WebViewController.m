@@ -69,7 +69,7 @@
     _webView = [[KKWebViewPool sharedInstance] dequeueWebViewWithClass:KKWebView.class webViewHolder:self];
     _webView.hybirdDelegate = self;
     _jsBridgeEngine = [KKJSBridgeEngine bridgeForWebView:self.webView];
-    _jsBridgeEngine.config.enableAjaxHook = YES;
+//    _jsBridgeEngine.config.enableAjaxHook = YES;
     _jsBridgeEngine.config.ajaxDelegateManager = self; // 请求外部代理处理，可以借助 AFN 网络库来发送请求
     
     [self compatibleWebViewJavascriptBridge];
