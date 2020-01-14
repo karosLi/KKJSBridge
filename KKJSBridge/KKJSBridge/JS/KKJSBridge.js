@@ -443,11 +443,33 @@ var __values = (this && this.__values) || function (o) {
             var jsonObj = JSON.parse(jsonString);
             var id = jsonObj.id;
             var xhr = _XHR.cache[id];
-            if (jsonObj.readyState === xhr.DONE) {
-                // 防止重复利用 xhr 对象发送请求而导致 id 不变的问题
-                xhr.isCached = false;
+           
+            console.log("id---%o",id);
+            console.log("xhr---%o",xhr);
+            if (xhr == undefined) {
+                // 尝试从iframe中获取
+                var tmpIframes = document.getElementsByTagName("iframe");
+                if (tmpIframes && tmpIframes.length > 0){
+                    var tmpIframe,tmpXhr;
+                    for (var i in tmpIframes){
+                        tmpIframe = tmpIframes[i];
+                        if (tmpIframe && typeof(tmpIframe) === 'object' ){
+                            tmpXhr = tmpIframe.contentWindow._XHR.cache[id];
+                            if (tmpXhr && tmpXhr != undefined){
+                                xhr = tmpXhr;
+                                console.log("xhr--ifame---%o",xhr);
+                                break;
+                            }
+                        }
+                    }
+                }
             }
-            if (xhr) {
+            
+            if (xhr && typeof(xhr) === 'object') {
+                if (jsonObj.readyState === xhr.DONE) {
+                    // 防止重复利用 xhr 对象发送请求而导致 id 不变的问题
+                    xhr.isCached = false;
+                }
                 // 保存回调对象，对象子属性的处理放在了 hook 里。因为 xhr 代理对象的可读属性（readyState,status,statusText,responseText）都是从实际 xhr 拷贝过来的，相应的我们也是不能直接对这些可读属性赋值的
                 xhr.callbackProperties = jsonObj;
                 if (xhr.onreadystatechange) {
@@ -519,7 +541,7 @@ var __values = (this && this.__values) || function (o) {
             //拦截回调
             onreadystatechange: function (xhr) {
                 if (xhr.readyState === xhr.DONE) {
-                    console.log("onreadystatechange called: %O", xhr);
+                    console.log("onreadystatechange called: %o", xhr);
                 }
             },
             onload: function (xhr) {
@@ -711,6 +733,6 @@ var __values = (this && this.__values) || function (o) {
     }());
     window.KKJSBridgeConfig = KKJSBridgeConfig;
     window.KKJSBridgeConfig.init(); // JSBridge 配置初始化
-    // window.KKJSBridgeConfig.enableAjaxHook(true); // 默认不开启 ajax hook
+    window.KKJSBridgeConfig.enableAjaxHook(true); // 默认不开启 ajax hook
     window.KKJSBridgeConfig.bridgeReady();
 })(window);

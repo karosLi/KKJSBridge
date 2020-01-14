@@ -64,21 +64,75 @@
   
     NSURL *nativeURL = [NSURL URLWithString:url];
     if (!nativeURL.scheme) {
-        if (nativeURL.pathComponents > 0) {
-            if (nativeURL.host) {
-                url = [NSString stringWithFormat:@"%@%@",scheme, url];
-            } else {
-                if ([url hasPrefix:@"/"]) {// 处理 【/】情况
-                    NSString *tmpPath = url;
-                    NSString *tmpPort = port.length > 0 ? [NSString stringWithFormat:@":%@", port] : @"";
-                    url = [NSString stringWithFormat:@"%@//%@%@%@",scheme, host, tmpPort, tmpPath];
-                } else { // 处理 【./】 【../】 【../../】和前面没有前缀的情况
-                    url = [[href stringByAppendingPathComponent:url] stringByStandardizingPath];
-                }
+        /*------------兼容的代码 start------------*/
+        // 说明是相对路径，一般是资源文件
+        //        示例1
+        //        {
+        //            async = 1;
+        //            host = "m.feng1.com";
+        //            href = "https://m.feng1.com/mall/app/index.html?channel=SFIM&ddsds=ewew#2222";
+        //            id = 632;
+        //            method = GET;
+        //            port = "";
+        //            referer = "<null>";
+        //            scheme = "https:";
+        //            url = "/api/mall/channelConfig/getChannelThemeConfig?channel=SFIM&_=1578133077103";
+        //            useragent = "Mozilla/5.0 (iPhone; CPU iPhone OS 12_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/16A366";
+        //        }
+        //
+        //        示例2
+        //        {
+        //            async = 1;
+        //            host = "";
+        //            href = "file:///Users/01388087/Library/Developer/CoreSimulator/Devices/B9133CAF-51E9-456E-92F6-FAC6EFC676AB/data/Containers/Data/Application/5BCBB3E7-A35F-4BCD-89B7-A79474C0E2C8/Documents/c6a5a31f3f1d9e446353e0425ab55c3e/2e6cda38b47d8c6ec672a1ed4f66cfe8/b8c37e33defde51cf91e1e03e51657da/UnityFile/Cache/serviceApp/packages/salary/f99bb68cfd2680c098a287fca1182030/www/index.html#/dsdsds/ddd?key=xxx&eewwe";
+        //            id = 496;
+        //            method = GET;
+        //            port = "";
+        //            referer = "<null>";
+        //            scheme = "file:";
+        //            url = "views/salaryInquiry/ssf-account-edit.html";
+        //            useragent = "Mozilla/5.0 (iPhone; CPU iPhone OS 12_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/16A366";
+        //        }
+                
+        // 先按照?截取，然后按照#截取
+        NSString* path = [href componentsSeparatedByString:@"?"][0]; // 按“?”进行分割，获取第一个字符串
+        path = [path componentsSeparatedByString:@"#"][0]; // 按“#”进行分割，获取第一个字符串
+        path = [path stringByDeletingLastPathComponent]; // 删除最后一个“/”之后的内容，获取到当前文件的相对路径
+
+        if ([scheme hasPrefix:@"file:"]) {
+            // 本地相对路径
+            if (![url hasPrefix:@"/"]){
+                path = [NSString stringWithFormat:@"%@/",path];
             }
-        } else {
-            url = href;
+            // 完整路径
+            url = [NSString stringWithFormat:@"%@%@",path,url];
+        }else{
+            // 网络相对路径
+            if (![url hasPrefix:@"/"]){
+               url = [NSString stringWithFormat:@"%@%@",path,url];
+            }else {
+               // 网络路径，拼接host
+               NSString *tmpPort = port.length > 0 ? [NSString stringWithFormat:@":%@", port] : @"";
+               url = [NSString stringWithFormat:@"%@//%@%@%@",scheme, host, tmpPort, url];
+            }
         }
+        
+        
+//        if (nativeURL.pathComponents > 0) {
+//            if (nativeURL.host) {
+//                url = [NSString stringWithFormat:@"%@%@",scheme, url];
+//            } else {
+//                if ([url hasPrefix:@"/"]) {// 处理 【/】情况
+//                    NSString *tmpPath = url;
+//                    NSString *tmpPort = port.length > 0 ? [NSString stringWithFormat:@":%@", port] : @"";
+//                    url = [NSString stringWithFormat:@"%@//%@%@%@",scheme, host, tmpPort, tmpPath];
+//                } else { // 处理 【./】 【../】 【../../】和前面没有前缀的情况
+//                    url = [[href stringByAppendingPathComponent:url] stringByStandardizingPath];
+//                }
+//            }
+//        } else {
+//            url = href;
+//        }
     }
     
     [xhr open:method url:url userAgent:userAgent referer:referer];
