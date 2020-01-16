@@ -12,7 +12,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 typedef NS_ENUM(NSInteger, KKJSBridgeMessageType) {
     KKJSBridgeMessageTypeCallback,
-    KKJSBridgeMessageTypeEvent
+    KKJSBridgeMessageTypeEvent,
+    KKJSBridgeMessageTypeSyncCall,
 };
 
 /**
@@ -27,6 +28,9 @@ typedef NS_ENUM(NSInteger, KKJSBridgeMessageType) {
 @property (nonatomic, copy, nullable) NSString *module;
 @property (nonatomic, copy, nullable) NSString *method;
 @property (nonatomic, copy, nullable) NSString *callbackId;
+
+/// 同步 JS call 的回调
+@property (nonatomic, copy, nullable) void (^syncCallback)(NSDictionary *responseData);
 
 #pragma mark - event 相关
 @property (nonatomic, copy, nullable) NSString *eventName;

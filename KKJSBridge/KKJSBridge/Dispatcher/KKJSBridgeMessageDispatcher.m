@@ -140,6 +140,8 @@ typedef void (^KKJSBridgeMessageCallback)(NSDictionary *responseData);
                     [KKJSBridgeLogger log:@"Send out" module:moduleName method:methodName data:responseData];
                     [self dispatchMessageResponse:callbackMessageResponse];
                 };
+            } else if (message.messageType == KKJSBridgeMessageTypeSyncCall) {
+                callback = message.syncCallback;
             }
             
             [KKJSBridgeLogger log:@"Receive" module:moduleName method:methodName data:params];

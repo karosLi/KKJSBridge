@@ -13,6 +13,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class KKJSBridgeMessageDispatcher;
+
 /**
  JSBridge 引擎，统一管理 webView 桥接，模块注册，JSBridge 配置和分发事件
  */
@@ -20,6 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, weak, readonly) WKWebView *webView; // 与桥接器对应的 webView
 @property (nonatomic, strong, readonly) KKJSBridgeModuleRegister *moduleRegister; // 模块注册者
+@property (nonatomic, strong, readonly) KKJSBridgeMessageDispatcher *dispatcher; // 消息分发者
 @property (nonatomic, strong, readonly) KKJSBridgeConfig *config; // jsbridge 配置
 @property (nonatomic, assign, getter=isBridgeReady) BOOL bridgeReady; // jsbridge 是否已经 ready
 
