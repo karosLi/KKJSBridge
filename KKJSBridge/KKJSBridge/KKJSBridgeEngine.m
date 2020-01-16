@@ -8,8 +8,19 @@
 
 #import "KKJSBridgeEngine.h"
 #import "KKJSBridgeMessageDispatcher.h"
+#import "KKJSBridgeSyncMessageDispatcher.h"
 #import "KKJSBridgeModuleCookie.h"
 #import "KKJSBridgeWeakScriptMessageDelegate.h"
+
+// 欺骗编译器，实际上我们使用的 KKWebView
+@interface WKWebView (KKJSBridgeEngine)
+@property (nonatomic, weak) KKJSBridgeEngine *engine;
+@end
+
+@implementation WKWebView (KKJSBridgeEngine)
+- (KKJSBridgeEngine *)engine { return nil; }
+- (void)setEngine:(KKJSBridgeEngine *)engine {}
+@end
 
 static NSString * const KKJSBridgeMessageName = @"KKJSBridgeMessage";
 
@@ -18,6 +29,7 @@ static NSString * const KKJSBridgeMessageName = @"KKJSBridgeMessage";
 @property (nonatomic, weak, readwrite) WKWebView *webView;
 @property (nonatomic, strong, readwrite) KKJSBridgeModuleRegister *moduleRegister; // 模块注册者
 @property (nonatomic, strong, readwrite) KKJSBridgeMessageDispatcher *dispatcher; // 消息分发者
+@property (nonatomic, strong, readwrite) KKJSBridgeSyncMessageDispatcher *syncDispatcher;  // 同步消息分发者
 @property (nonatomic, strong, readwrite) KKJSBridgeConfig *config; // jsbridge 配置
 @end
 
@@ -34,6 +46,7 @@ static NSString * const KKJSBridgeMessageName = @"KKJSBridgeMessage";
 
 + (instancetype)bridgeForWebView:(WKWebView *)webView {
     KKJSBridgeEngine *bridge = [[self alloc] initWithWebView:webView];
+    webView.engine = bridge;
     return bridge;
 }
 
@@ -54,6 +67,7 @@ static NSString * const KKJSBridgeMessageName = @"KKJSBridgeMessage";
 - (void)commonInit {
     _moduleRegister = [[KKJSBridgeModuleRegister alloc] initWithEngine:self];
     _dispatcher = [[KKJSBridgeMessageDispatcher alloc] initWithEngine:self];
+    _syncDispatcher = [[KKJSBridgeSyncMessageDispatcher alloc] initWithEngine:self];
     _config = [[KKJSBridgeConfig alloc] initWithEngine:self];// 用于记录外部配置
 }
 

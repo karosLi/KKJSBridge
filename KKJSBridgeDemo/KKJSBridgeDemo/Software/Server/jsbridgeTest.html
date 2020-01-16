@@ -23,6 +23,7 @@
     <button onclick="invokeModuleDefaultFunctionToTransferMsg()">调用默认模块功能把消息并转发给C模块</button>
     <button onclick="invokeModuleAFunction()">调用模块A功能给a+1并返回结果</button>
 	<button onclick="invokeModuleBFunction()">调用模块B功能获取VC的标题</button>
+    <button onclick="invokeModuleBSyncFunction();">同步调用模块B功能获取VC的标题</button>
 </body>
 <script src="https://cdn.bootcss.com/eruda/1.5.2/eruda.min.js"></script>
 <script>eruda.init();</script>
@@ -63,6 +64,11 @@
         window.KKJSBridge.call('b', 'callToGetVCTitle', {}, function(res) {
             console.log('receive vc title：', res.title);
         });
+    }
+
+    function invokeModuleBSyncFunction() {
+        const res = window.KKJSBridge.syncCall('b', 'callToGetVCTitle', {});
+        alert('title: ' + res.title);
     }
 </script>
 </html>

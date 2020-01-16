@@ -13,6 +13,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class KKJSBridgeMessageDispatcher;
+@class KKJSBridgeSyncMessageDispatcher;
+
 typedef void (^KKJSBridgeReadyCallback)(KKJSBridgeEngine *engine);
 
 /**
@@ -22,6 +25,8 @@ typedef void (^KKJSBridgeReadyCallback)(KKJSBridgeEngine *engine);
 
 @property (nonatomic, weak, readonly) WKWebView *webView; // 与桥接器对应的 webView
 @property (nonatomic, strong, readonly) KKJSBridgeModuleRegister *moduleRegister; // 模块注册者
+@property (nonatomic, strong, readonly) KKJSBridgeMessageDispatcher *dispatcher; // 消息分发者
+@property (nonatomic, strong, readonly) KKJSBridgeSyncMessageDispatcher *syncDispatcher;  // 同步消息分发者
 @property (nonatomic, strong, readonly) KKJSBridgeConfig *config; // jsbridge 配置
 @property (nonatomic, assign, getter=isBridgeReady) BOOL bridgeReady; // jsbridge 是否已经 ready
 @property (nonatomic, copy) KKJSBridgeReadyCallback bridgeReadyCallback; // jsbridge ready callback
