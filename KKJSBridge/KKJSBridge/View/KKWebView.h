@@ -11,6 +11,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class KKJSBridgeEngine;
+
 @protocol KKWebViewDelegate <WKNavigationDelegate>
 
 @end
@@ -50,6 +52,8 @@ NS_ASSUME_NONNULL_BEGIN
  
  */
 @interface KKWebView : WKWebView
+
+@property (nonatomic, weak) KKJSBridgeEngine *engine;
 
 @end
 

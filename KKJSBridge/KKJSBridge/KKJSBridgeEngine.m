@@ -12,6 +12,16 @@
 #import "KKJSBridgeModuleCookie.h"
 #import "KKJSBridgeWeakScriptMessageDelegate.h"
 
+// 欺骗编译器，实际上我们使用的 KKWebView
+@interface WKWebView (KKJSBridgeEngine)
+@property (nonatomic, weak) KKJSBridgeEngine *engine;
+@end
+
+@implementation WKWebView (KKJSBridgeEngine)
+- (KKJSBridgeEngine *)engine { return nil; }
+- (void)setEngine:(KKJSBridgeEngine *)engine {}
+@end
+
 static NSString * const KKJSBridgeMessageName = @"KKJSBridgeMessage";
 
 @interface KKJSBridgeEngine()<WKScriptMessageHandler>
@@ -35,6 +45,7 @@ static NSString * const KKJSBridgeMessageName = @"KKJSBridgeMessage";
 
 + (instancetype)bridgeForWebView:(WKWebView *)webView {
     KKJSBridgeEngine *bridge = [[self alloc] initWithWebView:webView];
+    webView.engine = bridge;
     return bridge;
 }
 

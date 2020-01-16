@@ -10,6 +10,9 @@
 #import "KKWebViewPool.h"
 #import "WKWebView+KKWebViewReusable.h"
 #import "KKWebViewCookieManager.h"
+#import "KKJSBridgeEngine.h"
+#import "KKJSBridgeMessage.h"
+#import "KKJSBridgeMessageDispatcher.h"
 
 @interface KKWebView() <WKNavigationDelegate, WKUIDelegate>
 
@@ -193,6 +196,12 @@
 
 // webView 中的输入框
 - (void)webView:(WKWebView *)webView runJavaScriptTextInputPanelWithPrompt:(NSString *)prompt defaultText:(nullable NSString *)defaultText initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(NSString * _Nullable result))completionHandler {
+    
+    // 如果是约定好的 KKJSBridgeSyncCall，则按照同步消息派发，并回调 completionHandler
+    if ([self webView:webView ifMakeSyncCallWithPrompt:prompt defaultText:defaultText initiatedByFrame:frame completionHandler:completionHandler]) {
+        return;
+    }
+    
     if (![self canShowPanelWithWebView:webView]) {
         completionHandler(nil);
         return;
@@ -252,6 +261,49 @@
     while (viewController.presentedViewController)
         viewController = viewController.presentedViewController;
     return viewController;
+}
+
+- (BOOL)webView:(WKWebView *)webView ifMakeSyncCallWithPrompt:(NSString *)prompt defaultText:(nullable NSString *)defaultText initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(NSString * _Nullable result))completionHandler
+{
+    if (![prompt isEqualToString:@"KKJSBridgeSyncCall"]) {
+        return NO;
+    }
+    
+    if (nil == defaultText
+        || nil == _engine) {
+        completionHandler(nil);
+        return YES;
+    }
+    
+    NSData *jsonData = [defaultText dataUsingEncoding:NSUTF8StringEncoding];
+    NSError *error;
+    NSDictionary *userInfo = [NSJSONSerialization JSONObjectWithData:jsonData options:kNilOptions error:&error];
+    if (nil != error || nil == userInfo) {
+        completionHandler(nil);
+        return YES;
+    }
+    
+    KKJSBridgeMessage *messageInstance = [_engine.dispatcher convertMessageFromMessageJson:userInfo];
+    messageInstance.messageType = KKJSBridgeMessageTypeSyncCall;
+    messageInstance.syncCallback = ^(NSDictionary * _Nonnull responseData) {
+        if (nil == responseData || 0 == responseData.count) {
+            completionHandler(nil);
+            return;
+        }
+        
+        NSError *error;
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:responseData options:kNilOptions error:&error];
+        if (nil != error || nil == jsonData) {
+            completionHandler(nil);
+            return;
+        }
+        
+        NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+        completionHandler(jsonString);
+    };
+    [_engine.dispatcher dispatchCallbackMessage:messageInstance];
+    
+    return YES;
 }
 
 #pragma mark - 当前 WebView 加载完时，先预加载下一个 WebView 实例，以备下个页面可以直接使用

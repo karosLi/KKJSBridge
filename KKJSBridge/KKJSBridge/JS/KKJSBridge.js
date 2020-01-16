@@ -57,6 +57,27 @@ var __values = (this && this.__values) || function (o) {
             this.callbackCache = {};
             this.eventCallbackCache = {};
         }
+
+        /**
+         * 同步调用 Native 方法
+         * @param module 模块
+         * @param method 方法
+         * @param data 数据
+         */
+        KKJSBridge.prototype.syncCall = function (module, method, data) {
+            var message = {
+                module: module || 'default',
+                method: method,
+                data: data
+            };
+
+            const obj = JSON.stringify(message);
+            var response = window.prompt("KKJSBridgeSyncCall", obj);
+            if (null != response) {
+                return JSON.parse(response);
+            }
+        };
+
         /**
          * 调用 Natvie 方法
          * @param module 模块
