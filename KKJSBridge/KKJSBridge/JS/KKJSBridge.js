@@ -73,9 +73,7 @@ var __values = (this && this.__values) || function (o) {
 
             const obj = JSON.stringify(message);
             var response = window.prompt("KKJSBridgeSyncCall", obj);
-            if (null != response) {
-                return JSON.parse(response);
-            }
+            return response ? JSON.parse(response) : null;
         };
 
         /**
