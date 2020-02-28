@@ -34,8 +34,19 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (NSDictionary<NSString *, NSString *> *)methodInvokeMapper;
 
-- (instancetype)initWithEngine:(KKJSBridgeEngine *)engine context:(id)context; // 模块初始化，适合用于需要借助外部环境才能调用 API 的场景
-- (NSOperationQueue * _Nullable)methodInvokeQueue; // 方法调用 queue。默认是 mainQueue，当考虑性能原因时，外部可以指定方法调用的自定义 queue。
+/// 参数映射，之前的参数，可能是按照顺序摆放，并没有key，如果统一使用 JSON 格式，简单点的做法可以 index 为key，
+/// 这样 {0: 'someTitle', 1: 'someUrl'} 需要自己转一层，可以在这个方法实现将参数转成{title: 'someTitle', url: 'someUrl'}
+///
+/// @param parameters 原来的参数
+/// @param method 方法名称
+/// @return NSDictionary 映射之后的参数
++ (NSDictionary *)parameters:(NSDictionary *)parameters mappedForMethod:(NSString *)method;
+
+/// 模块初始化，适合用于需要借助外部环境才能调用 API 的场景
+- (instancetype)initWithEngine:(KKJSBridgeEngine *)engine context:(id)context;
+
+/// 方法调用 queue。默认是 mainQueue，当考虑性能原因时，外部可以指定方法调用的自定义 queue。
+- (NSOperationQueue * _Nullable)methodInvokeQueue;
 
 @end
 

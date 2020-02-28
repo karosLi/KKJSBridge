@@ -26,6 +26,7 @@
 		7C31E0A52318244E00152D06 /* ModuleB.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C31E0A42318244E00152D06 /* ModuleB.m */; };
 		7C31E0A723182B5400152D06 /* moduleTest.html in Resources */ = {isa = PBXBuildFile; fileRef = 7C31E0A623182B5400152D06 /* moduleTest.html */; };
 		7C31E0AA231924B800152D06 /* ModuleC.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C31E0A9231924B800152D06 /* ModuleC.m */; };
+		A34F7B4D2407E52C00A50295 /* ModuleD.m in Sources */ = {isa = PBXBuildFile; fileRef = A34F7B4C2407E52C00A50295 /* ModuleD.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -58,6 +59,8 @@
 		7C31E0A623182B5400152D06 /* moduleTest.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = moduleTest.html; sourceTree = "<group>"; };
 		7C31E0A8231924B800152D06 /* ModuleC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ModuleC.h; sourceTree = "<group>"; };
 		7C31E0A9231924B800152D06 /* ModuleC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ModuleC.m; sourceTree = "<group>"; };
+		A34F7B4B2407E52C00A50295 /* ModuleD.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ModuleD.h; sourceTree = "<group>"; };
+		A34F7B4C2407E52C00A50295 /* ModuleD.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ModuleD.m; sourceTree = "<group>"; };
 		E4439BA0A6CBDEA87FB01283 /* Pods-KKJSBridgeDemo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KKJSBridgeDemo.release.xcconfig"; path = "Pods/Target Support Files/Pods-KKJSBridgeDemo/Pods-KKJSBridgeDemo.release.xcconfig"; sourceTree = "<group>"; };
 		EF6A7197B5A25080AF60C416 /* Pods-KKJSBridgeDemo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KKJSBridgeDemo.debug.xcconfig"; path = "Pods/Target Support Files/Pods-KKJSBridgeDemo/Pods-KKJSBridgeDemo.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -175,6 +178,8 @@
 				7C31E0A42318244E00152D06 /* ModuleB.m */,
 				7C31E0A8231924B800152D06 /* ModuleC.h */,
 				7C31E0A9231924B800152D06 /* ModuleC.m */,
+				A34F7B4B2407E52C00A50295 /* ModuleD.h */,
+				A34F7B4C2407E52C00A50295 /* ModuleD.m */,
 				7C31E09A23181BA000152D06 /* ModuleDefault.h */,
 				7C31E09B23181BA000152D06 /* ModuleDefault.m */,
 				7C31E09D23181C5F00152D06 /* ModuleContext.h */,
@@ -316,6 +321,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A34F7B4D2407E52C00A50295 /* ModuleD.m in Sources */,
 				7C31E0AA231924B800152D06 /* ModuleC.m in Sources */,
 				7C31E06E2317F97600152D06 /* ViewController.m in Sources */,
 				7C31E0792317F97B00152D06 /* main.m in Sources */,

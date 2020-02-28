@@ -95,6 +95,13 @@ typedef void (^KKJSBridgeMessageCallback)(NSDictionary *responseData);
                 
                 nativeClass = metaClass.moduleClass;
                 moduleClass = nativeClass;
+                
+                if ([moduleClass respondsToSelector:@selector(parameters:mappedForMethod:)]) {
+                    NSDictionary *tmp = ((NSDictionary *(*)(id, SEL, NSDictionary *, NSString *))objc_msgSend)(moduleClass, @selector(parameters:mappedForMethod:), params, methodName);
+                    if (nil != tmp) {
+                        params = tmp;
+                    }
+                }
             }
         }
     }

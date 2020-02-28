@@ -23,6 +23,7 @@
     <button onclick="invokeModuleDefaultFunctionToTransferMsg()">调用默认模块功能把消息并转发给C模块</button>
     <button onclick="invokeModuleAFunction()">调用模块A功能给a+1并返回结果</button>
 	<button onclick="invokeModuleBFunction()">调用模块B功能获取VC的标题</button>
+    <button onclick="invokeModuleDFunction();">调用模块D功能，传 Fuck 参数</button>
     <button onclick="invokeModuleBSyncFunction();">同步调用模块B功能获取VC的标题</button>
 </body>
 <script src="https://cdn.bootcss.com/eruda/1.5.2/eruda.min.js"></script>
@@ -67,8 +68,21 @@
     }
 
     function invokeModuleBSyncFunction() {
-        const res = window.KKJSBridge.syncCall('b', 'callToGetVCTitle', {});
+        const res = window.KKJSBridge.syncCall('b', 'callToGetVCTitle');
         alert('title: ' + res.title);
+    }
+
+    function invokeModuleDFunction() {
+        const parameters = {
+            0: '好久不见',
+            1: '我多么想和你见一面，不再说从前，只是寒暄，坐着陪你聊聊天。。。',
+            2: 'https://github.com/wjiuxing/KKJSBridge',
+            3: '{"name":"fuck the old parameters adaptor","url": "https://www.objc.io/images/issue-19/Image_2014-11-22_at_11.52.50_AM-b444d4e4.png"}',
+            4: '["1","2","3"]'
+        };
+        window.KKJSBridge.call('d', 'fuck', parameters, function (res) {
+            console.log('result：', res);
+        });
     }
 </script>
 </html>
