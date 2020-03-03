@@ -97,9 +97,15 @@ var __values = (this && this.__values) || function (o) {
                 }
             }
             else if (callbackMessage.messageType === "event" /* Event */) { // 事件消息
-                var eventCallback = this.eventCallbackCache[callbackMessage.eventName];
-                if (eventCallback) {
-                    eventCallback(callbackMessage.data);
+                // 支持批量事件调用
+                var obsevers = this.eventCallbackCache[callbackMessage.eventName];
+                if (obsevers) {
+                    for (var i = 0; i < obsevers.length; i++) {
+                        var eventCallback = obsevers[i];
+                        if (eventCallback) {
+                            eventCallback(callbackMessage.data);
+                        }
+                    }
                 }
             }
         };
@@ -119,7 +125,15 @@ var __values = (this && this.__values) || function (o) {
          * @param callback 事件回调
          */
         KKJSBridge.prototype.on = function (eventName, callback) {
-            this.eventCallbackCache[eventName] = callback;
+            // 使用数组，支持多个观察者
+            var obsevers = this.eventCallbackCache[eventName];
+            if (obsevers) {
+                obsevers.push(callback);
+            }
+            else {
+                obsevers = [callback];
+                this.eventCallbackCache[eventName] = obsevers;
+            }
         };
         return KKJSBridge;
     }());
@@ -461,7 +475,6 @@ var __values = (this && this.__values) || function (o) {
                     if (xhr.onload) {
                         xhr.onload();
                     }
-                
                     var load = document.createEvent("Events");
                     load.initEvent("load");
                     xhr.dispatchEvent(load);

@@ -113,7 +113,7 @@ declare interface FormDataFile {
   class KKJSBridge {
     private uniqueId: number; // 用于记录标记唯一的函数回调
     private callbackCache: { [key: string]: Callback }; // 用于 H5 监听来自 Native 的回调
-    private eventCallbackCache: { [key: string]: EventCallback }; // 用于处理来自 Native 的事件
+    private eventCallbackCache: { [key: string]: [EventCallback] }; // 用于处理来自 Native 的事件
 
     constructor() {
       this.uniqueId = 1;
@@ -163,9 +163,15 @@ declare interface FormDataFile {
           delete this.callbackCache[callbackMessage.callbackId];
         }
       } else if (callbackMessage.messageType === MessageType.Event) { // 事件消息
-        let eventCallback: Callback = this.eventCallbackCache[callbackMessage.eventName];
-        if (eventCallback) {
-          eventCallback(callbackMessage.data);
+        // 支持批量事件调用
+        let obsevers: [EventCallback] = this.eventCallbackCache[callbackMessage.eventName];
+        if (obsevers) {
+          for(let i = 0; i < obsevers.length; i++) {
+            let eventCallback: EventCallback = obsevers[i];
+            if (eventCallback) {
+              eventCallback(callbackMessage.data);
+            }
+          }
         }
       }
     }
@@ -187,7 +193,14 @@ declare interface FormDataFile {
      * @param callback 事件回调
      */
     public on(eventName: string, callback: EventCallback) {
-      this.eventCallbackCache[eventName] = callback;
+      // 使用数组，支持多个观察者
+      let obsevers: [EventCallback] = this.eventCallbackCache[eventName];
+      if (obsevers) {
+        obsevers.push(callback);
+      } else {
+        obsevers = [callback];
+        this.eventCallbackCache[eventName] = obsevers;
+      }
     }
   }
 
