@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="X-UA-Compatible" content="ie=edge">
 <title>KKJSBridge Ajax</title>
+<link rel="Stylesheet" type="text/css" href="resource/offlinestyle.css">
+<script type="text/javascript" src="resource/offline.js"></script>
 <style>
     button {
         background:#000;
@@ -19,8 +21,10 @@
 </style>
 </head>
 <body>
+    <!-- <img src="resource/demo.jpg"> -->
 	<a href="/client302">浏览器重定向</a>
 	<a href="/client302" target="_blank">_blank 浏览器重定向</a>
+    <button onclick="printlog()">printlog</button>
 	<button onclick="ajax_get_with_cookie()">ajax_get_with_cookie</button>
 	<button onclick="ajax_post_with_cookie()">ajax_post_with_cookie</button>
 </body>
@@ -30,7 +34,7 @@
 	function ajax_get_with_cookie() {
 		var xhr = new XMLHttpRequest(),
 	     method = "GET",
-	     url = "/testAjaxGet";
+	     url = "testAjaxGet";
 	     xhr.open(method, url, true);
 	     xhr.onreadystatechange = function () {
 	        if(xhr.readyState === 4 && xhr.status === 200) {

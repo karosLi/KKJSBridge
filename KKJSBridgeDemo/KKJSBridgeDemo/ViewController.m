@@ -21,6 +21,14 @@
 }
 
 - (void)load {
+    /**
+     运行demo步骤：
+     1、进入 KKJSBridgeDemo/KKJSBridgeDemo/Software/Server 目录
+     2、基于上面目录打开终端，并运行 node server.js
+     3、打开 KKJSBridgeDemo/KKJSBridgeDemo.xcworkspace 运行 demo
+     */
+    
+    
     NSString *url = @"";
     {
         // 测试JSBridge
