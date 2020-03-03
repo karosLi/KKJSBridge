@@ -51,8 +51,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface KKWebView : WKWebView
 
-@property (nonatomic, weak) id<KKWebViewDelegate> hybirdDelegate;
-
 @end
 
 NS_ASSUME_NONNULL_END
