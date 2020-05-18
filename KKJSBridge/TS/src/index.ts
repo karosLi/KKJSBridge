@@ -202,6 +202,17 @@ declare interface FormDataFile {
         this.eventCallbackCache[eventName] = obsevers;
       }
     }
+
+    /**
+     * 取消监听事件
+     * @param eventName 事件名字
+     */
+    public off(eventName: string) {
+      let obsevers: [EventCallback] = this.eventCallbackCache[eventName];
+      if (obsevers && obsevers.length > 0) {
+        obsevers.splice(0, obsevers.length);
+      }
+    }
   }
 
   // 初始化 KKJSBridge

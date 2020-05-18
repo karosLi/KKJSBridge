@@ -135,6 +135,16 @@ var __values = (this && this.__values) || function (o) {
                 this.eventCallbackCache[eventName] = obsevers;
             }
         };
+        /**
+         * 取消监听事件
+         * @param eventName 事件名字
+         */
+        KKJSBridge.prototype.off = function (eventName) {
+            var obsevers = this.eventCallbackCache[eventName];
+            if (obsevers && obsevers.length > 0) {
+                obsevers.splice(0, obsevers.length);
+            }
+        };
         return KKJSBridge;
     }());
     // 初始化 KKJSBridge
