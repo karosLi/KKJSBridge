@@ -17,7 +17,7 @@
    window.WebViewJavascriptBridge = WebViewJavascriptBridge;
    
    // 告诉 H5， WebViewJavascriptBridge 已经 ready
-   let WebViewJavascriptBridgeReadyEvent: Event = document.createEvent("Events");
+   let WebViewJavascriptBridgeReadyEvent = document.createEvent("Events");
    WebViewJavascriptBridge.initEvent("WebViewJavascriptBridgeReady");
    document.dispatchEvent(WebViewJavascriptBridge);
 })(window);

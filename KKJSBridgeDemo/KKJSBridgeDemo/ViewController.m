@@ -40,7 +40,7 @@
     }
     {
         // 测试服务器端重定向
-//        url = @"http://127.0.0.1:50000/index302";
+        url = @"http://127.0.0.1:50000/index302";
     }
     {
         // 测试第三方网站 ajax 请求
@@ -48,7 +48,7 @@
     }
     {
         // 测试表单
-        url = @"http://127.0.0.1:50000/formData";
+//        url = @"http://127.0.0.1:50000/formData";
     }
     
     WebViewController *web = [[WebViewController alloc] initWithUrl:url];
