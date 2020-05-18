@@ -10,6 +10,7 @@
 #define KKJSBridgeAjaxDelegate_h
 #import <Foundation/Foundation.h>
 
+NS_ASSUME_NONNULL_BEGIN
 @class KKJSBridgeXMLHttpRequest;
 
 /**
@@ -34,5 +35,5 @@
 
 @end
 
-
+NS_ASSUME_NONNULL_END
 #endif /* KKJSBridgeAjaxDelegate_h */

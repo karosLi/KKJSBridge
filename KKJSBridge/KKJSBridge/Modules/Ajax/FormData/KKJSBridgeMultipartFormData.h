@@ -8,7 +8,7 @@
 
 #ifndef KKJSBridgeMultipartFormData_h
 #define KKJSBridgeMultipartFormData_h
-
+NS_ASSUME_NONNULL_BEGIN
 /**
  The `AFMultipartFormData` protocol defines the methods supported by the parameter in the block argument of `AFHTTPRequestSerializer -multipartFormRequestWithMethod:URLString:parameters:constructingBodyWithBlock:`.
  */
@@ -106,5 +106,5 @@
                                   delay:(NSTimeInterval)delay;
 
 @end
-
+NS_ASSUME_NONNULL_END
 #endif /* KKJSBridgeMultipartFormData_h */
