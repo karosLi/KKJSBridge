@@ -185,13 +185,13 @@ static NSString * const KKJSBridgeXMLHttpRequestStatusTextOK = @"OK";
         actualData = data;
     }
     
+    KKJS_LOCK(_lock);
     if (actualData) {
-        KKJS_LOCK(_lock);
         self.request.HTTPBody = actualData;
-        KKJS_UNLOCK(_lock);
     }
     
     [self send];
+    KKJS_UNLOCK(_lock);
 }
 
 - (void)sendFormData:(NSDictionary *)params withFileDatas:(NSArray<KKJSBridgeFormDataFile *> *)fileDatas {
