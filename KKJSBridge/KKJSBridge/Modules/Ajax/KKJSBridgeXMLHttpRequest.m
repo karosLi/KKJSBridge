@@ -7,6 +7,7 @@
 //
 
 #import "KKJSBridgeXMLHttpRequest.h"
+#import "KKJSBridgeMacro.h"
 #import "KKJSBridgeEngine.h"
 #import "KKJSBridgeJSExecutor.h"
 #import "KKJSBridgeLogger.h"
@@ -64,6 +65,8 @@ static NSString * const KKJSBridgeXMLHttpRequestStatusTextOK = @"OK";
 @property (nonatomic, strong) NSHTTPURLResponse *httpResponse;
 @property (nonatomic, copy) NSString *responseText;
 
+@property (nonatomic, strong) dispatch_semaphore_t lock;
+
 @end
 
 @implementation KKJSBridgeXMLHttpRequest
@@ -74,6 +77,7 @@ static NSString * const KKJSBridgeXMLHttpRequestStatusTextOK = @"OK";
         _engine = engine;
         _webView = engine.webView;
         _state = KKJSBridgeXMLHttpRequestStateUnset;
+        _lock = dispatch_semaphore_create(1);
     }
     
     return self;
@@ -182,7 +186,9 @@ static NSString * const KKJSBridgeXMLHttpRequestStatusTextOK = @"OK";
     }
     
     if (actualData) {
+        KKJS_LOCK(_lock);
         self.request.HTTPBody = actualData;
+        KKJS_UNLOCK(_lock);
     }
     
     [self send];

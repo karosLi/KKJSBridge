@@ -14,14 +14,14 @@ PODS:
   - AFNetworking/Serialization (3.2.1)
   - AFNetworking/UIKit (3.2.1):
     - AFNetworking/NSURLSession
-  - KKJSBridge (1.0.2)
+  - KKJSBridge (1.0.14)
 
 DEPENDENCIES:
   - AFNetworking
   - KKJSBridge (from `../`)
 
 SPEC REPOS:
-  https://github.com/cocoapods/specs.git:
+  https://github.com/CocoaPods/Specs.git:
     - AFNetworking
 
 EXTERNAL SOURCES:
@@ -30,8 +30,8 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   AFNetworking: b6f891fdfaed196b46c7a83cf209e09697b94057
-  KKJSBridge: 1df53c2c52cb1a1691afa9f27377f7ceca9303a2
+  KKJSBridge: dd4e48ea20d124a026ac11019d2124ee7b5db1a4
 
 PODFILE CHECKSUM: cb790ca7d841e6c617de93aaa6acb511ed9b1251
 
-COCOAPODS: 1.5.3
+COCOAPODS: 1.9.1

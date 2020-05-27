@@ -90,6 +90,7 @@
 		7C31E03F2317EC0800152D06 /* WKWebView+KKWebViewReusable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "WKWebView+KKWebViewReusable.h"; sourceTree = "<group>"; };
 		7C31E0402317EC0800152D06 /* KKWebViewPool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KKWebViewPool.m; sourceTree = "<group>"; };
 		7C31E0412317EC0900152D06 /* KKJSBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KKJSBridge.h; sourceTree = "<group>"; };
+		7C670B43247E15E800366253 /* KKJSBridgeMacro.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KKJSBridgeMacro.h; sourceTree = "<group>"; };
 		7C83A72B2340555D00A49A52 /* tsconfig.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = tsconfig.json; sourceTree = "<group>"; };
 		7C83A72C2340555D00A49A52 /* package.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = package.json; sourceTree = "<group>"; };
 		7C83A7352340590300A49A52 /* KKJSBridgeURLRequestSerialization.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KKJSBridgeURLRequestSerialization.h; sourceTree = "<group>"; };
@@ -188,6 +189,7 @@
 		7C31E01B2317EC0800152D06 /* Util */ = {
 			isa = PBXGroup;
 			children = (
+				7C670B43247E15E800366253 /* KKJSBridgeMacro.h */,
 				7C31E0222317EC0800152D06 /* KKJSBridgeJSExecutor.h */,
 				7C31E01F2317EC0800152D06 /* KKJSBridgeJSExecutor.m */,
 				7C31E0202317EC0800152D06 /* KKJSBridgeWeakProxy.h */,

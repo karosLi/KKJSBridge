@@ -271,20 +271,15 @@
 			files = (
 			);
 			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-KKJSBridgeDemo/Pods-KKJSBridgeDemo-resources.sh",
-				"${PODS_ROOT}/../../KKJSBridge/KKJSBridge/JS/KKJSBridge.js",
+				"${PODS_ROOT}/Target Support Files/Pods-KKJSBridgeDemo/Pods-KKJSBridgeDemo-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
-			);
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/KKJSBridge.js",
+				"${PODS_ROOT}/Target Support Files/Pods-KKJSBridgeDemo/Pods-KKJSBridgeDemo-resources-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-KKJSBridgeDemo/Pods-KKJSBridgeDemo-resources.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-KKJSBridgeDemo/Pods-KKJSBridgeDemo-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		C329AE1645C142223FD804FB /* [CP] Check Pods Manifest.lock */ = {
