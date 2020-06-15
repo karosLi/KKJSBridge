@@ -26,6 +26,8 @@
 	<a href="/client302" target="_blank">_blank 浏览器重定向</a>
 	<button onclick="ajax_get_with_cookie()">ajax_get_with_cookie</button>
 	<button onclick="ajax_post_with_cookie()">ajax_post_with_cookie</button>
+	<button onclick="ajax_get_html()">ajax_get_html</button>
+	<div id="ajax_get_html_div"></div>
 </body>
 <script src="https://cdn.bootcss.com/eruda/1.5.2/eruda.min.js"></script>
 <script>eruda.init();</script>
@@ -54,5 +56,21 @@
 	     };
 	     xhr.send();
 	}
+	function ajax_get_html() {
+		var xhr = new XMLHttpRequest(),
+	     method = "GET",
+	     url = "/testAjaxGetHtml";
+	     xhr.open(method, url, true);
+	     xhr.onreadystatechange = function () {
+	        if(xhr.readyState === 4 && xhr.status === 200) {
+	            console.log(xhr.responseText);
+	            var div = document.getElementById('ajax_get_html_div');
+	            div.innerText = xhr.responseText;
+	        }
+	     };
+	     xhr.send();
+	}
+
+	
 </script>
 </html>
