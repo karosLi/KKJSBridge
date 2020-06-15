@@ -73,7 +73,10 @@
                     NSString *tmpPort = port.length > 0 ? [NSString stringWithFormat:@":%@", port] : @"";
                     url = [NSString stringWithFormat:@"%@//%@%@%@",scheme, host, tmpPort, tmpPath];
                 } else { // 处理 【./】 【../】 【../../】和前面没有前缀的情况
-                    url = [[href stringByAppendingPathComponent:url] stringByStandardizingPath];
+                    NSURL *newUrl = [NSURL URLWithString:url relativeToURL:[NSURL URLWithString:href]];
+                    NSURLComponents *urlComponents = [[NSURLComponents alloc] initWithURL:newUrl resolvingAgainstBaseURL:YES];
+                    urlComponents.query = nil;
+                    url = urlComponents.string;
                 }
             }
         } else {
