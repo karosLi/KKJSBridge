@@ -17,8 +17,9 @@ server.on('request', function (req,res) {
     // console.log('srvUrl', srvUrl);
 
     req.on('end', function() {
-        console.log('============================================');
+        console.log('--------------------------------------------');
         console.log('RESPONSE', req.url, res.getHeaders());
+        console.log('============================================');
     });
 
     if (req.url === '/index302') {
@@ -78,7 +79,32 @@ server.on('request', function (req,res) {
             }
             res.end(data)
         })
-     } 
+    }  else if (req.url === '/relative/abc/index') {
+        fs.readFile(path.join(__dirname,'relativeTest'),function (err,data) {
+            if (err) {
+                throw err;
+            }
+            res.setHeader('status', '200 OK');
+            res.setHeader('Set-Cookie', ['test_token1=1;', 'test_token2=2;domain='+srvUrl.hostname+';path=/;expires=Mon, 01 Aug 2050 06:44:35 GMT;', 'test_token3=3;domain='+srvUrl.hostname+';path=/;expires=Mon, 01 Aug 2050 06:44:35 GMT;HTTPOnly;']);
+            res.end(data)
+        })
+    } else if (req.url === '/relative/abc/testAjaxPostWithRelative1') {
+        res.setHeader('status', '200 OK');
+        res.setHeader('Content-Type', 'text/plain');
+        res.end('ajax 相对路径[./]');
+    } else if (req.url === '/relative/testAjaxPostWithRelative2') {
+        res.setHeader('status', '200 OK');
+        res.setHeader('Content-Type', 'text/plain');
+        res.end('ajax 相对路径[../]');
+    } else if (req.url === '/testAjaxPostWithRelative3') {
+        res.setHeader('status', '200 OK');
+        res.setHeader('Content-Type', 'text/plain');
+        res.end('ajax 相对路径[../../]');
+    } else if (req.url === '/testAjaxPostWithAbsolute') {
+        res.setHeader('status', '200 OK');
+        res.setHeader('Content-Type', 'text/plain');
+        res.end('ajax 绝对路径[/]');
+    } 
 })
 
 // 6. 启用服务器
@@ -86,4 +112,6 @@ server.listen(50000,function () {
     console.log('启用成功'); 
     console.log('test for 200 http://127.0.0.1:50000/index');
     console.log('test for 302 http://127.0.0.1:50000/index302')
+    console.log('test for JSBridge http://127.0.0.1:50000/moduleTest')
+    console.log('test for RelativePath http://127.0.0.1:50000/relative/index')
 })
