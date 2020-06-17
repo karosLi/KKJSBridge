@@ -55,8 +55,14 @@
     
     {
         // 测试相对路径
-        url = @"http://127.0.0.1:50000/relative/abc/index";
+//        url = @"http://127.0.0.1:50000/relative/abc/index";
     }
+    
+    {
+        // fetch hook
+        url = @"http://127.0.0.1:50000:50000/fetchHookTest";
+    }
+    
     
     WebViewController *web = [[WebViewController alloc] initWithUrl:url];
     [self.navigationController pushViewController:web animated:YES];

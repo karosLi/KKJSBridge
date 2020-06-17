@@ -29,7 +29,9 @@ server.on('request', function (req,res) {
         })
         
         res.end();
-    } else if (req.url === '/index') {
+    } 
+    // ajax hook 相关
+    else if (req.url === '/index') {
         fs.readFile(path.join(__dirname,'index.html'),function (err,data) {
             if (err) {
                 throw err;
@@ -38,21 +40,7 @@ server.on('request', function (req,res) {
             res.setHeader('Set-Cookie', ['test_token1=1;', 'test_token2=2;domain='+srvUrl.hostname+';path=/;expires=Mon, 01 Aug 2050 06:44:35 GMT;', 'test_token3=3;domain='+srvUrl.hostname+';path=/;expires=Mon, 01 Aug 2050 06:44:35 GMT;HTTPOnly;']);
             res.end(data)
         })
-    } else if (req.url === '/client302') {
-        fs.readFile(path.join(__dirname,'client302.html'),function (err,data) {
-            if (err) {
-                throw err;
-            }
-            res.end(data)
-        })
-     } else if (req.url === '/moduleTest') {
-        fs.readFile(path.join(__dirname,'moduleTest.html'),function (err,data) {
-            if (err) {
-                throw err;
-            }
-            res.end(data)
-        })
-     } else if (req.url === '/testAjaxGet') {
+    } else if (req.url === '/testAjaxGet') {
         res.setHeader('status', '200 OK');
         res.setHeader('Content-Type', 'text/plain');
         res.setHeader('Set-Cookie', ['get_ajax_token=55;domain='+srvUrl.hostname+';path=/;expires=Mon, 01 Aug 2050 06:44:35 GMT;HTTPOnly;', 'get_ajax_token1=66;domain='+srvUrl.hostname+';path=/;expires=Mon, 01 Aug 2050 06:44:35 GMT;']);
@@ -72,14 +60,36 @@ server.on('request', function (req,res) {
             res.setHeader('Content-Type', 'text/html');
             res.end(data)
         })
-    } else if (req.url === '/formData') {
+    }
+    // 重定向相关
+    else if (req.url === '/client302') {
+        fs.readFile(path.join(__dirname,'client302.html'),function (err,data) {
+            if (err) {
+                throw err;
+            }
+            res.end(data)
+        })
+    } 
+    // 模块测试相关
+    else if (req.url === '/moduleTest') {
+        fs.readFile(path.join(__dirname,'moduleTest.html'),function (err,data) {
+            if (err) {
+                throw err;
+            }
+            res.end(data)
+        })
+    } 
+    // 表单相关
+    else if (req.url === '/formData') {
         fs.readFile(path.join(__dirname,'formData.html'),function (err,data) {
             if (err) {
                 throw err;
             }
             res.end(data)
         })
-    }  else if (req.url === '/relative/abc/index') {
+    } 
+    // 相对路径相关
+    else if (req.url === '/relative/abc/index') {
         fs.readFile(path.join(__dirname,'relativeTest'),function (err,data) {
             if (err) {
                 throw err;
@@ -88,7 +98,8 @@ server.on('request', function (req,res) {
             res.setHeader('Set-Cookie', ['test_token1=1;', 'test_token2=2;domain='+srvUrl.hostname+';path=/;expires=Mon, 01 Aug 2050 06:44:35 GMT;', 'test_token3=3;domain='+srvUrl.hostname+';path=/;expires=Mon, 01 Aug 2050 06:44:35 GMT;HTTPOnly;']);
             res.end(data)
         })
-    } else if (req.url === '/relative/abc/testAjaxPostWithRelative1') {
+    } 
+    else if (req.url === '/relative/abc/testAjaxPostWithRelative1') {
         res.setHeader('status', '200 OK');
         res.setHeader('Content-Type', 'text/plain');
         res.end('ajax 相对路径[./]');
@@ -100,6 +111,26 @@ server.on('request', function (req,res) {
         res.setHeader('status', '200 OK');
         res.setHeader('Content-Type', 'text/plain');
         res.end('ajax 相对路径[../../]');
+    } else if (req.url === '/testAjaxPostWithAbsolute') {
+        res.setHeader('status', '200 OK');
+        res.setHeader('Content-Type', 'text/plain');
+        res.end('ajax 绝对路径[/]');
+    } 
+    // fetch hook 相关
+    else if (req.url === '/fetchHookTest') {
+        fs.readFile(path.join(__dirname,'fetchHookTest.html'),function (err,data) {
+            if (err) {
+                throw err;
+            }
+            res.end(data)
+        })
+    } else if (req.url === '/fetch.umd.js') {
+        fs.readFile(path.join(__dirname,'fetch.umd.js'),function (err,data) {
+            if (err) {
+                throw err;
+            }
+            res.end(data)
+        })
     } else if (req.url === '/testAjaxPostWithAbsolute') {
         res.setHeader('status', '200 OK');
         res.setHeader('Content-Type', 'text/plain');
