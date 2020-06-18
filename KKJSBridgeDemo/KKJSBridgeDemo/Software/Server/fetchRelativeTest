@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title>KKJSBridge Fetch 相对路径</title>
+<!-- <link rel="Stylesheet" type="text/css" href="resource/offlinestyle.css">
+<script type="text/javascript" src="resource/offline.js"></script> -->
+<style>
+    button {
+        background:#000;
+        color:#fff;
+        padding: 6px 12px;
+        font-size: 14px;
+        display:block;
+        margin-bottom:5px;
+        border:none;
+        border-radius: 3px;
+    }
+</style>
+</head>
+<body>
+	<button onclick="fetch_post_relative_path_1()">fetch 相对路径[./]</button>
+	<button onclick="fetch_post_relative_path_2()">fetch 相对路径[../]</button>
+	<button onclick="fetch_post_relative_path_3()">fetch 相对路径[../../]</button>
+	<button onclick="fetch_post_absolute_path_4()">fetch 绝对路径[/]</button>
+</body>
+<script src="https://cdn.bootcss.com/eruda/1.5.2/eruda.min.js"></script>
+<script>eruda.init();</script>
+<script type="text/javascript">
+	function fetch_post_relative_path_1() {
+		fetch('./testFetchPostWithRelative1', {
+  			method: 'POST',
+		}).then(res => {
+			res.text().then(function(text) {
+		    	console.log(text);
+		    });
+		}).catch(error => {
+			console.error('Error:', error)
+		});
+	}
+	function fetch_post_relative_path_2() {
+	    fetch('../testFetchPostWithRelative2', {
+  			method: 'POST',
+		}).then(res => {
+			res.text().then(function(text) {
+		    	console.log(text);
+		    });
+		}).catch(error => {
+			console.error('Error:', error)
+		});
+	}
+	function fetch_post_relative_path_3() {
+		fetch('../../testFetchPostWithRelative3', {
+  			method: 'POST',
+		}).then(res => {
+			res.text().then(function(text) {
+		    	console.log(text);
+		    });
+		}).catch(error => {
+			console.error('Error:', error)
+		});
+	}
+	function fetch_post_absolute_path_4() {
+		fetch('/testFetchPostWithAbsolute', {
+  			method: 'POST',
+		}).then(res => {
+			res.text().then(function(text) {
+		    	console.log(text);
+		    });
+		}).catch(error => {
+			console.error('Error:', error)
+		});
+	}
+
+	
+</script>
+</html>

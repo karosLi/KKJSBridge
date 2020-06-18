@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title>KKJSBridge JSBridge Demo</title>
+<style>
+    button {
+        background:#000;
+        color:#fff;
+        padding: 6px 12px;
+        font-size: 14px;
+        display:block;
+        margin-bottom:5px;
+        border:none;
+        border-radius: 3px;
+    }
+</style>
+</head>
+<body>
+	<button onclick="invokeModuleDefaultFunction()">调用默认模块功能去监听事件</button>
+    <button onclick="invokeModuleDefaultFunctionToTransferMsg()">调用默认模块功能把消息并转发给C模块</button>
+    <button onclick="invokeModuleAFunction()">调用模块A功能给a+1并返回结果</button>
+	<button onclick="invokeModuleBFunction()">调用模块B功能获取VC的标题</button>
+</body>
+<script src="https://cdn.bootcss.com/eruda/1.5.2/eruda.min.js"></script>
+<script>eruda.init();</script>
+<script type="text/javascript">
+    /**
+     KKJSBridge.prototype.call = function (module, method, data, callback) {
+        this.callNative(module, method, data, callback);
+     };
+     
+     KKJSBridge.prototype.on = function (eventName, callback) {
+        this.eventCallbackCache[eventName] = callback;
+     };
+     **/
+
+    function invokeModuleDefaultFunction() {
+        window.KKJSBridge.on('triggerEvent', function(data) {
+            console.log('receive triggerEvent：', data);
+        });
+        
+        window.KKJSBridge.call(null, 'callToTriggerEvent', {}, function(res) {
+            
+        });
+    }
+
+    function invokeModuleDefaultFunctionToTransferMsg() {
+        window.KKJSBridge.call('default', 'method', {a:4}, function(res) {
+            console.log('receive method desc of default module：', res.desc);
+        });
+    }
+
+    function invokeModuleAFunction() {
+        window.KKJSBridge.call('a', 'callToAddOneForA', {a:4}, function(res) {
+            console.log('receive callToAddOneForA res 4+1=：', res.a);
+        });
+    }
+
+    function invokeModuleBFunction() {
+        window.KKJSBridge.call('b', 'callToGetVCTitle', {}, function(res) {
+            console.log('receive vc title：', res.title);
+        });
+    }
+</script>
+</html>
