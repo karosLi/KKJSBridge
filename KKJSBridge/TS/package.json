@@ -8,7 +8,8 @@
   "private": false,
   "scope": "",
   "scripts": {
-    "build": "rollup -c"
+    "build": "rollup -c",
+    "qtoken": "node ./util/qtoken.js"
   },
   "author": "",
   "repository": {},
@@ -20,6 +21,7 @@
     "@rollup/plugin-commonjs": "^11.0.1",
     "@rollup/plugin-typescript": "^3.0.0",
     "buble": "^0.19.8",
+    "qiniu": "^7.3.1",
     "rollup": "^2.0.0",
     "tslib": "^1.10.0",
     "typescript": "^3.7.4"
@@ -28,5 +30,6 @@
   "browserslist": [
     "iOS >= 6.0",
     "Android >= 4.0"
-  ]
+  ],
+  "dependencies": {}
 }

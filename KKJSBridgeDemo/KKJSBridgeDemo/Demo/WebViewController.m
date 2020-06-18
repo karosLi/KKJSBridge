@@ -140,9 +140,18 @@
 
 #pragma mark - 安装视图
 - (void)setupView {
+    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"<返回" style:UIBarButtonItemStyleDone target:self action:@selector(onClickBack)];
     self.view.backgroundColor = [UIColor whiteColor];
     [self.view addSubview:self.webView];
     self.webView.frame = [UIScreen mainScreen].bounds;
+}
+
+- (void)onClickBack {
+    if ([self.webView canGoBack]) {
+        [self.webView goBack];
+    } else {
+        [self.navigationController popViewControllerAnimated:YES];
+    }
 }
 
 #pragma mark - 请求

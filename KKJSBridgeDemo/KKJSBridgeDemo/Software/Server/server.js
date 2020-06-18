@@ -22,17 +22,47 @@ server.on('request', function (req,res) {
         console.log('============================================');
     });
 
-    if (req.url === '/index302') {
+    /// 主入口
+    if (req.url === '/index') {
+        fs.readFile(path.join(__dirname,'index.html'),function (err,data) {
+            if (err) {
+                throw err;
+            }
+            res.setHeader('status', '200 OK');
+            res.end(data)
+        })
+    } 
+    /// 服务器端重定向
+    else if (req.url === '/ajaxIndex302') {
         // 通过响应头来实现服务端重定向
         res.writeHead(302,{
-            'Location': 'http://' + req.headers.host + '/index'
+            'Location': 'http://' + req.headers.host + '/ajaxIndex'
         })
         
         res.end();
     } 
-    // ajax hook 相关
-    else if (req.url === '/index') {
-        fs.readFile(path.join(__dirname,'index.html'),function (err,data) {
+    /// 模块测试相关
+    else if (req.url === '/jsbridgeTest') {
+        fs.readFile(path.join(__dirname,'jsbridgeTest.html'),function (err,data) {
+            if (err) {
+                throw err;
+            }
+            res.end(data)
+        })
+    }
+    /// ajax 相关
+    else if (req.url === '/ajaxIndex') {// ajax 主页
+        fs.readFile(path.join(__dirname,'ajaxIndex.html'),function (err,data) {
+            if (err) {
+                throw err;
+            }
+            res.setHeader('status', '200 OK');
+            res.end(data)
+        })
+    } 
+    
+    else if (req.url === '/ajaxHookTest') {// ajax hook 主页
+        fs.readFile(path.join(__dirname,'ajaxHookTest.html'),function (err,data) {
             if (err) {
                 throw err;
             }
@@ -40,18 +70,25 @@ server.on('request', function (req,res) {
             res.setHeader('Set-Cookie', ['test_token1=1;', 'test_token2=2;domain='+srvUrl.hostname+';path=/;expires=Mon, 01 Aug 2050 06:44:35 GMT;', 'test_token3=3;domain='+srvUrl.hostname+';path=/;expires=Mon, 01 Aug 2050 06:44:35 GMT;HTTPOnly;']);
             res.end(data)
         })
-    } else if (req.url === '/testAjaxGet') {
+    } else if (req.url === '/client302') {// ajax - 重定向
+        fs.readFile(path.join(__dirname,'client302.html'),function (err,data) {
+            if (err) {
+                throw err;
+            }
+            res.end(data)
+        })
+    } else if (req.url === '/testAjaxGet') {// ajax hook - get
         res.setHeader('status', '200 OK');
         res.setHeader('Content-Type', 'text/plain');
         res.setHeader('Set-Cookie', ['get_ajax_token=55;domain='+srvUrl.hostname+';path=/;expires=Mon, 01 Aug 2050 06:44:35 GMT;HTTPOnly;', 'get_ajax_token1=66;domain='+srvUrl.hostname+';path=/;expires=Mon, 01 Aug 2050 06:44:35 GMT;']);
         res.end('testAjaxGet');
-    } else if (req.url === '/testAjaxPost') {
+    } else if (req.url === '/testAjaxPost') {// ajax hook - post
         res.setHeader('status', '200 OK');
         res.setHeader('Content-Type', 'text/plain');
         res.setHeader('Set-Cookie', ['post_ajax_token=55;domain='+srvUrl.hostname+';path=/;expires=Mon, 01 Aug 2050 06:44:35 GMT;HTTPOnly;', 'post_ajax_token1=66;domain='+srvUrl.hostname+';path=/;expires=Mon, 01 Aug 2050 06:44:35 GMT;']);
         res.end('testAjaxPost');
-    } else if (req.url === '/testAjaxGetHtml') {
-        fs.readFile(path.join(__dirname,'moduleTest.html'),function (err,data) {
+    } else if (req.url === '/testAjaxGetHtml') {// ajax hook - get html
+        fs.readFile(path.join(__dirname,'index.html'),function (err,data) {
             if (err) {
                 throw err;
             }
@@ -61,36 +98,16 @@ server.on('request', function (req,res) {
             res.end(data)
         })
     }
-    // 重定向相关
-    else if (req.url === '/client302') {
-        fs.readFile(path.join(__dirname,'client302.html'),function (err,data) {
+    else if (req.url === '/ajaxFormData') {// ajax 表单主页
+        fs.readFile(path.join(__dirname,'ajaxFormData.html'),function (err,data) {
             if (err) {
                 throw err;
             }
             res.end(data)
         })
     } 
-    // 模块测试相关
-    else if (req.url === '/moduleTest') {
-        fs.readFile(path.join(__dirname,'moduleTest.html'),function (err,data) {
-            if (err) {
-                throw err;
-            }
-            res.end(data)
-        })
-    } 
-    // 表单相关
-    else if (req.url === '/formData') {
-        fs.readFile(path.join(__dirname,'formData.html'),function (err,data) {
-            if (err) {
-                throw err;
-            }
-            res.end(data)
-        })
-    } 
-    // 相对路径相关
-    else if (req.url === '/relative/abc/index') {
-        fs.readFile(path.join(__dirname,'relativeTest'),function (err,data) {
+    else if (req.url === '/relative/ajax/index') {// ajax 相对路径主页
+        fs.readFile(path.join(__dirname,'ajaxRelativeTest'),function (err,data) {
             if (err) {
                 throw err;
             }
@@ -99,7 +116,7 @@ server.on('request', function (req,res) {
             res.end(data)
         })
     } 
-    else if (req.url === '/relative/abc/testAjaxPostWithRelative1') {
+    else if (req.url === '/relative/ajax/testAjaxPostWithRelative1') {
         res.setHeader('status', '200 OK');
         res.setHeader('Content-Type', 'text/plain');
         res.end('ajax 相对路径[./]');
@@ -116,8 +133,17 @@ server.on('request', function (req,res) {
         res.setHeader('Content-Type', 'text/plain');
         res.end('ajax 绝对路径[/]');
     } 
-    // fetch hook 相关
-    else if (req.url === '/fetchHookTest') {
+    /// fetch 相关
+    else if (req.url === '/fetchIndex') {// fetch 主页
+        fs.readFile(path.join(__dirname,'fetchIndex.html'),function (err,data) {
+            if (err) {
+                throw err;
+            }
+            res.setHeader('status', '200 OK');
+            res.end(data)
+        })
+    } 
+    else if (req.url === '/fetchHookTest') { // fetch hook 主页
         fs.readFile(path.join(__dirname,'fetchHookTest.html'),function (err,data) {
             if (err) {
                 throw err;
@@ -131,10 +157,61 @@ server.on('request', function (req,res) {
             }
             res.end(data)
         })
-    } else if (req.url === '/testAjaxPostWithAbsolute') {
+    }  else if (req.url === '/testFetchGet') {// fetch hook - get
         res.setHeader('status', '200 OK');
         res.setHeader('Content-Type', 'text/plain');
-        res.end('ajax 绝对路径[/]');
+        res.setHeader('Set-Cookie', ['get_ajax_token=55;domain='+srvUrl.hostname+';path=/;expires=Mon, 01 Aug 2050 06:44:35 GMT;HTTPOnly;', 'get_ajax_token1=66;domain='+srvUrl.hostname+';path=/;expires=Mon, 01 Aug 2050 06:44:35 GMT;']);
+        res.end('testFetchGet');
+    } else if (req.url === '/testFetchPost') {// fetch hook - post
+        res.setHeader('status', '200 OK');
+        res.setHeader('Content-Type', 'text/plain');
+        res.setHeader('Set-Cookie', ['post_ajax_token=55;domain='+srvUrl.hostname+';path=/;expires=Mon, 01 Aug 2050 06:44:35 GMT;HTTPOnly;', 'post_ajax_token1=66;domain='+srvUrl.hostname+';path=/;expires=Mon, 01 Aug 2050 06:44:35 GMT;']);
+        res.end('testFetchPost');
+    } else if (req.url === '/testFetchGetHtml') {// fetch hook - get html
+        fs.readFile(path.join(__dirname,'index.html'),function (err,data) {
+            if (err) {
+                throw err;
+            }
+
+            res.setHeader('status', '200 OK');
+            res.setHeader('Content-Type', 'text/html');
+            res.end(data)
+        })
+    }
+    else if (req.url === '/fetchFormData') {// fetch 表单主页
+        fs.readFile(path.join(__dirname,'fetchFormData.html'),function (err,data) {
+            if (err) {
+                throw err;
+            }
+            res.end(data)
+        })
+    } 
+    else if (req.url === '/relative/fetch/index') {// fetch 相对路径主页
+        fs.readFile(path.join(__dirname,'fetchRelativeTest'),function (err,data) {
+            if (err) {
+                throw err;
+            }
+            res.setHeader('status', '200 OK');
+            res.setHeader('Set-Cookie', ['test_token1=1;', 'test_token2=2;domain='+srvUrl.hostname+';path=/;expires=Mon, 01 Aug 2050 06:44:35 GMT;', 'test_token3=3;domain='+srvUrl.hostname+';path=/;expires=Mon, 01 Aug 2050 06:44:35 GMT;HTTPOnly;']);
+            res.end(data)
+        })
+    } 
+    else if (req.url === '/relative/fetch/testFetchPostWithRelative1') {
+        res.setHeader('status', '200 OK');
+        res.setHeader('Content-Type', 'text/plain');
+        res.end('fetch 相对路径[./]');
+    } else if (req.url === '/relative/testFetchPostWithRelative2') {
+        res.setHeader('status', '200 OK');
+        res.setHeader('Content-Type', 'text/plain');
+        res.end('fetch 相对路径[../]');
+    } else if (req.url === '/testFetchPostWithRelative3') {
+        res.setHeader('status', '200 OK');
+        res.setHeader('Content-Type', 'text/plain');
+        res.end('fetch 相对路径[../../]');
+    } else if (req.url === '/testFetchPostWithAbsolute') {
+        res.setHeader('status', '200 OK');
+        res.setHeader('Content-Type', 'text/plain');
+        res.end('fetch 绝对路径[/]');
     } 
 })
 
@@ -142,7 +219,4 @@ server.on('request', function (req,res) {
 server.listen(50000,function () {
     console.log('启用成功'); 
     console.log('test for 200 http://127.0.0.1:50000/index');
-    console.log('test for 302 http://127.0.0.1:50000/index302')
-    console.log('test for JSBridge http://127.0.0.1:50000/moduleTest')
-    console.log('test for RelativePath http://127.0.0.1:50000/relative/index')
 })

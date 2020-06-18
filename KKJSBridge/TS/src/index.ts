@@ -484,12 +484,10 @@ var init = function() {
           },
           //拦截回调
           onreadystatechange: function(xhr: any) {
-            if (xhr.readyState === xhr.DONE) {
-              console.log("onreadystatechange called: %O", xhr);
-            }
+            // nothing
           },
           onload: function(xhr: any) {
-            // console.log("onload called: %O", xhr);
+            // nothing
           },
           //拦截方法
           open: function(arg: any[], xhr: any) {

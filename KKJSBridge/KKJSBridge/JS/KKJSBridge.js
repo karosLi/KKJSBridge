@@ -1137,12 +1137,10 @@
                 },
                 //拦截回调
                 onreadystatechange: function (xhr) {
-                    if (xhr.readyState === xhr.DONE) {
-                        console.log("onreadystatechange called: %O", xhr);
-                    }
+                    // nothing
                 },
                 onload: function (xhr) {
-                    // console.log("onload called: %O", xhr);
+                    // nothing
                 },
                 //拦截方法
                 open: function (arg, xhr) {

@@ -19,18 +19,45 @@
 </style>
 </head>
 <body>
-	<button onclick="fetch_post()">fetch post</button>
+	<button onclick="fetch_get_with_cookie()">fetch_get_with_cookie</button>
+	<button onclick="fetch_post_with_cookie()">fetch_post_with_cookie</button>
+	<button onclick="fetch_get_html()">fetch_get_html</button>
+	<div id="fetch_get_html_div"></div>
 </body>
 <script src="https://cdn.bootcss.com/eruda/1.5.2/eruda.min.js"></script>
 <script>eruda.init();</script>
 <!-- <script type="text/javascript" src="fetch.umd.js"></script> -->
 <script type="text/javascript">
-	function fetch_post() {
-		fetch('testAjaxPost', {
+	function fetch_get_with_cookie() {
+		fetch('testFetchGet', {
+  			method: 'GET',
+		}).then(res => {
+			res.text().then(function(text) {
+		    	console.log(text);
+		    });
+		}).catch(error => {
+			console.error('Error:', error)
+		});
+	}
+	function fetch_post_with_cookie() {
+		fetch('testFetchPost', {
   			method: 'POST',
 		}).then(res => {
 			res.text().then(function(text) {
 		    	console.log(text);
+		    });
+		}).catch(error => {
+			console.error('Error:', error)
+		});
+	}
+	function fetch_get_html() {
+		fetch('testFetchGetHtml', {
+  			method: 'GET',
+		}).then(res => {
+			res.text().then(function(text) {
+		    	console.log(text);
+		    	var div = document.getElementById('fetch_get_html_div');
+	            div.innerText = text;
 		    });
 		}).catch(error => {
 			console.error('Error:', error)
