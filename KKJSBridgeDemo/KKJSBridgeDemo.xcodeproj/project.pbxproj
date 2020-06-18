@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 51;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -24,7 +24,6 @@
 		7C31E09C23181BA000152D06 /* ModuleDefault.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C31E09B23181BA000152D06 /* ModuleDefault.m */; };
 		7C31E09F23181C5F00152D06 /* ModuleContext.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C31E09E23181C5F00152D06 /* ModuleContext.m */; };
 		7C31E0A52318244E00152D06 /* ModuleB.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C31E0A42318244E00152D06 /* ModuleB.m */; };
-		7C31E0A723182B5400152D06 /* moduleTest.html in Resources */ = {isa = PBXBuildFile; fileRef = 7C31E0A623182B5400152D06 /* moduleTest.html */; };
 		7C31E0AA231924B800152D06 /* ModuleC.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C31E0A9231924B800152D06 /* ModuleC.m */; };
 /* End PBXBuildFile section */
 
@@ -55,7 +54,6 @@
 		7C31E09E23181C5F00152D06 /* ModuleContext.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ModuleContext.m; sourceTree = "<group>"; };
 		7C31E0A32318244E00152D06 /* ModuleB.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ModuleB.h; sourceTree = "<group>"; };
 		7C31E0A42318244E00152D06 /* ModuleB.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ModuleB.m; sourceTree = "<group>"; };
-		7C31E0A623182B5400152D06 /* moduleTest.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = moduleTest.html; sourceTree = "<group>"; };
 		7C31E0A8231924B800152D06 /* ModuleC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ModuleC.h; sourceTree = "<group>"; };
 		7C31E0A9231924B800152D06 /* ModuleC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ModuleC.m; sourceTree = "<group>"; };
 		E4439BA0A6CBDEA87FB01283 /* Pods-KKJSBridgeDemo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KKJSBridgeDemo.release.xcconfig"; path = "Pods/Target Support Files/Pods-KKJSBridgeDemo/Pods-KKJSBridgeDemo.release.xcconfig"; sourceTree = "<group>"; };
@@ -139,7 +137,6 @@
 		7C31E084231803DB00152D06 /* Server */ = {
 			isa = PBXGroup;
 			children = (
-				7C31E0A623182B5400152D06 /* moduleTest.html */,
 				7C31E08E2318047500152D06 /* client302.html */,
 				7C31E08F2318047500152D06 /* index.html */,
 				7C31E0902318047500152D06 /* server.js */,
@@ -258,7 +255,6 @@
 				7C31E08C231803DB00152D06 /* WebViewJavascriptBridge.js in Resources */,
 				7C31E0952318049600152D06 /* BinaryCookieReader.py in Resources */,
 				7C31E0912318047500152D06 /* client302.html in Resources */,
-				7C31E0A723182B5400152D06 /* moduleTest.html in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

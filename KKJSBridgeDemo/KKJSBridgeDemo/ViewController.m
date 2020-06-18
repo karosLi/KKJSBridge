@@ -28,34 +28,17 @@
      1、进入 KKJSBridgeDemo/KKJSBridgeDemo/Software/Server 目录
      2、基于上面目录打开终端，并运行 node server.js
      3、打开 KKJSBridgeDemo/KKJSBridgeDemo.xcworkspace 运行 demo
+     
+     七牛token生成步骤：
+     1、进入 KKJSBridge/KKJSBridge/TS
+     2、npm install
+     3、npm run qtoken
      */
     
-    
-    NSString *url = @"";
-    {
-        // 测试JSBridge
-//        url = @"http://127.0.0.1:50000/moduleTest";
-    }
-    {
-        // 测试 ajax 和 set-cookie
-//        url = @"http://127.0.0.1:50000/index";
-    }
-    {
-        // 测试服务器端重定向
-//        url = @"http://127.0.0.1:50000/index302";
-    }
+    NSString *url = @"http://127.0.0.1:50000/index";
     {
         // 测试第三方网站 ajax 请求
 //        url = @"https://m.taobao.com";
-    }
-    {
-        // 测试表单
-//        url = @"http://127.0.0.1:50000/formData";
-    }
-    
-    {
-        // 测试相对路径
-        url = @"http://127.0.0.1:50000/relative/abc/index";
     }
     
     WebViewController *web = [[WebViewController alloc] initWithUrl:url];

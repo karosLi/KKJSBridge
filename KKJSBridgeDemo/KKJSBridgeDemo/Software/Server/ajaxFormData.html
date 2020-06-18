@@ -4,8 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="X-UA-Compatible" content="ie=edge">
-<title>KKJSBridge FormData</title>
+<title>KKJSBridge Ajax FormData</title>
 <style>
+    input {
+        margin-top:20px;
+        margin-bottom:20px;
+    }
     button {
         background:#000;
         color:#fff;
@@ -19,19 +23,19 @@
 </style>
 </head>
 <body>
-    <a href="http://jsfiddle.net/gh/get/extjs/4.2/icattlecoder/jsfiddle/tree/master/uptoken">可以在这里生成七牛token</a>
     <input id="file" name="file" type="file" />
 	<button onclick="sendFormData()">上传文件到七牛</button>
 </body>
 <script src="https://cdn.bootcss.com/eruda/1.5.2/eruda.min.js"></script>
 <script>eruda.init();</script>
 <script type="text/javascript">
+    // 在 TS 目录下， npm install && npm run qtoken 可以生成 token
     function sendFormData() {
         var file = document.getElementById('file').files[0];
 
         var formData = new FormData();
-        formData.append('key', 'bbbb');
-        formData.append('token', 'RSxpQIxNIS2vo0vuQR3HX701ddS9fdlUnQ5jV8u1:rKwNt9zzmjn1FodGG03k-McLF28=:eyJzY29wZSI6Imthcm9zcGljcyIsImRlYWRsaW5lIjoxNTY5Nzg4OTQwfQ==');
+        formData.append('key', 'bbbb-' + (new Date()).getTime());
+        formData.append('token', 'RSxpQIxNIS2vo0vuQR3HX701ddS9fdlUnQ5jV8u1:KLNftMf4SpVnLT70Q0aWV0O9kDE=:eyJzY29wZSI6Imthcm9zcGljcyIsImRlYWRsaW5lIjoyMjIzMTgzMDA3fQ==');
         formData.append('file', file);
         
         var xhr = new XMLHttpRequest();

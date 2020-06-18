@@ -7,23 +7,25 @@
     "moduleResolution": "node",
     "experimentalDecorators": true,
     "esModuleInterop": true,
+    "allowUmdGlobalAccess": true,
     "allowSyntheticDefaultImports": true,
     "downlevelIteration": true,
+    "pretty": true,
     "baseUrl": ".",
+    "allowJs": true,
+    "outDir": "dist",
     "paths": {
       "@/*": [
-        "src/*"
+        "src/index.ts"
       ]
     },
     "lib": [
       "esnext",
-      "dom",
-      "dom.iterable",
-      "scripthost"
-    ]
+      "dom"
+    ],
   },
   "include": [
-    "src/**/*.ts"
+    "src/**/*.ts",
   ],
   "exclude": [
     "node_modules"
