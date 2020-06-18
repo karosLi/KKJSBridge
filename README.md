@@ -1,5 +1,7 @@
 # KKJSBridge
 
+[![GitHub stars](https://img.shields.io/github/stars/karosLi/KKJSBridge)](https://github.com/karosLi/KKJSBridge/stargazers) [![GitHub forks](https://img.shields.io/github/forks/karosLi/KKJSBridge)](https://github.com/karosLi/KKJSBridge/network) [![GitHub issues](https://img.shields.io/github/issues/karosLi/KKJSBridge)](https://github.com/karosLi/KKJSBridge/issues) [![GitHub license](https://img.shields.io/github/license/karosLi/KKJSBridge)](https://github.com/karosLi/KKJSBridge/blob/master/LICENSE)
+
 一站式解决 WKWebView 支持离线包，Ajax/Fetch 请求和 Cookie 同步的问题 (基于 Ajax Hook，Fetch Hook 和 Cookie Hook)
 
 [更详细的介绍](http://karosli.com/2019/08/30/%E4%B8%80%E7%AB%99%E5%BC%8F%E8%A7%A3%E5%86%B3WKWebView%E5%90%84%E7%B1%BB%E9%97%AE%E9%A2%98/)
