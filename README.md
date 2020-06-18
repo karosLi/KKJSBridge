@@ -1,6 +1,6 @@
 # KKJSBridge
 
-一站式解决 WKWebView 支持离线包，Ajax 请求和 Cookie 同步的问题 (基于 Ajax Hook 和 Cookie Hook)
+一站式解决 WKWebView 支持离线包，Ajax/Fetch 请求和 Cookie 同步的问题 (基于 Ajax Hook，Fetch Hook 和 Cookie Hook)
 
 [更详细的介绍](http://karosli.com/2019/08/30/%E4%B8%80%E7%AB%99%E5%BC%8F%E8%A7%A3%E5%86%B3WKWebView%E5%90%84%E7%B1%BB%E9%97%AE%E9%A2%98/)
 
@@ -16,13 +16,13 @@
 
 - 支持离线资源
 
-- 支持 ajax hook 避免 body 丢失
+- 支持 ajax/fetch hook 避免 body 丢失
 
-- Native 侧控制 ajax hook
+- Native 侧控制 ajax/fetch hook
 
 - 支持表单数据，支持图片上传（表单虽好，可不要依赖哈）
 
-- 支持 ajax 请求外部代理
+- 支持 ajax/fetch 请求外部代理
 
 - Cookie 统一管理
 
@@ -31,20 +31,23 @@
 - 兼容 WebViewJavascriptBridge
 
 ## Demo
+### demo 概览
 
-模块化调用 JSAPI
+![模块化调用 JSAPI](https://github.com/karosLi/KKJSBridge/blob/master/Demo0.gif)
+
+### 模块化调用 JSAPI
 
 ![模块化调用 JSAPI](https://github.com/karosLi/KKJSBridge/blob/master/Demo1.gif)
 
-ajax hook 演示
+### ajax hook 演示
 
 ![ajax hook 演示](https://github.com/karosLi/KKJSBridge/blob/master/Demo2.gif)
 
-淘宝 ajax hook 演示
+### 淘宝 ajax hook 演示
 
 ![淘宝 ajax hook 演示](https://github.com/karosLi/KKJSBridge/blob/master/Demo3.gif)
 
-ajax 发送表单 演示
+### ajax 发送表单 演示
 ![淘宝 ajax hook 演示](https://github.com/karosLi/KKJSBridge/blob/master/Demo4.gif)
 
 ## 用法
@@ -178,13 +181,19 @@ window.KKJSBridge.call('b', 'callToGetVCTitle', {}, function(res) {
    ```
    
 ## 更新历史
+### 2020.6.18
+- 支持 fetch hook
+
 ### 2020.5.18
 - 支持通过 off 方法取消事件监听
+
 ### 2020.3.3
 - 回收 webView 到复用池时，清除 sessionStorage
 - 支持 on 事件广播，让 H5 可以在多个地方注册事件监听
+
 ### 2019.10.23
 - 提供统一配置 configuration 方法，有些属性必须前置配置，否则会不生效
+
 ### 2019.10.22
 - 增加模块注册支持首次初始化
 
@@ -193,13 +202,12 @@ window.KKJSBridge.call('b', 'callToGetVCTitle', {}, function(res) {
 - 支持表单数据，支持图片上传
 - 支持 ajax 请求外部代理
 
-## TODO
-
-- [ ] Fetch hook。 虽然现在大多数 H5 页面的异步请求都是基于 ajax 实现的，随着 Fetch 的慢慢普及，后面也会多起来。
 
 ## 参考
 
 - [Ajax-hook](https://github.com/wendux/Ajax-hook)
+
+- [Fetch](https://github.com/github/fetch)
 
 - [HybridPageKit](https://github.com/dequan1331/HybridPageKit)
 
