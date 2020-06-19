@@ -204,6 +204,13 @@ window.KKJSBridge.call('b', 'callToGetVCTitle', {}, function(res) {
 - 支持表单数据，支持图片上传
 - 支持 ajax 请求外部代理
 
+## TODO
+- [ ] 使用缓存 post body 的思路去做 ajax hook。主要是基于以下几点原因。
+    - 目前的响应体是通过 JSBrdige 来进行传输的，性能上肯定没有原生的性能好
+    - 对于 ajax 获取二进制数据还不支持，而基于现有的方式去做的话，还是需要写一些编码转换，而这些转换过程是没有那么好控制的
+    
+- [ ] 支持 swift
+
 
 ## 参考
 
