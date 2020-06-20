@@ -41,6 +41,8 @@
 //        url = @"https://m.taobao.com";
     }
     
+    url = @"https://www.wenjuan.com/s/JBVRje4/";
+    
     WebViewController *web = [[WebViewController alloc] initWithUrl:url];
     [self.navigationController pushViewController:web animated:YES];
 }

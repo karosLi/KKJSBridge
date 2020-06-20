@@ -132,6 +132,10 @@ static NSString * const kKKJSBridgeRequestId = @"KKJSBridge-RequestId";
     NSData *data = nil;
     NSString *bodyType = bodyRequest[@"bodyType"];
     id value = bodyRequest[@"value"];
+    if (!value) {
+        return;
+    }
+    
     if ([bodyType isEqualToString:@"Blob"]) {
         data = [self dataFromBase64:value];
     } else if ([bodyType isEqualToString:@"ArrayBuffer"]) {
@@ -142,7 +146,7 @@ static NSString * const kKKJSBridgeRequestId = @"KKJSBridge-RequestId";
     } else {//String
         if ([value isKindOfClass:NSDictionary.class]) {
             // application/json
-            data = [NSJSONSerialization dataWithJSONObject:data options:0 error:nil];
+            data = [NSJSONSerialization dataWithJSONObject:value options:0 error:nil];
         } else if ([value isKindOfClass:NSString.class]) {
             // application/x-www-form-urlencoded
             // name1=value1&name2=value2
