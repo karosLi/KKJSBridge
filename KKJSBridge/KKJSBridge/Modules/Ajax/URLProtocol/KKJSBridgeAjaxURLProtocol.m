@@ -120,24 +120,15 @@ static NSString * const kKKJSBridgeRequestId = @"KKJSBridge-RequestId";
 }
 
 #pragma mark - KKJSBridgeAjaxDelegate - 处理来自外部网络库的数据
-- (void)JSBridgeAjaxInProcessing:(id<KKJSBridgeAjaxDelegate>)ajax {
-    // nothing
+- (void)JSBridgeAjax:(id<KKJSBridgeAjaxDelegate>)ajax didReceiveResponse:(NSURLResponse *)response {
+    [self.client URLProtocol:self didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageAllowed];
 }
 
-- (void)JSBridgeAjaxDidCompletion:(id<KKJSBridgeAjaxDelegate>)ajax response:(NSURLResponse *)response responseObject:(id _Nullable)responseObject error:(NSError * _Nullable)error {
-    [self.client URLProtocol:self didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageAllowed];
-    
-    // 处理响应数据
-    if ([responseObject isKindOfClass:NSData.class]) {
-        [self.client URLProtocol:self didLoadData:responseObject];
-    } else if ([responseObject isKindOfClass:NSDictionary.class]) {
-        NSData *responseData = [NSJSONSerialization dataWithJSONObject:responseObject options:0 error:nil];
-        [self.client URLProtocol:self didLoadData:responseData];
-    } else {
-        NSData *responseData = [NSJSONSerialization dataWithJSONObject:@{} options:0 error:nil];
-        [self.client URLProtocol:self didLoadData:responseData];
-    }
-    
+- (void)JSBridgeAjax:(id<KKJSBridgeAjaxDelegate>)ajax didReceiveData:(NSData *)data {
+    [self.client URLProtocol:self didLoadData:data];
+}
+
+- (void)JSBridgeAjax:(id<KKJSBridgeAjaxDelegate>)ajax didCompleteWithError:(NSError *)error {
     if (error) {
         [self.client URLProtocol:self didFailWithError:error];
     } else {

@@ -306,28 +306,24 @@ static NSString * const KKJSBridgeXMLHttpRequestStatusTextOK = @"OK";
 }
 
 #pragma mark - KKJSBridgeAjaxDelegate - 处理来自外部网络库的数据
-- (void)JSBridgeAjaxInProcessing:(id<KKJSBridgeAjaxDelegate>)ajax {
-    if (ajax == self) {
-        // 处理请求中
-        [self returnReadySate:KKJSBridgeXMLHttpRequestStateLoading];
-    }
+
+- (void)JSBridgeAjax:(id<KKJSBridgeAjaxDelegate>)ajax didReceiveResponse:(NSURLResponse *)response {
+    [self handleReceivedResponse:response];
 }
 
-- (void)JSBridgeAjaxDidCompletion:(id<KKJSBridgeAjaxDelegate>)ajax response:(NSURLResponse *)response responseObject:(id _Nullable)responseObject error:(NSError * _Nullable)error {
-    if (self == ajax) {
-        // 处理响应头
-        [self handleReceivedResponse:response];
-        // 处理响应数据
-        if ([responseObject isKindOfClass:NSData.class]) {
-            [self handleCompletion:responseObject error:error];
-        } else if ([responseObject isKindOfClass:NSDictionary.class]) {
-            NSData *responseData = [NSJSONSerialization dataWithJSONObject:responseObject options:0 error:nil];
-            [self handleCompletion:responseData error:error];
-        } else {
-            NSData *responseData = [NSJSONSerialization dataWithJSONObject:@{} options:0 error:nil];
-            [self handleCompletion:responseData error:error];
-        }
+- (void)JSBridgeAjax:(id<KKJSBridgeAjaxDelegate>)ajax didReceiveData:(NSData *)data {
+    [self.receiveData appendData:data];
+    [self returnReadySate:KKJSBridgeXMLHttpRequestStateLoading];
+}
+
+- (void)JSBridgeAjax:(id<KKJSBridgeAjaxDelegate>)ajax didCompleteWithError:(NSError *)error {
+    NSData *data = nil;
+    if (!error && self.receiveData) {
+        data = [self.receiveData copy];
+        // 如果不使用了，可以释放引用，这样会释放些内存
+        self.receiveData = nil;
     }
+    [self handleCompletion:data error:error];
 }
 
 #pragma mark - 统一处理请求头和回来的数据
