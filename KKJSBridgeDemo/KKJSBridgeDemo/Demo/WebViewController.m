@@ -15,7 +15,7 @@
 #import "ModuleC.h"
 #import "ModuleDefault.h"
 
-@interface WebViewController ()<KKWebViewDelegate, KKJSBridgeAjaxDelegateManager>
+@interface WebViewController ()<KKWebViewDelegate>
 
 @property (nonatomic, strong, readwrite) KKWebView *webView;
 @property (nonatomic, copy, readwrite) NSString *url;
@@ -41,6 +41,7 @@
         configuration.preferences.minimumFontSize = 12;
     }];
     [[KKWebViewPool sharedInstance] enqueueWebViewWithClass:KKWebView.class];
+    KKJSBridgeConfig.ajaxDelegateManager = (id<KKJSBridgeAjaxDelegateManager>)self; // 请求外部代理处理，可以借助 AFN 网络库来发送请求
 }
 
 - (void)dealloc {
@@ -70,7 +71,6 @@
     _webView.navigationDelegate = self;
     _jsBridgeEngine = [KKJSBridgeEngine bridgeForWebView:self.webView];
     _jsBridgeEngine.config.enableAjaxHook = YES;
-    _jsBridgeEngine.config.ajaxDelegateManager = self; // 请求外部代理处理，可以借助 AFN 网络库来发送请求
     
     [self compatibleWebViewJavascriptBridge];
     [self registerModule];
@@ -100,8 +100,8 @@
 }
 
 #pragma mark - KKJSBridgeAjaxDelegateManager
-- (NSURLSessionDataTask *)dataTaskWithRequest:(NSURLRequest *)request callbackDelegate:(NSObject<KKJSBridgeAjaxDelegate> *)callbackDelegate {
-    return [[self.class ajaxSesstionManager] dataTaskWithRequest:request uploadProgress:^(NSProgress * _Nonnull uploadProgress) {
++ (NSURLSessionDataTask *)dataTaskWithRequest:(NSURLRequest *)request callbackDelegate:(NSObject<KKJSBridgeAjaxDelegate> *)callbackDelegate {
+    return [[self ajaxSesstionManager] dataTaskWithRequest:request uploadProgress:^(NSProgress * _Nonnull uploadProgress) {
         [callbackDelegate JSBridgeAjaxInProcessing:callbackDelegate];
     } downloadProgress:^(NSProgress * _Nonnull downloadProgress) {
         [callbackDelegate JSBridgeAjaxInProcessing:callbackDelegate];

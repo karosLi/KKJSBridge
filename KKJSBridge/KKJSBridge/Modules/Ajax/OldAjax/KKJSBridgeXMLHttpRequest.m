@@ -151,9 +151,9 @@ static NSString * const KKJSBridgeXMLHttpRequestStatusTextOK = @"OK";
     
     self.aborted = NO;
     
-    if (self.engine.config.ajaxDelegateManager && [self.engine.config.ajaxDelegateManager respondsToSelector:@selector(dataTaskWithRequest:callbackDelegate:)]) {
+    if (KKJSBridgeConfig.ajaxDelegateManager && [KKJSBridgeConfig.ajaxDelegateManager respondsToSelector:@selector(dataTaskWithRequest:callbackDelegate:)]) {
         // 实际请求代理外部网络库处理
-        self.dataTask = [self.engine.config.ajaxDelegateManager dataTaskWithRequest:self.request callbackDelegate:self];
+        self.dataTask = [KKJSBridgeConfig.ajaxDelegateManager dataTaskWithRequest:self.request callbackDelegate:self];
     } else {
         NSOperationQueue *queue = [NSOperationQueue new];
         NSURLSessionConfiguration *sessionConfiguration = [NSURLSessionConfiguration defaultSessionConfiguration];

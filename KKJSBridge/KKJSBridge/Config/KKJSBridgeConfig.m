@@ -11,6 +11,8 @@
 #import "KKJSBridgeEngine.h"
 #import "NSURLProtocol+KKJSBridgeWKWebView.h"
 
+static id<KKJSBridgeAjaxDelegateManager> globalAjaxDelegateManager;
+
 @interface KKJSBridgeConfig()
 
 @property (nonatomic, weak) KKJSBridgeEngine *engine;
@@ -45,6 +47,14 @@
         WKUserScript *userScript = [[WKUserScript alloc] initWithSource:script injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:NO];
         [self.engine.webView.configuration.userContentController addUserScript:userScript];
     }
+}
+
++ (void)setAjaxDelegateManager:(id<KKJSBridgeAjaxDelegateManager>)ajaxDelegateManager {
+    globalAjaxDelegateManager = ajaxDelegateManager;
+}
+
++ (id<KKJSBridgeAjaxDelegateManager>)ajaxDelegateManager {
+    return globalAjaxDelegateManager;
 }
 
 @end

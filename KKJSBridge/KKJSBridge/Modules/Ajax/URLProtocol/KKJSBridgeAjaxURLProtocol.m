@@ -9,11 +9,13 @@
 #import "KKJSBridgeXMLBodyCacheRequest.h"
 #import "KKJSBridgeURLRequestSerialization.h"
 #import "KKJSBridgeFormDataFile.h"
+#import "KKJSBridgeConfig.h"
+#import "KKJSBridgeAjaxDelegate.h"
 
 static NSString * const kKKJSBridgeNSURLProtocolKey = @"kKKJSBridgeNSURLProtocolKey";
 static NSString * const kKKJSBridgeRequestId = @"KKJSBridge-RequestId";
 
-@interface KKJSBridgeAjaxURLProtocol () <NSURLSessionDelegate>
+@interface KKJSBridgeAjaxURLProtocol () <NSURLSessionDelegate, KKJSBridgeAjaxDelegate>
 
 @property (nonatomic, strong) NSURLSessionDataTask *customTask;
 @property (nonatomic, copy) NSString *requestId;
@@ -72,8 +74,15 @@ static NSString * const kKKJSBridgeRequestId = @"KKJSBridge-RequestId";
         
         // 发送请求
         self.requestId = requestId;
-        NSURLSession *session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration] delegate:self delegateQueue:nil];
-        self.customTask = [session dataTaskWithRequest:mutableReqeust];
+        
+        if (KKJSBridgeConfig.ajaxDelegateManager && [KKJSBridgeConfig.ajaxDelegateManager respondsToSelector:@selector(dataTaskWithRequest:callbackDelegate:)]) {
+            // 实际请求代理外部网络库处理
+            self.customTask = [KKJSBridgeConfig.ajaxDelegateManager dataTaskWithRequest:mutableReqeust callbackDelegate:self];
+        } else {
+            NSURLSession *session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration] delegate:self delegateQueue:nil];
+            self.customTask = [session dataTaskWithRequest:mutableReqeust];
+        }
+        
         [self.customTask resume];
     } else {
         [self.client URLProtocol:self didFailWithError:[NSError errorWithDomain:@"KKJSBridge" code:-999 userInfo:@{@"error": @"can not find cached body request"}]];
@@ -108,6 +117,35 @@ static NSString * const kKKJSBridgeRequestId = @"KKJSBridge-RequestId";
 
 - (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data {
     [self.client URLProtocol:self didLoadData:data];
+}
+
+#pragma mark - KKJSBridgeAjaxDelegate - 处理来自外部网络库的数据
+- (void)JSBridgeAjaxInProcessing:(id<KKJSBridgeAjaxDelegate>)ajax {
+    // nothing
+}
+
+- (void)JSBridgeAjaxDidCompletion:(id<KKJSBridgeAjaxDelegate>)ajax response:(NSURLResponse *)response responseObject:(id _Nullable)responseObject error:(NSError * _Nullable)error {
+    [self.client URLProtocol:self didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageAllowed];
+    
+    // 处理响应数据
+    if ([responseObject isKindOfClass:NSData.class]) {
+        [self.client URLProtocol:self didLoadData:responseObject];
+    } else if ([responseObject isKindOfClass:NSDictionary.class]) {
+        NSData *responseData = [NSJSONSerialization dataWithJSONObject:responseObject options:0 error:nil];
+        [self.client URLProtocol:self didLoadData:responseData];
+    } else {
+        NSData *responseData = [NSJSONSerialization dataWithJSONObject:@{} options:0 error:nil];
+        [self.client URLProtocol:self didLoadData:responseData];
+    }
+    
+    if (error) {
+        [self.client URLProtocol:self didFailWithError:error];
+    } else {
+        [self.client URLProtocolDidFinishLoading:self];
+    }
+    
+    // 清除缓存
+    [KKJSBridgeXMLBodyCacheRequest deleteRequestBody:self.requestId];
 }
 
 #pragma mark - util

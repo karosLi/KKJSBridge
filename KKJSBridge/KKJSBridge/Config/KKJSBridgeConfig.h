@@ -30,8 +30,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  ajax 请求回调管理器，一旦指定，JSBridge 引擎内部不会发送请求，而是把发送请求控制权交给该代理。前提是必须先开启 ajax hook。
+ 
+ 请求代理没有必要一个 jsbridge 对应一个，而是所有 jsbridge 共用一个
  */
-@property (nonatomic, weak) id<KKJSBridgeAjaxDelegateManager> ajaxDelegateManager;
+@property (class, nonatomic, weak) id<KKJSBridgeAjaxDelegateManager> ajaxDelegateManager;
 
 @end
 
