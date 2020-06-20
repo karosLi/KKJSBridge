@@ -21,6 +21,7 @@
 <body>
 	<button onclick="fetch_get_with_cookie()">fetch_get_with_cookie</button>
 	<button onclick="fetch_post_with_cookie()">fetch_post_with_cookie</button>
+	<button onclick="fetch_get_image()">fetch_get_image</button>
 	<button onclick="fetch_get_html()">fetch_get_html</button>
 	<div id="fetch_get_html_div"></div>
 </body>
@@ -42,12 +43,29 @@
 	function fetch_post_with_cookie() {
 		fetch('testFetchPost', {
   			method: 'POST',
+  			body: 'bodyData'
 		}).then(res => {
 			res.text().then(function(text) {
 		    	console.log(text);
 		    });
 		}).catch(error => {
 			console.error('Error:', error)
+		});
+	}
+	function fetch_get_image() {
+		// https://developer.mozilla.org/zh-CN/docs/Web/API/Fetch_API/Using_Fetch
+		fetch('https://developer.mozilla.org/static/img/embed/promos/inactive-css.cff96336bd5c.png').then(function(response) {
+			if(response.ok) {
+				return response.blob();
+			}
+			throw new Error('Network response was not ok.');
+		}).then(function(myBlob) { 
+			var objectURL = URL.createObjectURL(myBlob); 
+			var img = document.createElement('img');
+    		img.src = objectURL;
+    		document.body.appendChild(img);
+		}).catch(function(error) {
+			console.log('There has been a problem with your fetch operation: ', error.message);
 		});
 	}
 	function fetch_get_html() {

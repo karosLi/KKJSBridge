@@ -9,7 +9,7 @@ export default {
         file: 'dist/KKJSBridge.js',
         format: 'umd',
         name: "KKJSBridge",
-        umd: {
+        amd: {
             id: 'lib/fetch.js',
             name: "KKFetch",
         }

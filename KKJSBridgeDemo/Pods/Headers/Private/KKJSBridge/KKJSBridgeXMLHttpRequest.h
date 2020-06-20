@@ -1,1 +1,1 @@
-../../../../../KKJSBridge/KKJSBridge/Modules/Ajax/KKJSBridgeXMLHttpRequest.h
+../../../../../KKJSBridge/KKJSBridge/Modules/Ajax/OldAjax/KKJSBridgeXMLHttpRequest.h

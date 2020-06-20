@@ -8,7 +8,7 @@
 
 #import "KKJSBridgeEngine.h"
 #import "KKJSBridgeMessageDispatcher.h"
-#import "KKJSBridgeModuleXMLHttpRequestDispatcher.h"
+#import "KKJSBridgeXMLBodyCacheRequest.h"
 #import "KKJSBridgeModuleCookie.h"
 #import "KKJSBridgeWeakScriptMessageDelegate.h"
 
@@ -80,7 +80,7 @@ static NSString * const KKJSBridgeMessageName = @"KKJSBridgeMessage";
 }
 
 - (void)setupDefaultModuleRegister {
-    [self.moduleRegister registerModuleClass:KKJSBridgeModuleXMLHttpRequestDispatcher.class];
+    [self.moduleRegister registerModuleClass:KKJSBridgeXMLBodyCacheRequest.class];
     [self.moduleRegister registerModuleClass:KKJSBridgeModuleCookie.class];
 }
 

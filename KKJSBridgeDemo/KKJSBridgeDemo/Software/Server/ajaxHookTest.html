@@ -24,6 +24,7 @@
 	<a href="/client302" target="_blank">_blank 浏览器重定向</a>
 	<button onclick="ajax_get_with_cookie()">ajax_get_with_cookie</button>
 	<button onclick="ajax_post_with_cookie()">ajax_post_with_cookie</button>
+	<button onclick="ajax_get_image()">ajax_get_image</button>
 	<button onclick="ajax_get_html()">ajax_get_html</button>
 	<div id="ajax_get_html_div"></div>
 </body>
@@ -52,7 +53,26 @@
 	            console.log(xhr.responseText);
 	        }
 	     };
-	     xhr.send();
+	     xhr.send("bodyData");
+	}
+	function ajax_get_image() {
+		// https://developer.mozilla.org/zh-CN/docs/Web/API/XMLHttpRequest/Sending_and_Receiving_Binary_Data
+		var xhr = new XMLHttpRequest();
+		xhr.open('GET', 'https://developer.mozilla.org/static/img/embed/promos/inactive-css.cff96336bd5c.png', true);
+		xhr.responseType = "arraybuffer";
+		xhr.onreadystatechange = function() {
+	    	if(xhr.readyState === 4 && xhr.status === 200) {
+	    		var blob = new Blob([xhr.response], {type: "image/png"});
+	    		var reader = new FileReader ();
+	    		reader.onload = function (event) {
+		    		var img = document.createElement('img');
+		    		img.src = event.target.result;
+		    		document.body.appendChild(img);
+    			};
+   				reader.readAsDataURL(blob);
+    		}
+ 		}
+ 		xhr.send();
 	}
 	function ajax_get_html() {
 		var xhr = new XMLHttpRequest(),

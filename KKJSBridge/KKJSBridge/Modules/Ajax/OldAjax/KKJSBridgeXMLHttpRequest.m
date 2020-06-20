@@ -14,6 +14,7 @@
 #import "KKJSBridgeWeakProxy.h"
 #import "KKJSBridgeAjaxDelegate.h"
 #import "KKJSBridgeURLRequestSerialization.h"
+#import "KKJSBridgeFormDataFile.h"
 
 /**
  https://developer.mozilla.org/zh-CN/docs/Web/API/XMLHttpRequest
@@ -43,10 +44,6 @@ typedef NS_ENUM(NSInteger, KKJSBridgeXMLHttpRequestStatus) {
 
 static NSString * const KKJSBridgeXMLHttpRequestStatusTextInit = @"";
 static NSString * const KKJSBridgeXMLHttpRequestStatusTextOK = @"OK";
-
-@implementation KKJSBridgeFormDataFile
-
-@end
 
 @interface KKJSBridgeXMLHttpRequest()<NSURLSessionDelegate, KKJSBridgeAjaxDelegate>
 
@@ -196,7 +193,7 @@ static NSString * const KKJSBridgeXMLHttpRequestStatusTextOK = @"OK";
 
 - (void)sendFormData:(NSDictionary *)params withFileDatas:(NSArray<KKJSBridgeFormDataFile *> *)fileDatas {
     KKJSBridgeURLRequestSerialization *serializer = [KKJSBridgeXMLHttpRequest urlRequestSerialization];
-    self.request = [serializer multipartFormRequestWithRequest:self.request parameters:params constructingBodyWithBlock:^(id<KKJSBridgeMultipartFormData>  _Nonnull formData) {
+    [serializer multipartFormRequestWithRequest:self.request parameters:params constructingBodyWithBlock:^(id<KKJSBridgeMultipartFormData>  _Nonnull formData) {
         for (KKJSBridgeFormDataFile *fileData in fileDatas) {
             [formData appendPartWithFileData:fileData.data name:fileData.key fileName:fileData.fileName mimeType:fileData.type];
         }

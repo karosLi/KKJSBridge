@@ -1,6 +1,6 @@
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
-    typeof define === 'function' && define.amd ? define(factory) :
+    typeof define === 'function' && define.amd ? define('lib/fetch.js', factory) :
     (global = global || self, global.KKJSBridge = factory());
 }(this, (function () { 'use strict';
 
@@ -750,6 +750,19 @@
         var KKJSBridgeUtil = /** @class */ (function () {
             function KKJSBridgeUtil() {
             }
+            /**
+              把 arraybuffer 转成 base64
+            */
+            KKJSBridgeUtil.convertArrayBufferToBase64 = function (arraybuffer) {
+                var uint8Array = new Uint8Array(arraybuffer);
+                var charCode = "";
+                var length = uint8Array.byteLength;
+                for (var i = 0; i < length; i++) {
+                    charCode += String.fromCharCode(uint8Array[i]);
+                }
+                // 字符串转成base64
+                return window.btoa(charCode);
+            };
             KKJSBridgeUtil.convertFormDataToJson = function (formData, callback) {
                 var _this = this;
                 var promise = new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
@@ -873,107 +886,6 @@
             return KKJSBridgeUtil;
         }());
         /**
-         * 生成 AJAX Proxy
-         * https://github.com/wendux/Ajax-hook/blob/master/src/ajaxhook.js
-         */
-        function hookAjaxProxy() {
-            var ob = {};
-            //Save original XMLHttpRequest as RealXMLHttpRequest
-            var realXhr = "RealXMLHttpRequest";
-            //Call this function will override the `XMLHttpRequest` object
-            ob.hookAjax = function (proxy) {
-                // Avoid double hook
-                window[realXhr] = window[realXhr] || XMLHttpRequest;
-                window.XMLHttpRequest = function () {
-                    var xhr = new window[realXhr];
-                    // We shouldn't hook XMLHttpRequest.prototype because we can't
-                    // guarantee that all attributes are on the prototype。
-                    // Instead, hooking XMLHttpRequest instance can avoid this problem.
-                    for (var attr in xhr) {
-                        var type = "";
-                        try {
-                            type = typeof xhr[attr]; // May cause exception on some browser
-                        }
-                        catch (e) {
-                        }
-                        if (type === "function") {
-                            // hook methods of xhr, such as `open`、`send` ...
-                            this[attr] = hookFunction(attr);
-                        }
-                        else {
-                            Object.defineProperty(this, attr, {
-                                get: getterFactory(attr),
-                                set: setterFactory(attr),
-                                enumerable: true
-                            });
-                        }
-                    }
-                    this.xhr = xhr;
-                };
-                // Generate getter for attributes of xhr
-                function getterFactory(attr) {
-                    return function () {
-                        var v = this.hasOwnProperty(attr + "_") ? this[attr + "_"] : this.xhr[attr];
-                        var attrGetterHook = (proxy[attr] || {})["getter"];
-                        return attrGetterHook && attrGetterHook(v, this) || v;
-                    };
-                }
-                // Generate setter for attributes of xhr; by this we have an opportunity
-                // to hook event callbacks （eg: `onload`） of xhr;
-                function setterFactory(attr) {
-                    return function (v) {
-                        var xhr = this.xhr;
-                        var that = this;
-                        var hook = proxy[attr];
-                        if (typeof hook === "function") {
-                            // hook  event callbacks such as `onload`、`onreadystatechange`...
-                            xhr[attr] = function () {
-                                proxy[attr](that) || v.apply(xhr, arguments);
-                            };
-                        }
-                        else {
-                            //If the attribute isn't writable, generate proxy attribute
-                            var attrSetterHook = (hook || {})["setter"];
-                            v = attrSetterHook && attrSetterHook(v, that) || v;
-                            try {
-                                xhr[attr] = v;
-                            }
-                            catch (e) {
-                                this[attr + "_"] = v;
-                            }
-                        }
-                    };
-                }
-                // Hook methods of xhr.
-                function hookFunction(fun) {
-                    return function () {
-                        var args = [].slice.call(arguments);
-                        /**
-                        if (proxy[fun] && proxy[fun].call(this, args, this.xhr)) {
-                            return;
-                        }
-        
-                        需求上是需要在方法代理时，也把代理的值返回出去，所以这里修改了源码。
-                         */
-                        if (proxy[fun]) {
-                            return proxy[fun].call(this, args, this.xhr);
-                        }
-                        return this.xhr[fun].apply(this.xhr, args);
-                    };
-                }
-                // Return the real XMLHttpRequest
-                return window[realXhr];
-            };
-            // Cancel hook
-            ob.unHookAjax = function () {
-                if (window[realXhr])
-                    XMLHttpRequest = window[realXhr];
-                window[realXhr] = undefined;
-            };
-            return ob;
-        }
-        window._hookAjaxProxy = hookAjaxProxy();
-        /**
          * Hook FormData，由于低版本的 FormData 没有支持 entries() 等遍历 api，所以只是在 ajax send 里遍历，是无法获取到具体的值的，
          * 所以针对低版本的 iOS 系统做 Hook FormData 处理。
          */
@@ -987,275 +899,6 @@
                 this._entries.push(arguments);
                 return originAppend.apply(this, arguments);
             };
-        }
-        /**
-         * AJAX Proxy 配置
-         */
-        var _XHR = /** @class */ (function () {
-            function _XHR() {
-            }
-            // 静态属性和方法
-            _XHR.moduleName = 'ajax';
-            _XHR.globalId = Math.floor(Math.random() * 1000);
-            _XHR.cache = [];
-            /**
-             * 缓存 ajax 代理对象
-             */
-            _XHR.cacheXHRIfNeed = function (xhr) {
-                // 添加属性，并缓存 xhr
-                if (!xhr.hasOwnProperty('id')) {
-                    Object.defineProperties(xhr, {
-                        'id': {
-                            value: 0,
-                            writable: true,
-                            enumerable: true
-                        },
-                        'callbackProperties': {
-                            value: {},
-                            writable: true,
-                            enumerable: true
-                        },
-                        'isCached': {
-                            value: false,
-                            writable: true,
-                            enumerable: true
-                        }
-                    });
-                    // readyState,status,statusText,responseText,headers
-                    Object.defineProperties(xhr.callbackProperties, {
-                        'readyState': {
-                            value: 0,
-                            writable: true,
-                            enumerable: true
-                        },
-                        'status': {
-                            value: 0,
-                            writable: true,
-                            enumerable: true
-                        },
-                        'statusText': {
-                            value: '',
-                            writable: true,
-                            enumerable: true
-                        },
-                        'responseText': {
-                            value: '',
-                            writable: true,
-                            enumerable: true
-                        },
-                        'headers': {
-                            value: {},
-                            writable: true,
-                            enumerable: true
-                        },
-                    });
-                }
-                if (!xhr.isCached) { // 避免重复缓存
-                    xhr.id = _XHR.globalId++; // 请求 id 计数加 1
-                    _XHR.cache[xhr.id] = xhr;
-                    xhr.isCached = true;
-                }
-            };
-            /**
-             * 用于处理来自 native 的异步回调
-             */
-            _XHR.setProperties = function (jsonString) {
-                var jsonObj = JSON.parse(jsonString);
-                var id = jsonObj.id;
-                var xhr = _XHR.cache[id];
-                if (jsonObj.readyState === xhr.DONE) {
-                    // 防止重复利用 xhr 对象发送请求而导致 id 不变的问题
-                    xhr.isCached = false;
-                }
-                if (xhr) {
-                    // 保存回调对象，对象子属性的处理放在了 hook 里。因为 xhr 代理对象的可读属性（readyState,status,statusText,responseText）都是从实际 xhr 拷贝过来的，相应的我们也是不能直接对这些可读属性赋值的
-                    xhr.callbackProperties = jsonObj;
-                    if (xhr.onreadystatechange) {
-                        xhr.onreadystatechange();
-                    }
-                    // 因为不能直接赋值给 xhr 的可读属性，所以这里是使用回调对象的属性来判断
-                    if (xhr.callbackProperties.readyState === xhr.LOADING && xhr.onprogress) {
-                        xhr.onprogress();
-                    }
-                    if (xhr.callbackProperties.readyState === xhr.DONE) {
-                        if (xhr.onload) {
-                            xhr.onload();
-                        }
-                        var load = document.createEvent("Events");
-                        load.initEvent("load");
-                        xhr.dispatchEvent(load);
-                    }
-                }
-            };
-            /**
-             * 删除已经已经处理过的请求
-             */
-            _XHR.deleteObject = function (id) {
-                if (_XHR.cache[id]) {
-                    delete _XHR.cache[id];
-                }
-            };
-            return _XHR;
-        }());
-        window._XHR = _XHR;
-        function hookAjax() {
-            /**
-             * https://developer.mozilla.org/zh-CN/docs/Web/API/XMLHttpRequest
-             *
-             * 1、hook 之后，每个 XMLHttpRequest 代理对象里面都会对应一个真正的 XMLHttpRequest 对象。
-             * 2、支持基本属性 hook，事件属性回调 hook 和函数 hook。
-             * 3、基本属性和事件属性 hook 里的入参 xhr 参数是一个 XMLHttpRequest 代理对象。而函数 hook 里的入参 xhr 是一个实际 XMLHttpRequest。 所以可以给代理对象添加属性，然后在其他 hook 方法里共享属性。
-             * 4、函数 hook 返回 true 时，将会阻断真正的 XMLHttpRequest 的实际函数请求。
-             *
-             **/
-            window._hookAjaxProxy.hookAjax({
-                // 拦截属性
-                readyState: {
-                    getter: function (v, xhr) {
-                        return xhr.callbackProperties.readyState;
-                    }
-                },
-                status: {
-                    getter: function (v, xhr) {
-                        return xhr.callbackProperties.status;
-                    }
-                },
-                statusText: {
-                    getter: function (v, xhr) {
-                        return xhr.callbackProperties.statusText;
-                    }
-                },
-                responseText: {
-                    getter: function (v, xhr) {
-                        return xhr.callbackProperties.responseText;
-                    }
-                },
-                response: {
-                    getter: function (v, xhr) {
-                        return xhr.callbackProperties.responseText;
-                    }
-                },
-                //拦截回调
-                onreadystatechange: function (xhr) {
-                    // nothing
-                },
-                onload: function (xhr) {
-                    // nothing
-                },
-                //拦截方法
-                open: function (arg, xhr) {
-                    console.log("open called: method:%s,url:%s,async:%s", arg[0], arg[1], arg[2]);
-                    var method = arg[0];
-                    var url = arg[1];
-                    var async = arg[2];
-                    _XHR.cacheXHRIfNeed(this);
-                    window.KKJSBridge.call(_XHR.moduleName, 'open', {
-                        "id": this.id,
-                        "method": method,
-                        "url": url,
-                        "scheme": window.location.protocol,
-                        "host": window.location.hostname,
-                        "port": window.location.port,
-                        "href": window.location.href,
-                        "referer": document.referrer != "" ? document.referrer : null,
-                        "useragent": navigator.userAgent,
-                        "async": async,
-                    });
-                    return true;
-                },
-                send: function (arg, xhr) {
-                    var _this = this;
-                    console.log("send called:", arg[0]);
-                    var data = arg[0];
-                    if (data) {
-                        if (data instanceof Uint8Array) {
-                            // 特殊处理字节数据
-                            data = Array.from(data);
-                            window.KKJSBridge.call(_XHR.moduleName, 'send', {
-                                "id": this.id,
-                                "isByteData": true,
-                                "data": data
-                            });
-                        }
-                        else if (data instanceof FormData) {
-                            // formData 表单
-                            KKJSBridgeUtil.convertFormDataToJson(data, function (json) {
-                                window.KKJSBridge.call(_XHR.moduleName, 'send', {
-                                    "id": _this.id,
-                                    "isFormData": true,
-                                    "data": json
-                                });
-                            });
-                        }
-                        else {
-                            window.KKJSBridge.call(_XHR.moduleName, 'send', {
-                                "id": this.id,
-                                "data": data
-                            });
-                        }
-                    }
-                    else {
-                        window.KKJSBridge.call(_XHR.moduleName, 'send', {
-                            "id": this.id
-                        });
-                    }
-                    return true;
-                },
-                overrideMimeType: function (arg, xhr) {
-                    // console.log("overrideMimeType called:", arg[0]);
-                    _XHR.cacheXHRIfNeed(this);
-                    var mimetype = arg[0];
-                    window.KKJSBridge.call(_XHR.moduleName, 'overrideMimeType', {
-                        "id": this.id,
-                        "mimetype": mimetype
-                    });
-                    return true;
-                },
-                abort: function (arg, xhr) {
-                    console.log("abort called");
-                    window.KKJSBridge.call(_XHR.moduleName, 'abort', {
-                        "id": this.id
-                    });
-                    return true;
-                },
-                setRequestHeader: function (arg, xhr) {
-                    // console.log("setRequestHeader called:", arg[0], arg[1]);
-                    var headerName = arg[0];
-                    var headerValue = arg[1];
-                    window.KKJSBridge.call(_XHR.moduleName, 'setRequestHeader', {
-                        "id": this.id,
-                        "headerName": headerName,
-                        "headerValue": headerValue
-                    });
-                    return true;
-                },
-                getAllResponseHeaders: function (arg, xhr) {
-                    // console.log("getAllResponseHeaders called");
-                    var strHeaders = '';
-                    for (var name_1 in this.callbackProperties.headers) {
-                        strHeaders += (name_1 + ": " + this.callbackProperties.headers[name_1] + "\r\n");
-                    }
-                    return strHeaders;
-                },
-                getResponseHeader: function (arg, xhr) {
-                    console.log("getResponseHeader called:", arg[0]);
-                    var headerName = arg[0];
-                    var strHeaders = '';
-                    var upperCaseHeaderName = headerName.toUpperCase();
-                    for (var name_2 in this.callbackProperties.headers) {
-                        if (upperCaseHeaderName == name_2.toUpperCase())
-                            strHeaders = this.callbackProperties.headers[name_2];
-                    }
-                    return strHeaders;
-                },
-            });
-            // 开启 fetch hook
-            enableFetchHook(true);
-        }
-        function unHookAjax() {
-            window._hookAjaxProxy.unHookAjax();
-            // 关闭 fetch hook
-            enableFetchHook(false);
         }
         /**
          * hook document.cookie
@@ -1299,11 +942,126 @@
         window._COOKIE = _COOKIE;
         window._COOKIE.hookCookie();
         /**
+         * AJAX 相关方法
+         */
+        var _XHR = /** @class */ (function () {
+            function _XHR() {
+            }
+            // 静态属性和方法
+            _XHR.moduleName = 'ajax';
+            _XHR.globalId = Math.floor(Math.random() * 100000);
+            _XHR.callbackCache = [];
+            /**
+             * 生成 ajax 请求唯一id
+             */
+            _XHR.generateXHRRequestId = function () {
+                return (new Date).getTime() + "_" + _XHR.globalId++; // 时间戳 + 当前上下文唯一id，生成请求id
+            };
+            /**
+             * 发送 body 到 native 侧缓存起来
+             * @param xhr
+             * @param originMethod
+             * @param originArguments
+             * @param body
+             */
+            _XHR.sendBodyToNativeForCache = function (xhr, originMethod, originArguments, request) {
+                var requestId = xhr.requestId;
+                var cacheCallback = {
+                    requestId: requestId,
+                    callback: function () {
+                        // 发送之前设置自定义请求头，好让 native 拦截并从缓存里获取 body
+                        xhr.setRequestHeader("KKJSBridge-RequestId", requestId);
+                        // 调用原始 send 方法 
+                        return originMethod.apply(xhr, originArguments);
+                    }
+                };
+                // 缓存 callbcak
+                _XHR.callbackCache[requestId] = cacheCallback;
+                // 发送 body 请求到 native
+                window.KKJSBridge.call(_XHR.moduleName, 'cacheAJAXBody', request, function (message) {
+                    // 处理 native 侧缓存完毕后的消息
+                    var callbackFromNative = message;
+                    var requestId = callbackFromNative.requestId;
+                    // 通过请求 id，找到原始方法并调用
+                    if (_XHR.callbackCache[requestId]) {
+                        var callbackFromNative_1 = _XHR.callbackCache[requestId];
+                        if (callbackFromNative_1.callback) {
+                            callbackFromNative_1.callback();
+                        }
+                        delete _XHR.callbackCache[requestId];
+                    }
+                });
+            };
+            return _XHR;
+        }());
+        window._XHR = _XHR;
+        /**
+         * 只 hook open/send 方法
+         */
+        var originOpen = XMLHttpRequest.prototype.open;
+        XMLHttpRequest.prototype.open = function (method, url, async, username, password) {
+            var args = [].slice.call(arguments);
+            var xhr = this;
+            // 生成唯一请求id
+            xhr.requestId = _XHR.generateXHRRequestId();
+            xhr.requestUrl = url;
+            xhr.requestHref = document.location.href;
+            originOpen.apply(xhr, args);
+        };
+        var originSend = XMLHttpRequest.prototype.send;
+        XMLHttpRequest.prototype.send = function (body) {
+            var args = [].slice.call(arguments);
+            var xhr = this;
+            var request = {
+                requestId: xhr.requestId,
+                requestHref: xhr.requestHref,
+                requestUrl: xhr.requestUrl,
+                bodyType: "String",
+                value: null
+            };
+            if (!KKJSBridgeConfig.ajaxHook) { // 如果没有开启 ajax hook，则调用原始 send
+                return originSend.apply(xhr, args);
+            }
+            if (!body) { // 没有 body，调用原始 send
+                return originSend.apply(xhr, args);
+            }
+            else if (body instanceof ArrayBuffer) { // 说明是 ArrayBuffer，转成 base64
+                request.bodyType = "ArrayBuffer";
+                request.value = KKJSBridgeUtil.convertArrayBufferToBase64(body);
+            }
+            else if (body instanceof Blob) { // 说明是 Blob，转成 base64
+                request.bodyType = "Blob";
+                var fileReader = new FileReader();
+                fileReader.onload = function (ev) {
+                    var base64 = ev.target.result;
+                    request.value = base64;
+                    _XHR.sendBodyToNativeForCache(xhr, originSend, args, request);
+                };
+                fileReader.readAsDataURL(body);
+                return;
+            }
+            else if (body instanceof FormData) { // 说明是表单
+                request.bodyType = "FormData";
+                KKJSBridgeUtil.convertFormDataToJson(body, function (json) {
+                    request.value = json;
+                    _XHR.sendBodyToNativeForCache(xhr, originSend, args, request);
+                });
+                return;
+            }
+            else { // 说明是字符串或者json
+                request.bodyType = "String";
+                request.value = body;
+            }
+            // 发送到 native 缓存起来
+            _XHR.sendBodyToNativeForCache(xhr, originSend, args, request);
+        };
+        /**
          * KKJSBridge 配置
          */
         var KKJSBridgeConfig = /** @class */ (function () {
             function KKJSBridgeConfig() {
             }
+            KKJSBridgeConfig.ajaxHook = false;
             KKJSBridgeConfig.init = function () {
                 window.KKJSBridge = KKJSBridgeInstance; // 设置新的 JSBridge 作为全局对象
             };
@@ -1312,10 +1070,12 @@
              */
             KKJSBridgeConfig.enableAjaxHook = function (enable) {
                 if (enable) {
-                    hookAjax();
+                    KKJSBridgeConfig.ajaxHook = true;
+                    enableFetchHook(true);
                 }
                 else {
-                    unHookAjax();
+                    enableFetchHook(false);
+                    KKJSBridgeConfig.ajaxHook = false;
                 }
             };
             /**
@@ -1331,7 +1091,6 @@
         }());
         window.KKJSBridgeConfig = KKJSBridgeConfig;
         window.KKJSBridgeConfig.init(); // JSBridge 配置初始化
-        // window.KKJSBridgeConfig.enableAjaxHook(true); // 默认不开启 ajax hook
         window.KKJSBridgeConfig.bridgeReady();
     };
     init();

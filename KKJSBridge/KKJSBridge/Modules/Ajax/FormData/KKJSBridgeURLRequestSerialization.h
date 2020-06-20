@@ -13,7 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface KKJSBridgeURLRequestSerialization : NSObject
 
-- (NSMutableURLRequest *)multipartFormRequestWithRequest:(NSMutableURLRequest *)mutableRequest
+- (void)multipartFormRequestWithRequest:(NSMutableURLRequest *)mutableRequest
                          parameters:(NSDictionary *)parameters
           constructingBodyWithBlock:(void (^)(id <KKJSBridgeMultipartFormData> formData))block
                               error:(NSError *__autoreleasing *)error;

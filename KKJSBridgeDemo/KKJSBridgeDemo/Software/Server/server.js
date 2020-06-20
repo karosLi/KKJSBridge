@@ -86,7 +86,16 @@ server.on('request', function (req,res) {
         res.setHeader('status', '200 OK');
         res.setHeader('Content-Type', 'text/plain');
         res.setHeader('Set-Cookie', ['post_ajax_token=55;domain='+srvUrl.hostname+';path=/;expires=Mon, 01 Aug 2050 06:44:35 GMT;HTTPOnly;', 'post_ajax_token1=66;domain='+srvUrl.hostname+';path=/;expires=Mon, 01 Aug 2050 06:44:35 GMT;']);
-        res.end('testAjaxPost');
+        
+        let body = '';
+        req.on('data', chunk => {
+            body += chunk.toString(); // convert Buffer to string
+        });
+        req.on('end', () => {
+            console.log(body);
+            res.end('testAjaxPost ' + body);
+        });
+        
     } else if (req.url === '/testAjaxGetHtml') {// ajax hook - get html
         fs.readFile(path.join(__dirname,'index.html'),function (err,data) {
             if (err) {
@@ -166,7 +175,15 @@ server.on('request', function (req,res) {
         res.setHeader('status', '200 OK');
         res.setHeader('Content-Type', 'text/plain');
         res.setHeader('Set-Cookie', ['post_ajax_token=55;domain='+srvUrl.hostname+';path=/;expires=Mon, 01 Aug 2050 06:44:35 GMT;HTTPOnly;', 'post_ajax_token1=66;domain='+srvUrl.hostname+';path=/;expires=Mon, 01 Aug 2050 06:44:35 GMT;']);
-        res.end('testFetchPost');
+        
+        let body = '';
+        req.on('data', chunk => {
+            body += chunk.toString(); // convert Buffer to string
+        });
+        req.on('end', () => {
+            console.log(body);
+            res.end('testFetchPost ' + body);
+        });
     } else if (req.url === '/testFetchGetHtml') {// fetch hook - get html
         fs.readFile(path.join(__dirname,'index.html'),function (err,data) {
             if (err) {

@@ -78,7 +78,7 @@ NSTimeInterval const kKKJSBridgeUploadStream3GSuggestedDelay = 0.2;
 @end
 
 @interface KKJSBridgeStreamingMultipartFormData ()
-@property (readwrite, nonatomic, copy) NSMutableURLRequest *request;
+@property (readwrite, nonatomic, strong) NSMutableURLRequest *request;
 @property (readwrite, nonatomic, assign) NSStringEncoding stringEncoding;
 @property (readwrite, nonatomic, copy) NSString *boundary;
 @property (readwrite, nonatomic, strong) KKJSBridgeMultipartBodyStream *bodyStream;
@@ -102,10 +102,10 @@ NSTimeInterval const kKKJSBridgeUploadStream3GSuggestedDelay = 0.2;
     return self;
 }
 
-- (void)setRequest:(NSMutableURLRequest *)request
-{
-    _request = [request mutableCopy];
-}
+//- (void)setRequest:(NSMutableURLRequest *)request
+//{
+//    _request = [request mutableCopy];
+//}
 
 - (BOOL)appendPartWithFileURL:(NSURL *)fileURL
                          name:(NSString *)name

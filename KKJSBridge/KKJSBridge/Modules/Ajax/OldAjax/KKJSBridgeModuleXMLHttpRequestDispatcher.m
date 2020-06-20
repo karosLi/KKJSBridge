@@ -10,6 +10,7 @@
 #import "KKJSBridgeXMLHttpRequest.h"
 #import "KKJSBridgeModuleRegister.h"
 #import "KKJSBridgeEngine.h"
+#import "KKJSBridgeFormDataFile.h"
 
 @interface KKJSBridgeModuleXMLHttpRequestDispatcher()<KKJSBridgeModule, KKJSBridgeModuleXMLHttpRequestDelegate>
 
@@ -21,7 +22,7 @@
 @implementation KKJSBridgeModuleXMLHttpRequestDispatcher
 
 + (nonnull NSString *)moduleName {
-    return @"ajax";
+    return @"ajax1";
 }
 
 + (BOOL)isSingleton {
