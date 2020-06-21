@@ -73,6 +73,7 @@
         configuration.preferences.minimumFontSize = 12;
     }];
     [[KKWebViewPool sharedInstance] enqueueWebViewWithClass:KKWebView.class];
+    KKJSBridgeConfig.ajaxDelegateManager = (id<KKJSBridgeAjaxDelegateManager>)self; // 请求外部代理处理，可以借助 AFN 网络库来发送请求
 }
 
 - (void)dealloc {
@@ -82,29 +83,31 @@
 
 - (void)commonInit {
     _webView = [[KKWebViewPool sharedInstance] dequeueWebViewWithClass:KKWebView.class webViewHolder:self];
-    _webView.configuration.allowsInlineMediaPlayback = YES;
-    _webView.configuration.preferences.minimumFontSize = 12;
-    _webView.hybirdDelegate = self;
+    _webView.navigationDelegate = self;
     _jsBridgeEngine = [KKJSBridgeEngine bridgeForWebView:self.webView];
     _jsBridgeEngine.config.enableAjaxHook = YES; // 开启 ajax hook
-    _jsBridgeEngine.config.ajaxDelegateManager = self; // 请求外部代理处理，可以借助 AFN 网络库来发送请求
 
     [self registerModule];
 }
 
 #pragma mark - KKJSBridgeAjaxDelegateManager
-- (NSURLSessionDataTask *)dataTaskWithRequest:(NSURLRequest *)request callbackDelegate:(NSObject<KKJSBridgeAjaxDelegate> *)callbackDelegate {
-    // 使用 AFN 发送 ajax 请求 
-    NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
-    AFURLSessionManager *manage = [[AFURLSessionManager alloc] initWithSessionConfiguration:configuration];
-    return [manage dataTaskWithRequest:request uploadProgress:^(NSProgress * _Nonnull uploadProgress) {
-        [callbackDelegate JSBridgeAjaxInProcessing:callbackDelegate];
-    } downloadProgress:^(NSProgress * _Nonnull downloadProgress) {
-        [callbackDelegate JSBridgeAjaxInProcessing:callbackDelegate];
-    } completionHandler:^(NSURLResponse * _Nonnull response, id  _Nullable responseObject, NSError * _Nullable error) {
-        [callbackDelegate JSBridgeAjaxDidCompletion:callbackDelegate response:response responseObject:responseObject error:error];
++ (NSURLSessionDataTask *)dataTaskWithRequest:(NSURLRequest *)request callbackDelegate:(NSObject<KKJSBridgeAjaxDelegate> *)callbackDelegate {
+    return [[self ajaxSesstionManager] dataTaskWithRequest:request uploadProgress:nil downloadProgress:nil completionHandler:^(NSURLResponse * _Nonnull response, id  _Nullable responseObject, NSError * _Nullable error) {
+        // 处理响应数据
+        [callbackDelegate JSBridgeAjax:callbackDelegate didReceiveResponse:response];
+        if ([responseObject isKindOfClass:NSData.class]) {
+            [callbackDelegate JSBridgeAjax:callbackDelegate didReceiveData:responseObject];
+        } else if ([responseObject isKindOfClass:NSDictionary.class]) {
+            NSData *responseData = [NSJSONSerialization dataWithJSONObject:responseObject options:0 error:nil];
+            [callbackDelegate JSBridgeAjax:callbackDelegate didReceiveData:responseData];
+        } else {
+            NSData *responseData = [NSJSONSerialization dataWithJSONObject:@{} options:0 error:nil];
+            [callbackDelegate JSBridgeAjax:callbackDelegate didReceiveData:responseData];
+        }
+        [callbackDelegate JSBridgeAjax:callbackDelegate didCompleteWithError:error];
     }];
 }
+
 ```
 
 注册模块
@@ -183,6 +186,12 @@ window.KKJSBridge.call('b', 'callToGetVCTitle', {}, function(res) {
    ```
    
 ## 更新历史
+### 2020.6.21
+- 使用缓存 post body 的思路去做 ajax hook。
+    - 支持 ajax 获取二进制数据还不支持
+    - 支持 submit 方法提交表单
+    - 提升兼容性
+
 ### 2020.6.18
 - 支持 fetch hook
 
@@ -205,10 +214,7 @@ window.KKJSBridge.call('b', 'callToGetVCTitle', {}, function(res) {
 - 支持 ajax 请求外部代理
 
 ## TODO
-- [ ] 使用缓存 post body 的思路去做 ajax hook。主要是基于以下几点原因。
-    - 目前的响应体是通过 JSBrdige 来进行传输的，性能上肯定没有原生的性能好
-    - 对于 ajax 获取二进制数据还不支持，而基于现有的方式去做的话，还是需要写一些编码转换，而这些转换过程是没有那么好控制的
-    
+  
 - [ ] 支持 swift
 
 
