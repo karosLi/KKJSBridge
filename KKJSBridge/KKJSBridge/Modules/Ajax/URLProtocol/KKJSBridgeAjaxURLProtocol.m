@@ -64,6 +64,8 @@ static NSString * const kKKJSBridgeRequestId = @"KKJSBridge-RequestId";
     NSString *requestId;
     if ([headers.allKeys containsObject:kKKJSBridgeRequestId]) {
         requestId = headers[kKKJSBridgeRequestId];
+        // 移除临时的请求头
+        [mutableReqeust setValue:nil forHTTPHeaderField:kKKJSBridgeRequestId];
     } else {
         //?KKJSBridge-RequestId=1592741662922_76828
         NSDictionary *queryParams = [self queryParams:mutableReqeust.URL.absoluteString];
@@ -72,11 +74,6 @@ static NSString * const kKKJSBridgeRequestId = @"KKJSBridge-RequestId";
     
     NSDictionary *bodyReqeust = [KKJSBridgeXMLBodyCacheRequest getRequestBody:requestId];
     if (bodyReqeust) {
-        // 移除临时的请求头
-        NSMutableDictionary *mutableHeaders = [headers mutableCopy];
-        [mutableHeaders removeObjectForKey:kKKJSBridgeRequestId];
-        mutableReqeust.allHTTPHeaderFields = mutableHeaders;
-        
         // 从把缓存的 body 设置给 request
         [self setBodyRequest:bodyReqeust toRequest:mutableReqeust];
         
