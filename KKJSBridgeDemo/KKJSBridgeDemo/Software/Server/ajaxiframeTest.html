@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="X-UA-Compatible" content="ie=edge">
-<title>KKJSBridge Ajax Hook</title>
+<title>KKJSBridge Ajax iframe</title>
 <style>
     button {
         background:#000;
@@ -19,26 +19,16 @@
 </style>
 </head>
 <body>
-	<!-- <img src="resource/demo.jpg"> -->
-	<a href="/client302">浏览器重定向</a>
-	<a href="/client302" target="_blank">_blank 浏览器重定向</a>
-	<button onclick="ajax_get_with_cookie()">ajax_get_with_cookie</button>
-	<button onclick="ajax_post_with_cookie()">ajax_post_with_cookie</button>
-	<button onclick="ajax_get_image()">ajax_get_image</button>
-	<button onclick="ajax_get_html()">ajax_get_html</button>
+	<button onclick="ajax_iframe_get_with_cookie()">ajax_iframe_get_with_cookie</button>
+	<button onclick="ajax_iframe_post_with_cookie()">ajax_iframe_post_with_cookie</button>
+	<button onclick="ajax_iframe_get_image()">ajax_iframe_get_image</button>
+	<button onclick="ajax_iframe_get_html()">ajax_iframe_get_html</button>
 	<div id="ajax_get_html_div"></div>
-	<iframe id="inlineFrameExample"
-	    title="Inline Frame Example"
-	    width="100%"
-	    height="400"
-	    src="/ajaxiframeTest">
-
-	</iframe>
 </body>
 <script src="https://cdn.bootcss.com/eruda/1.5.2/eruda.min.js"></script>
 <script>eruda.init();</script>
 <script type="text/javascript">
-	function ajax_get_with_cookie() {
+	function ajax_iframe_get_with_cookie() {
 		var xhr = new XMLHttpRequest(),
 	     method = "GET",
 	     url = "testAjaxGet";
@@ -50,7 +40,7 @@
 	     };
 	     xhr.send();
 	}
-	function ajax_post_with_cookie() {
+	function ajax_iframe_post_with_cookie() {
 		var xhr = new XMLHttpRequest(),
 	     method = "POST",
 	     url = "/testAjaxPost";
@@ -62,7 +52,7 @@
 	     };
 	     xhr.send("bodyData");
 	}
-	function ajax_get_image() {
+	function ajax_iframe_get_image() {
 		// https://developer.mozilla.org/zh-CN/docs/Web/API/XMLHttpRequest/Sending_and_Receiving_Binary_Data
 		var xhr = new XMLHttpRequest();
 		xhr.open('GET', 'https://developer.mozilla.org/static/img/embed/promos/inactive-css.cff96336bd5c.png', true);
@@ -81,7 +71,7 @@
  		}
  		xhr.send();
 	}
-	function ajax_get_html() {
+	function ajax_iframe_get_html() {
 		var xhr = new XMLHttpRequest(),
 	     method = "GET",
 	     url = "/testAjaxGetHtml";

@@ -687,6 +687,14 @@
                         }
                     }
                 }
+                // 处理有 iframe 的情况
+                var iframes = document.querySelectorAll("iframe");
+                if (iframes) {
+                    var len = iframes.length;
+                    for (var i = 0; i < len; i++) {
+                        iframes[i].contentWindow.KKJSBridge._handleMessageFromNative(messageString);
+                    }
+                }
             };
             /**
              * 调用方法

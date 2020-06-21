@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-06-20 11:29:12
- * @LastEditTime: 2020-06-21 20:08:38
+ * @LastEditTime: 2020-06-21 23:12:27
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /TS/src/indexnew.ts
@@ -58,7 +58,7 @@ var init = function() {
        * @param callbackMessage 回调消息
        */
       public _handleMessageFromNative(messageString: string) {
-        var callbackMessage: KK.CallbackMessage = JSON.parse(messageString);
+        let callbackMessage: KK.CallbackMessage = JSON.parse(messageString);
         if (callbackMessage.messageType === KK.MessageType.Callback) { // 回调消息
           let callback: KK.Callback = this.callbackCache[callbackMessage.callbackId];
           if (callback) { // 执行 callback 回调，并删除缓存的 callback
@@ -76,6 +76,15 @@ var init = function() {
                 eventCallback(callbackMessage.data);
               }
             }
+          }
+        }
+
+        // 处理有 iframe 的情况
+        let iframes : NodeListOf<HTMLIFrameElement> = document.querySelectorAll("iframe");
+        if (iframes) {
+          let len: number = iframes.length;
+          for (let i = 0; i < len; i++) {
+            iframes[i].contentWindow.KKJSBridge._handleMessageFromNative(messageString);
           }
         }
       }
