@@ -7,30 +7,37 @@
 [更详细的介绍](http://karosli.com/2019/08/30/%E4%B8%80%E7%AB%99%E5%BC%8F%E8%A7%A3%E5%86%B3WKWebView%E5%90%84%E7%B1%BB%E9%97%AE%E9%A2%98/)
 
 ## KKJSBridge 支持的功能
+- JSBrdige 相关
 
-- 基于 MessageHandler 搭建通信层
+    - 基于 MessageHandler 搭建通信层
 
-- 支持模块化的管理 JSAPI
+    - 支持模块化的管理 JSAPI
 
-- 支持模块共享上下文信息
+    - 支持模块共享上下文信息
 
-- 支持模块消息转发
+    - 支持模块消息转发
+    
+    - 兼容 WebViewJavascriptBridge
 
-- 支持离线资源
+- 请求相关
 
-- 支持 ajax/fetch hook 避免 body 丢失
+    - 支持离线资源
 
-- Native 侧控制 ajax/fetch hook
+    - 支持 ajax/fetch hook 避免 body 丢失
 
-- 支持表单数据，支持图片上传（表单虽好，可不要依赖哈）
+    - Native 侧控制 ajax/fetch hook
 
-- 支持 ajax/fetch 请求外部代理
+    - 支持表单数据，支持图片上传
 
-- Cookie 统一管理
+    - 支持 ajax/fetch 请求外部代理
 
-- WKWebView 复用
+- WebView 相关
 
-- 兼容 WebViewJavascriptBridge
+    - Cookie 统一管理
+
+    - WKWebView 复用
+
+
 
 ## Demo
 ### demo 概览
