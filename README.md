@@ -200,7 +200,7 @@ window.KKJSBridge.call('b', 'callToGetVCTitle', {}, function(res) {
     
 ### 2020.6.21 (1.1.1)
 - 使用缓存 post body 的思路去做 ajax hook
-    - 支持 ajax 获取二进制数据还不支持
+    - 支持 ajax 获取二进制数据(H5小游戏场景很多都是使用 ajax 获取图片)
     - 支持 submit 方法提交表单
     - 提升兼容性
 
