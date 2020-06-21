@@ -3,22 +3,6 @@
     typeof define === 'function' && define.amd ? define('lib/fetch.js', factory) :
     (global = global || self, global.KKJSBridge = factory());
 }(this, (function () { 'use strict';
-
-    /*! *****************************************************************************
-    Copyright (c) Microsoft Corporation. All rights reserved.
-    Licensed under the Apache License, Version 2.0 (the "License"); you may not use
-    this file except in compliance with the License. You may obtain a copy of the
-    License at http://www.apache.org/licenses/LICENSE-2.0
-
-    THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-    KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
-    WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
-    MERCHANTABLITY OR NON-INFRINGEMENT.
-
-    See the Apache Version 2.0 License for specific language governing permissions
-    and limitations under the License.
-    ***************************************************************************** */
-
     function __awaiter(thisArg, _arguments, P, generator) {
         return new (P || (P = Promise))(function (resolve, reject) {
             function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -958,21 +942,59 @@
                 return (new Date).getTime() + "_" + _XHR.globalId++; // 时间戳 + 当前上下文唯一id，生成请求id
             };
             /**
+             * 给表单生成新的 action
+             */
+            _XHR.generateNewActionForForm = function (form, requestId) {
+                var orignAction = form.action;
+                // 通过 a 标签来辅助拼接新的 action
+                var aTag = document.createElement("a");
+                aTag.href = orignAction;
+                var search = aTag.search ? aTag.search : "";
+                var hash = aTag.hash ? aTag.hash : "";
+                if (/KKJSBridge-RequestId/.test(orignAction)) { // 防止重复追加 requestId
+                    aTag.search = aTag.search.replace(/KKJSBridge-RequestId=(\d+_\d+)/, "KKJSBridge-RequestId=" + requestId);
+                }
+                else if (aTag.search && aTag.search.length > 0) {
+                    var s = aTag.search;
+                    if (/KKJSBridge-RequestId/.test(s)) { // 防止重复追加 requestId
+                        aTag.search = s.replace(/KKJSBridge-RequestId=(\d+_\d+)/, "KKJSBridge-RequestId=" + requestId);
+                    }
+                    else {
+                        aTag.search = s + "&KKJSBridge-RequestId=" + requestId;
+                    }
+                }
+                else {
+                    aTag.search = "?KKJSBridge-RequestId=" + requestId;
+                }
+                var url = orignAction.replace(search, "").replace(hash, "");
+                if ("#" === url.trim()) {
+                    url = "";
+                }
+                var newAction = url + aTag.search + aTag.hash;
+                form.action = newAction;
+            };
+            /**
              * 发送 body 到 native 侧缓存起来
              * @param xhr
              * @param originMethod
              * @param originArguments
              * @param body
              */
-            _XHR.sendBodyToNativeForCache = function (xhr, originMethod, originArguments, request) {
-                var requestId = xhr.requestId;
+            _XHR.sendBodyToNativeForCache = function (target, originMethod, originArguments, request) {
+                var requestId = target.requestId;
                 var cacheCallback = {
                     requestId: requestId,
                     callback: function () {
-                        // 发送之前设置自定义请求头，好让 native 拦截并从缓存里获取 body
-                        xhr.setRequestHeader("KKJSBridge-RequestId", requestId);
+                        if (target instanceof XMLHttpRequest) { // ajax
+                            // 发送之前设置自定义请求头，好让 native 拦截并从缓存里获取 body
+                            target.setRequestHeader("KKJSBridge-RequestId", requestId);
+                        }
+                        else if (target instanceof HTMLFormElement) { // 表单 submit
+                            // 发送之前修改 action，让 action 带上 requestId
+                            _XHR.generateNewActionForForm(target, requestId);
+                        }
                         // 调用原始 send 方法 
-                        return originMethod.apply(xhr, originArguments);
+                        return originMethod.apply(target, originArguments);
                     }
                 };
                 // 缓存 callbcak
@@ -1056,6 +1078,36 @@
             _XHR.sendBodyToNativeForCache(xhr, originSend, args, request);
         };
         /**
+         * hook form submit 方法
+         */
+        var originSubmit = HTMLFormElement.prototype.submit;
+        HTMLFormElement.prototype.submit = function () {
+            var args = [].slice.call(arguments);
+            var form = this;
+            form.requestId = _XHR.generateXHRRequestId();
+            form.requestUrl = form.action;
+            form.requestHref = document.location.href;
+            var request = {
+                requestId: form.requestId,
+                requestHref: form.requestHref,
+                requestUrl: form.requestUrl,
+                bodyType: "FormData",
+                value: null
+            };
+            if (!KKJSBridgeConfig.ajaxHook) { // 如果没有开启 ajax hook，则调用原始 submit
+                return originSubmit.apply(form, args);
+            }
+            var action = form.action;
+            if (!action) { // 如果 action 本身是空，则调用原始 submit
+                return originSubmit.apply(form, args);
+            }
+            var formData = new FormData(form);
+            KKJSBridgeUtil.convertFormDataToJson(formData, function (json) {
+                request.value = json;
+                _XHR.sendBodyToNativeForCache(form, originSubmit, args, request);
+            });
+        };
+        /**
          * KKJSBridge 配置
          */
         var KKJSBridgeConfig = /** @class */ (function () {
@@ -1094,8 +1146,8 @@
         window.KKJSBridgeConfig.bridgeReady();
     };
     init();
-    var indexnew = window.KKJSBridge;
+    var index = window.KKJSBridge;
 
-    return indexnew;
+    return index;
 
 })));

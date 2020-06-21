@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-06-20 11:29:12
- * @LastEditTime: 2020-06-20 17:54:56
+ * @LastEditTime: 2020-06-21 20:08:38
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /TS/src/indexnew.ts
@@ -302,26 +302,65 @@ var init = function() {
       }
 
       /**
+       * 给表单生成新的 action
+       */
+      public static generateNewActionForForm: Function = (form: HTMLFormElement, requestId: string) => {
+        let orignAction: string = form.action;
+
+        // 通过 a 标签来辅助拼接新的 action
+        let aTag: HTMLAnchorElement = document.createElement("a");
+        aTag.href = orignAction;
+        let search: string = aTag.search ? aTag.search : "";
+        let hash: string = aTag.hash ? aTag.hash : "";
+
+        if (/KKJSBridge-RequestId/.test(orignAction)) {// 防止重复追加 requestId
+          aTag.search = aTag.search.replace(/KKJSBridge-RequestId=(\d+_\d+)/, "KKJSBridge-RequestId=" + requestId);
+        } else if (aTag.search && aTag.search.length > 0) {
+          let s: string = aTag.search;
+          if (/KKJSBridge-RequestId/.test(s)) {// 防止重复追加 requestId
+            aTag.search = s.replace(/KKJSBridge-RequestId=(\d+_\d+)/, "KKJSBridge-RequestId=" + requestId);
+          } else {
+            aTag.search = s + "&KKJSBridge-RequestId=" + requestId;
+          }
+        } else {
+          aTag.search = "?KKJSBridge-RequestId=" + requestId;
+        }
+
+        let url: string = orignAction.replace(search, "").replace(hash, "");
+        if ("#" === url.trim()) {
+          url = "";
+        }
+
+        let newAction: string = url + aTag.search + aTag.hash;
+        form.action = newAction;
+      }
+
+      /**
        * 发送 body 到 native 侧缓存起来
        * @param xhr 
        * @param originMethod 
        * @param originArguments 
        * @param body 
        */
-      public static sendBodyToNativeForCache: Function = (xhr: XMLHttpRequest, 
+      public static sendBodyToNativeForCache: Function = (target: XMLHttpRequest | HTMLFormElement, 
         originMethod: any, 
         originArguments: any, 
         request: KK.AJAXBodyCacheRequest) => {
         
-        let requestId: string = xhr.requestId;
+        let requestId: string = target.requestId;
         let cacheCallback: KK.AJAXBodyCacheCallback = {
           requestId: requestId,
           callback: ()=> {
-            // 发送之前设置自定义请求头，好让 native 拦截并从缓存里获取 body
-            xhr.setRequestHeader("KKJSBridge-RequestId", requestId);
-
+            if (target instanceof XMLHttpRequest) {// ajax
+              // 发送之前设置自定义请求头，好让 native 拦截并从缓存里获取 body
+              target.setRequestHeader("KKJSBridge-RequestId", requestId);
+            } else if (target instanceof HTMLFormElement) {// 表单 submit
+              // 发送之前修改 action，让 action 带上 requestId
+              _XHR.generateNewActionForForm(target, requestId);
+            }
+            
             // 调用原始 send 方法 
-            return originMethod.apply(xhr, originArguments);
+            return originMethod.apply(target, originArguments);
           }
         };
 
@@ -407,6 +446,41 @@ var init = function() {
       // 发送到 native 缓存起来
       _XHR.sendBodyToNativeForCache(xhr, originSend, args, request);
     } as any;
+
+    /**
+     * hook form submit 方法
+     */
+    let originSubmit = HTMLFormElement.prototype.submit;
+    HTMLFormElement.prototype.submit = function() {
+      let args: any = [].slice.call(arguments);
+      let form: HTMLFormElement = this;
+      form.requestId = _XHR.generateXHRRequestId();
+      form.requestUrl = form.action;
+      form.requestHref = document.location.href;
+
+      let request: KK.AJAXBodyCacheRequest = {
+        requestId: form.requestId,
+        requestHref: form.requestHref,
+        requestUrl: form.requestUrl,
+        bodyType: "FormData",
+        value: null
+      };
+
+      if (!KKJSBridgeConfig.ajaxHook) {// 如果没有开启 ajax hook，则调用原始 submit
+        return originSubmit.apply(form, args);
+      }
+
+      let action: string = form.action;
+      if (!action) {// 如果 action 本身是空，则调用原始 submit
+        return originSubmit.apply(form, args);
+      }
+
+      let formData: any = new FormData(form);
+      KKJSBridgeUtil.convertFormDataToJson(formData, (json: any) => {
+        request.value = json;
+        _XHR.sendBodyToNativeForCache(form, originSubmit, args, request);
+      });
+    };
   
     /**
      * KKJSBridge 配置

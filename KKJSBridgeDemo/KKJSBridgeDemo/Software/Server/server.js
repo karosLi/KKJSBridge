@@ -97,15 +97,9 @@ server.on('request', function (req,res) {
         });
         
     } else if (req.url === '/testAjaxGetHtml') {// ajax hook - get html
-        fs.readFile(path.join(__dirname,'index.html'),function (err,data) {
-            if (err) {
-                throw err;
-            }
-
-            res.setHeader('status', '200 OK');
-            res.setHeader('Content-Type', 'text/html');
-            res.end(data)
-        })
+        res.setHeader('status', '200 OK');
+        res.setHeader('Content-Type', 'text/html');
+        res.end('<input name="q" value="test">');
     }
     else if (req.url === '/ajaxFormData') {// ajax 表单主页
         fs.readFile(path.join(__dirname,'ajaxFormData.html'),function (err,data) {
@@ -185,15 +179,9 @@ server.on('request', function (req,res) {
             res.end('testFetchPost ' + body);
         });
     } else if (req.url === '/testFetchGetHtml') {// fetch hook - get html
-        fs.readFile(path.join(__dirname,'index.html'),function (err,data) {
-            if (err) {
-                throw err;
-            }
-
-            res.setHeader('status', '200 OK');
-            res.setHeader('Content-Type', 'text/html');
-            res.end(data)
-        })
+        res.setHeader('status', '200 OK');
+        res.setHeader('Content-Type', 'text/html');
+        res.end('<input name="q" value="test">');
     }
     else if (req.url === '/fetchFormData') {// fetch 表单主页
         fs.readFile(path.join(__dirname,'fetchFormData.html'),function (err,data) {

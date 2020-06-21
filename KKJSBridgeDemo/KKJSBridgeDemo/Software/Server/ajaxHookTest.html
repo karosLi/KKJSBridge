@@ -83,7 +83,9 @@
 	        if(xhr.readyState === 4 && xhr.status === 200) {
 	            console.log(xhr.responseText);
 	            var div = document.getElementById('ajax_get_html_div');
-	            div.innerText = xhr.responseText;
+	            var form = document.createElement('form');
+				form.innerHTML = xhr.responseText;
+	            div.append(form);
 	        }
 	     };
 	     xhr.send();

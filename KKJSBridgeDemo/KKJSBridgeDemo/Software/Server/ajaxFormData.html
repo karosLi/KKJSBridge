@@ -10,6 +10,16 @@
         margin-top:20px;
         margin-bottom:20px;
     }
+    input[type="submit"] {
+        background:#000;
+        color:#fff;
+        padding: 6px 12px;
+        font-size: 14px;
+        display:block;
+        margin-bottom:5px;
+        border:none;
+        border-radius: 3px;
+    }
     button {
         background:#000;
         color:#fff;
@@ -20,22 +30,49 @@
         border:none;
         border-radius: 3px;
     }
+
+
 </style>
 </head>
 <body>
-    <input id="file" name="file" type="file" />
-	<button onclick="sendFormData()">上传文件到七牛</button>
+    <div>
+        1、ajax 上传文件到七牛
+        <input id="file" name="file" type="file" />
+        <button onclick="sendAjaxFormData()">ajax 上传文件到七牛</button>
+    </div>
+
+    <div>
+        2、使用表单submit事件来上传到七牛
+        <form enctype="multipart/form-data" method="post" id="myForm1">
+          <label>File:</label>
+          <input type="file" name="file" required /><br />
+          <input type="submit" value="submit事件上传文件到七牛" />
+        </form>
+    </div>
+
+    <div>
+        3、使用表单submit方法来上传到七牛
+        <form action="http://upload.qiniup.com/" enctype="multipart/form-data" method="post" id="myForm2">
+          <label>File:</label>
+          <input type="text" name="key" value="cccc" hidden required />
+          <input type="text" name="token" value="RSxpQIxNIS2vo0vuQR3HX701ddS9fdlUnQ5jV8u1:KLNftMf4SpVnLT70Q0aWV0O9kDE=:eyJzY29wZSI6Imthcm9zcGljcyIsImRlYWRsaW5lIjoyMjIzMTgzMDA3fQ==" hidden required />
+          <input type="file" name="file" required /><br />
+        </form>
+        <button onclick="formDataSubmit()">submit方法上传文件到七牛</button>
+    </div>
 </body>
 <script src="https://cdn.bootcss.com/eruda/1.5.2/eruda.min.js"></script>
 <script>eruda.init();</script>
 <script type="text/javascript">
+    var token = 'RSxpQIxNIS2vo0vuQR3HX701ddS9fdlUnQ5jV8u1:KLNftMf4SpVnLT70Q0aWV0O9kDE=:eyJzY29wZSI6Imthcm9zcGljcyIsImRlYWRsaW5lIjoyMjIzMTgzMDA3fQ==';
+
     // 在 TS 目录下， npm install && npm run qtoken 可以生成 token
-    function sendFormData() {
+    function sendAjaxFormData() {
         var file = document.getElementById('file').files[0];
 
         var formData = new FormData();
         formData.append('key', 'bbbb-' + (new Date()).getTime());
-        formData.append('token', 'RSxpQIxNIS2vo0vuQR3HX701ddS9fdlUnQ5jV8u1:KLNftMf4SpVnLT70Q0aWV0O9kDE=:eyJzY29wZSI6Imthcm9zcGljcyIsImRlYWRsaW5lIjoyMjIzMTgzMDA3fQ==');
+        formData.append('token', token);
         formData.append('file', file);
         
         var xhr = new XMLHttpRequest();
@@ -50,5 +87,31 @@
         };
         xhr.send(formData);
     }
+
+    // https://developer.mozilla.org/en-US/docs/Web/API/FormData/Using_FormData_Objects
+    document.addEventListener('submit', function(ev) {
+        var formData = new FormData(ev.target);
+        formData.append('key', 'bbbb-' + (new Date()).getTime());
+        formData.append('token', token);
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', 'http://upload.qiniup.com/', true);
+        xhr.onreadystatechange = () => {
+            if (xhr.status === 200 && xhr.readyState === 4) {
+              console.log(xhr.responseText);
+            }
+        };
+        xhr.onerror = function (e) {
+            console.log(e);
+        };
+        xhr.send(formData);
+        ev.preventDefault();
+    }, false);
+
+    function formDataSubmit() {
+        var form = document.getElementById('myForm2');
+        form.submit();
+    }
+
 </script>
 </html>

@@ -75,7 +75,9 @@
 			res.text().then(function(text) {
 		    	console.log(text);
 		    	var div = document.getElementById('fetch_get_html_div');
-	            div.innerText = text;
+	            var form = document.createElement('form');
+				form.innerHTML = text;
+	            div.append(form);
 		    });
 		}).catch(error => {
 			console.error('Error:', error)

@@ -26,7 +26,8 @@ static NSString * const kKKJSBridgeRequestId = @"KKJSBridge-RequestId";
 
 + (BOOL)canInitWithRequest:(NSURLRequest *)request {
     NSDictionary *headers = request.allHTTPHeaderFields;
-    if ([headers.allKeys containsObject:kKKJSBridgeRequestId]) {
+    // 请求头或者链接有 RequestId
+    if ([headers.allKeys containsObject:kKKJSBridgeRequestId] || [request.URL.absoluteString containsString:kKKJSBridgeRequestId]) {
         // 看看是否已经处理过了，防止无限循环
         if ([NSURLProtocol propertyForKey:kKKJSBridgeNSURLProtocolKey inRequest:request]) {
             return NO;
@@ -60,7 +61,14 @@ static NSString * const kKKJSBridgeRequestId = @"KKJSBridge-RequestId";
     [NSURLProtocol setProperty:@YES forKey:kKKJSBridgeNSURLProtocolKey inRequest:mutableReqeust];
     
     NSDictionary *headers = mutableReqeust.allHTTPHeaderFields;
-    NSString *requestId = headers[kKKJSBridgeRequestId];
+    NSString *requestId;
+    if ([headers.allKeys containsObject:kKKJSBridgeRequestId]) {
+        requestId = headers[kKKJSBridgeRequestId];
+    } else {
+        //?KKJSBridge-RequestId=1592741662922_76828
+        NSDictionary *queryParams = [self queryParams:mutableReqeust.URL.absoluteString];
+        requestId = queryParams[kKKJSBridgeRequestId];
+    }
     
     NSDictionary *bodyReqeust = [KKJSBridgeXMLBodyCacheRequest getRequestBody:requestId];
     if (bodyReqeust) {
@@ -248,6 +256,29 @@ static NSString * const kKKJSBridgeRequestId = @"KKJSBridge-RequestId";
             [formData appendPartWithFileData:fileData.data name:fileData.key fileName:fileData.fileName mimeType:fileData.type];
         }
     } error:nil];
+}
+
+- (NSDictionary *)queryParams:(NSString *)absoluteString {
+    NSMutableDictionary *pairs = [NSMutableDictionary dictionary];
+    if (NSNotFound != [absoluteString rangeOfString:@"?"].location) {
+        NSString *paramString = [absoluteString substringFromIndex:
+                                 ([absoluteString rangeOfString:@"?"].location + 1)];
+        NSCharacterSet *delimiterSet = [NSCharacterSet characterSetWithCharactersInString:@"&"];
+        NSScanner *scanner = [[NSScanner alloc] initWithString:paramString];
+        while (![scanner isAtEnd]) {
+            NSString* pairString = nil;
+            [scanner scanUpToCharactersFromSet:delimiterSet intoString:&pairString];
+            [scanner scanCharactersFromSet:delimiterSet intoString:NULL];
+            NSArray *kvPair = [pairString componentsSeparatedByString:@"="];
+            if (kvPair.count == 2) {
+                NSString *key = [[kvPair objectAtIndex:0] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+                NSString *value = [[kvPair objectAtIndex:1] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+                [pairs setValue:value forKey:key];
+            }
+        }
+    }
+    
+    return [NSDictionary dictionaryWithDictionary:pairs];
 }
 
 #pragma mark - KKJSBridgeURLRequestSerialization
