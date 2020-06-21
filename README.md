@@ -24,6 +24,8 @@
     - 支持离线资源
 
     - 支持 ajax/fetch hook 避免 body 丢失
+    
+    - 支持在 iframe 内发送请求
 
     - Native 侧控制 ajax/fetch hook
 
