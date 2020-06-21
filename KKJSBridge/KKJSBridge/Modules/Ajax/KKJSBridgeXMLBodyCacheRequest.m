@@ -28,7 +28,7 @@ static KKJSBridgeSafeDictionary *bodyCache;
 }
 
 + (nonnull NSString *)moduleName {
-    return @"ajax";
+    return @"ajax1";
 }
 
 + (BOOL)isSingleton {

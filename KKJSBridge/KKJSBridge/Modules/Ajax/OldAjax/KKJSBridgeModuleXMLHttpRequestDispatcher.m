@@ -22,7 +22,7 @@
 @implementation KKJSBridgeModuleXMLHttpRequestDispatcher
 
 + (nonnull NSString *)moduleName {
-    return @"ajax1";
+    return @"ajax";
 }
 
 + (BOOL)isSingleton {
