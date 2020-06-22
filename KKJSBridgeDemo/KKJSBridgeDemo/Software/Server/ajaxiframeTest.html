@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title>KKJSBridge Ajax iframe</title>
+<style>
+    button {
+        background:#000;
+        color:#fff;
+        padding: 6px 12px;
+        font-size: 14px;
+        display:block;
+        margin-bottom:5px;
+        border:none;
+        border-radius: 3px;
+    }
+</style>
+</head>
+<body>
+	<button onclick="ajax_iframe_get_with_cookie()">ajax_iframe_get_with_cookie</button>
+	<button onclick="ajax_iframe_post_with_cookie()">ajax_iframe_post_with_cookie</button>
+	<button onclick="ajax_iframe_get_image()">ajax_iframe_get_image</button>
+	<button onclick="ajax_iframe_get_html()">ajax_iframe_get_html</button>
+	<div id="ajax_get_html_div"></div>
+</body>
+<script src="https://cdn.bootcss.com/eruda/1.5.2/eruda.min.js"></script>
+<script>eruda.init();</script>
+<script type="text/javascript">
+	function ajax_iframe_get_with_cookie() {
+		var xhr = new XMLHttpRequest(),
+	     method = "GET",
+	     url = "testAjaxGet";
+	     xhr.open(method, url, true);
+	     xhr.onreadystatechange = function () {
+	        if(xhr.readyState === 4 && xhr.status === 200) {
+	            console.log(xhr.responseText);
+	        }
+	     };
+	     xhr.send();
+	}
+	function ajax_iframe_post_with_cookie() {
+		var xhr = new XMLHttpRequest(),
+	     method = "POST",
+	     url = "/testAjaxPost";
+	     xhr.open(method, url, true);
+	     xhr.onreadystatechange = function () {
+	        if(xhr.readyState === 4 && xhr.status === 200) {
+	            console.log(xhr.responseText);
+	        }
+	     };
+	     xhr.send("bodyData");
+	}
+	function ajax_iframe_get_image() {
+		// https://developer.mozilla.org/zh-CN/docs/Web/API/XMLHttpRequest/Sending_and_Receiving_Binary_Data
+		var xhr = new XMLHttpRequest();
+		xhr.open('GET', 'https://developer.mozilla.org/static/img/embed/promos/inactive-css.cff96336bd5c.png', true);
+		xhr.responseType = "arraybuffer";
+		xhr.onreadystatechange = function() {
+	    	if(xhr.readyState === 4 && xhr.status === 200) {
+	    		var blob = new Blob([xhr.response], {type: "image/png"});
+	    		var reader = new FileReader ();
+	    		reader.onload = function (event) {
+		    		var img = document.createElement('img');
+		    		img.src = event.target.result;
+		    		document.body.appendChild(img);
+    			};
+   				reader.readAsDataURL(blob);
+    		}
+ 		}
+ 		xhr.send();
+	}
+	function ajax_iframe_get_html() {
+		var xhr = new XMLHttpRequest(),
+	     method = "GET",
+	     url = "/testAjaxGetHtml";
+	     xhr.open(method, url, true);
+	     xhr.onreadystatechange = function () {
+	        if(xhr.readyState === 4 && xhr.status === 200) {
+	            console.log(xhr.responseText);
+	            var div = document.getElementById('ajax_get_html_div');
+	            var form = document.createElement('form');
+				form.innerHTML = xhr.responseText;
+	            div.append(form);
+	        }
+	     };
+	     xhr.send();
+	}
+	
+</script>
+</html>
