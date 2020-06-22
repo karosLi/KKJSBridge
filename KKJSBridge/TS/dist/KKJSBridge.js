@@ -974,7 +974,7 @@
              * 生成 ajax 请求唯一id
              */
             _XHR.generateXHRRequestId = function () {
-                return (new Date).getTime() + "_" + _XHR.globalId++; // 时间戳 + 当前上下文唯一id，生成请求id
+                return (new Date).getTime() + "" + _XHR.globalId++; // 时间戳 + 当前上下文唯一id，生成请求id
             };
             /**
              * 给表单生成新的 action
@@ -987,12 +987,12 @@
                 var search = aTag.search ? aTag.search : "";
                 var hash = aTag.hash ? aTag.hash : "";
                 if (/KKJSBridge-RequestId/.test(orignAction)) { // 防止重复追加 requestId
-                    aTag.search = aTag.search.replace(/KKJSBridge-RequestId=(\d+_\d+)/, "KKJSBridge-RequestId=" + requestId);
+                    aTag.search = aTag.search.replace(/KKJSBridge-RequestId=(\d+)/, "KKJSBridge-RequestId=" + requestId);
                 }
                 else if (aTag.search && aTag.search.length > 0) {
                     var s = aTag.search;
                     if (/KKJSBridge-RequestId/.test(s)) { // 防止重复追加 requestId
-                        aTag.search = s.replace(/KKJSBridge-RequestId=(\d+_\d+)/, "KKJSBridge-RequestId=" + requestId);
+                        aTag.search = s.replace(/KKJSBridge-RequestId=(\d+)/, "KKJSBridge-RequestId=" + requestId);
                     }
                     else {
                         aTag.search = s + "&KKJSBridge-RequestId=" + requestId;
@@ -1009,6 +1009,34 @@
                 form.action = newAction;
             };
             /**
+             * 给 open url 生成带请求 id 的新 url
+             */
+            _XHR.generateNewOpenUrlWithRequestId = function (url, requestId) {
+                var getOpenUrlReuestId = function (requestId) {
+                    return "^^^^" + requestId + "^^^^";
+                };
+                var openUrlReuestReg = /\^\^\^\^(\d+)\^\^\^\^/;
+                // 通过 a 标签来辅助拼接新的 action
+                var aTag = document.createElement("a");
+                aTag.href = url;
+                var hash = aTag.hash ? aTag.hash : "";
+                if (openUrlReuestReg.test(aTag.hash)) {
+                    aTag.hash = aTag.hash.replace(openUrlReuestReg, getOpenUrlReuestId(requestId));
+                }
+                else if (aTag.hash && aTag.hash.length > 0) {
+                    aTag.hash = aTag.hash + getOpenUrlReuestId(requestId);
+                }
+                else {
+                    aTag.hash = getOpenUrlReuestId(requestId);
+                }
+                url = url.replace(hash, "");
+                if ("#" === url.trim()) {
+                    url = "";
+                }
+                var newUrl = url + aTag.hash;
+                return newUrl;
+            };
+            /**
              * 发送 body 到 native 侧缓存起来
              * @param xhr
              * @param originMethod
@@ -1020,11 +1048,11 @@
                 var cacheCallback = {
                     requestId: requestId,
                     callback: function () {
-                        if (targetType === "AJAX") { // ajax
-                            // 发送之前设置自定义请求头，好让 native 拦截并从缓存里获取 body
-                            target.setRequestHeader("KKJSBridge-RequestId", requestId);
-                        }
-                        else if (targetType === "FORM") { // 表单 submit
+                        // if (targetType === "AJAX") {// ajax
+                        //   // 发送之前设置自定义请求头，好让 native 拦截并从缓存里获取 body
+                        //   target.setRequestHeader("KKJSBridge-RequestId", requestId);
+                        // }
+                        if (targetType === "FORM") { // 表单 submit
                             // 发送之前修改 action，让 action 带上 requestId
                             _XHR.generateNewActionForForm(target, requestId);
                         }
@@ -1064,6 +1092,14 @@
             xhr.requestUrl = url;
             xhr.requestHref = document.location.href;
             xhr.requestMethod = method;
+            if (!KKJSBridgeConfig.ajaxHook) { // 如果没有开启 ajax hook，则调用原始 open
+                return originSend.apply(xhr, args);
+            }
+            if (method === "GET") { // 调用原始 open
+                return originOpen.apply(xhr, args);
+            }
+            // 生成新的 url
+            args[1] = _XHR.generateNewOpenUrlWithRequestId(url, xhr.requestId);
             originOpen.apply(xhr, args);
         };
         var originSend = XMLHttpRequest.prototype.send;

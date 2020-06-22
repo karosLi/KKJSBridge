@@ -20,6 +20,8 @@ typedef CFHTTPMessageRef (*KKJSBridgeURLResponseGetHTTPResponse)(CFURLRef respon
 
 static NSString * const kKKJSBridgeNSURLProtocolKey = @"kKKJSBridgeNSURLProtocolKey";
 static NSString * const kKKJSBridgeRequestId = @"KKJSBridge-RequestId";
+static NSString * const kKKJSBridgeOpenUrlRequestIdRegex = @"^.*#%5E%5E%5E%5E(\\d+)%5E%5E%5E%5E$";
+static NSString * const kKKJSBridgeOpenUrlRequestIdHashRegex = @"^.*(#%5E%5E%5E%5E\\d+%5E%5E%5E%5E)$";
 static NSString * const kKKJSBridgeAjaxRequestHeaderAC = @"Access-Control-Request-Headers";
 static NSString * const kKKJSBridgeAjaxResponseHeaderAC = @"Access-Control-Allow-Headers";
 
@@ -27,6 +29,7 @@ static NSString * const kKKJSBridgeAjaxResponseHeaderAC = @"Access-Control-Allow
 
 @property (nonatomic, strong) NSURLSessionDataTask *customTask;
 @property (nonatomic, copy) NSString *requestId;
+@property (nonatomic, copy) NSString *requestHTTPMethod;
 
 @end
 
@@ -40,7 +43,8 @@ static NSString * const kKKJSBridgeAjaxResponseHeaderAC = @"Access-Control-Allow
      2、请求头有 RequestId
      3、链接有 RequestId
      */
-    if (([request.HTTPMethod isEqualToString:@"OPTIONS"] && [acrequestHeader containsString:[kKKJSBridgeRequestId lowercaseString]])
+    if ([self validateRequestId:request.URL.absoluteString]
+        || ([request.HTTPMethod isEqualToString:@"OPTIONS"] && [acrequestHeader containsString:[kKKJSBridgeRequestId lowercaseString]])
         || [headers.allKeys containsObject:kKKJSBridgeRequestId]
         || [request.URL.absoluteString containsString:kKKJSBridgeRequestId]) {
         
@@ -51,7 +55,7 @@ static NSString * const kKKJSBridgeAjaxResponseHeaderAC = @"Access-Control-Allow
         
         return YES;
     }
-
+  
     return NO;
 }
 
@@ -72,10 +76,6 @@ static NSString * const kKKJSBridgeAjaxResponseHeaderAC = @"Access-Control-Allow
 }
 
 - (void)startLoading {
-    if ([[self request].URL.absoluteString containsString:@"dreport.meituan.net"]) {
-        NSLog(@"==================");
-    }
-    
     NSMutableURLRequest *mutableReqeust = [[self request] mutableCopy];
     //给我们处理过的请求设置一个标识符, 防止无限循环,
     [NSURLProtocol setProperty:@YES forKey:kKKJSBridgeNSURLProtocolKey inRequest:mutableReqeust];
@@ -97,7 +97,13 @@ static NSString * const kKKJSBridgeAjaxResponseHeaderAC = @"Access-Control-Allow
     }
     
     headers = mutableReqeust.allHTTPHeaderFields;
-    if ([headers.allKeys containsObject:kKKJSBridgeRequestId]) {
+    if ([self.class validateRequestId:mutableReqeust.URL.absoluteString]) {
+        requestId = [self fetchRequestId:mutableReqeust.URL.absoluteString];
+        // 移除临时的请求hash
+        NSString *reqeustHash = [self fetchRequestHash:mutableReqeust.URL.absoluteString];
+        NSString *absString = [mutableReqeust.URL.absoluteString stringByReplacingOccurrencesOfString:reqeustHash withString:@""];
+        mutableReqeust.URL = [NSURL URLWithString:absString];
+    } else if ([headers.allKeys containsObject:kKKJSBridgeRequestId]) {
         requestId = headers[kKKJSBridgeRequestId];
         // 移除临时的请求头
         [mutableReqeust setValue:nil forHTTPHeaderField:kKKJSBridgeRequestId];
@@ -107,11 +113,12 @@ static NSString * const kKKJSBridgeAjaxResponseHeaderAC = @"Access-Control-Allow
         requestId = queryParams[kKKJSBridgeRequestId];
     }
     
+    self.requestId = requestId;
+    self.requestHTTPMethod = mutableReqeust.HTTPMethod;
     NSDictionary *bodyReqeust = [KKJSBridgeXMLBodyCacheRequest getRequestBody:requestId];
     if (bodyReqeust) {
         // 从把缓存的 body 设置给 request
         [self setBodyRequest:bodyReqeust toRequest:mutableReqeust];
-        self.requestId = requestId;
     }
     
     if (KKJSBridgeConfig.ajaxDelegateManager && [KKJSBridgeConfig.ajaxDelegateManager respondsToSelector:@selector(dataTaskWithRequest:callbackDelegate:)]) {
@@ -130,14 +137,20 @@ static NSString * const kKKJSBridgeAjaxResponseHeaderAC = @"Access-Control-Allow
         [self.customTask  cancel];
     }
     
+    [self clearRequestBody];
+}
+
+- (void)clearRequestBody {
     // 清除缓存
-    [KKJSBridgeXMLBodyCacheRequest deleteRequestBody:self.requestId];
+    if (![self.requestHTTPMethod isEqualToString:@"OPTIONS"]) {
+        [KKJSBridgeXMLBodyCacheRequest deleteRequestBody:self.requestId];
+    }
 }
 
 #pragma mark - NSURLSessionDelegate
 - (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error {
     // 清除缓存
-    [KKJSBridgeXMLBodyCacheRequest deleteRequestBody:self.requestId];
+    [self clearRequestBody];
     
     if (error) {
         [self.client URLProtocol:self didFailWithError:error];
@@ -168,7 +181,7 @@ static NSString * const kKKJSBridgeAjaxResponseHeaderAC = @"Access-Control-Allow
 
 - (void)JSBridgeAjax:(id<KKJSBridgeAjaxDelegate>)ajax didCompleteWithError:(NSError *)error {
     // 清除缓存
-    [KKJSBridgeXMLBodyCacheRequest deleteRequestBody:self.requestId];
+    [self clearRequestBody];
     
     if (error) {
         [self.client URLProtocol:self didFailWithError:error];
@@ -288,39 +301,10 @@ static NSString * const kKKJSBridgeAjaxResponseHeaderAC = @"Access-Control-Allow
     } error:nil];
 }
 
-- (NSDictionary *)queryParams:(NSString *)absoluteString {
-    NSMutableDictionary *pairs = [NSMutableDictionary dictionary];
-    if (NSNotFound != [absoluteString rangeOfString:@"?"].location) {
-        NSString *paramString = [absoluteString substringFromIndex:
-                                 ([absoluteString rangeOfString:@"?"].location + 1)];
-        NSCharacterSet *delimiterSet = [NSCharacterSet characterSetWithCharactersInString:@"&"];
-        NSScanner *scanner = [[NSScanner alloc] initWithString:paramString];
-        while (![scanner isAtEnd]) {
-            NSString* pairString = nil;
-            [scanner scanUpToCharactersFromSet:delimiterSet intoString:&pairString];
-            [scanner scanCharactersFromSet:delimiterSet intoString:NULL];
-            NSArray *kvPair = [pairString componentsSeparatedByString:@"="];
-            if (kvPair.count == 2) {
-                NSString *key = [[kvPair objectAtIndex:0] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-                NSString *value = [[kvPair objectAtIndex:1] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-                [pairs setValue:value forKey:key];
-            }
-        }
-    }
-    
-    return [NSDictionary dictionaryWithDictionary:pairs];
-}
-
 #pragma mark - 响应头
 - (NSURLResponse *)appendRequestIdToResponseHeader:(NSURLResponse *)response {
-    if ([response.URL.absoluteString containsString:@"dreport.meituan.net"]) {
-        NSLog(@"==================");
-    }
-    
-    
     if ([response isKindOfClass:NSHTTPURLResponse.class]) {
         NSHTTPURLResponse *res = (NSHTTPURLResponse *)response;
-        NSInteger statusCode = res.statusCode;
         NSMutableDictionary *headers = [res.allHeaderFields mutableCopy];
         if (!headers) {
             headers = [NSMutableDictionary dictionary];
@@ -331,25 +315,14 @@ static NSString * const kKKJSBridgeAjaxResponseHeaderAC = @"Access-Control-Allow
             [string appendFormat:@",%@", kKKJSBridgeRequestId];
         } else {
             string = [kKKJSBridgeRequestId mutableCopy];
-            [string appendFormat:@",%@", @"X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Request-Method"];
-            headers[@"Access-Control-Allow-Methods"] = @"POST";
         }
         headers[kKKJSBridgeAjaxResponseHeaderAC] = [string copy];
-        
-        statusCode = 200;
-
-//        "Access-Control-Request-Headers" = "kkjsbridge-requestid";
-//        "Access-Control-Request-Method" = POST;
-        
-        // Access-Control-Allow-Credentials 响应头表示是否可以将对请求的响应暴露给页面。返回true则可以，其他值均不可以。
         headers[@"Access-Control-Allow-Credentials"] = @"true";
         headers[@"Access-Control-Allow-Origin"] = @"*";
         headers[@"Access-Control-Allow-Methods"] = @"OPTIONS,GET,POST,PUT,DELETE";
         
-        NSHTTPURLResponse *updateRes = [[NSHTTPURLResponse alloc] initWithURL:res.URL statusCode:statusCode HTTPVersion:[self getHttpVersionFromResponse:res] headerFields:[headers copy]];
+        NSHTTPURLResponse *updateRes = [[NSHTTPURLResponse alloc] initWithURL:res.URL statusCode:res.statusCode HTTPVersion:[self getHttpVersionFromResponse:res] headerFields:[headers copy]];
         response = updateRes;
-    } else {
-        NSLog(@"==============1====");
     }
     
     return response;
@@ -389,6 +362,61 @@ static NSString * const kKKJSBridgeAjaxResponseHeaderAC = @"Access-Control-Allow
     }
 
     return version;
+}
+
+#pragma mark - url 处理相关
+- (NSDictionary *)queryParams:(NSString *)absoluteString {
+    NSMutableDictionary *pairs = [NSMutableDictionary dictionary];
+    if (NSNotFound != [absoluteString rangeOfString:@"?"].location) {
+        NSString *paramString = [absoluteString substringFromIndex:
+                                 ([absoluteString rangeOfString:@"?"].location + 1)];
+        NSCharacterSet *delimiterSet = [NSCharacterSet characterSetWithCharactersInString:@"&"];
+        NSScanner *scanner = [[NSScanner alloc] initWithString:paramString];
+        while (![scanner isAtEnd]) {
+            NSString* pairString = nil;
+            [scanner scanUpToCharactersFromSet:delimiterSet intoString:&pairString];
+            [scanner scanCharactersFromSet:delimiterSet intoString:NULL];
+            NSArray *kvPair = [pairString componentsSeparatedByString:@"="];
+            if (kvPair.count == 2) {
+                NSString *key = [[kvPair objectAtIndex:0] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+                NSString *value = [[kvPair objectAtIndex:1] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+                [pairs setValue:value forKey:key];
+            }
+        }
+    }
+    
+    return [NSDictionary dictionaryWithDictionary:pairs];
+}
+
+- (NSString *)fetchRequestId:(NSString *)url {
+    return [self fetchMatchedTextFromUrl:url withRegex:kKKJSBridgeOpenUrlRequestIdRegex];
+}
+
+- (NSString *)fetchRequestHash:(NSString *)url {
+    return [self fetchMatchedTextFromUrl:url withRegex:kKKJSBridgeOpenUrlRequestIdHashRegex];
+}
+
+- (NSString *)fetchMatchedTextFromUrl:(NSString *)url withRegex:(NSString *)regexString {
+    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:regexString options:NSRegularExpressionCaseInsensitive error:NULL];
+    NSArray *matches = [regex matchesInString:url options:0 range:NSMakeRange(0, url.length)];
+    NSString *content;
+    for (NSTextCheckingResult *match in matches) {
+        for (int i = 0; i < [match numberOfRanges]; i++) {
+            //以正则中的(),划分成不同的匹配部分
+            content = [url substringWithRange:[match rangeAtIndex:i]];
+            if (i == 1) {
+                return content;
+            }
+        }
+    }
+    
+    return content;
+}
+
++ (BOOL)validateRequestId:(NSString *)url
+{
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", kKKJSBridgeOpenUrlRequestIdRegex];
+    return [predicate evaluateWithObject:url];
 }
 
 #pragma mark - KKJSBridgeURLRequestSerialization

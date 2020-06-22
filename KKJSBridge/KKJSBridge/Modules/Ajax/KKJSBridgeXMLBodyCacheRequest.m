@@ -67,7 +67,9 @@ static KKJSBridgeSafeDictionary *bodyCache;
     bodyCache[requestId] = params;
     
     if (responseCallback && requestId) {
-        responseCallback(@{@"requestId": requestId});
+        responseCallback(@{@"requestId": requestId,
+                           @"requestUrl": params[@"requestUrl"] ? params[@"requestUrl"] : @""
+                         });
     }
 }
 

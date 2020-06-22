@@ -117,7 +117,7 @@ declare namespace KK {
         /**
          * 回调数据
          */
-        data: {}
+        data: any
     }
 
     /**
