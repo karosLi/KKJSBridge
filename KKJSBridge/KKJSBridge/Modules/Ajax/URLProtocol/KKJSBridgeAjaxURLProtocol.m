@@ -36,16 +36,10 @@ static NSString * const kKKJSBridgeAjaxResponseHeaderAC = @"Access-Control-Allow
 @implementation KKJSBridgeAjaxURLProtocol
 
 + (BOOL)canInitWithRequest:(NSURLRequest *)request {
-    NSDictionary *headers = request.allHTTPHeaderFields;
-    NSString *acrequestHeader = headers[kKKJSBridgeAjaxRequestHeaderAC];
     /**
-     1、OPTIONS请求
-     2、请求头有 RequestId
-     3、链接有 RequestId
+     链接有 RequestId
      */
     if ([self validateRequestId:request.URL.absoluteString]
-        || ([request.HTTPMethod isEqualToString:@"OPTIONS"] && [acrequestHeader containsString:[kKKJSBridgeRequestId lowercaseString]])
-        || [headers.allKeys containsObject:kKKJSBridgeRequestId]
         || [request.URL.absoluteString containsString:kKKJSBridgeRequestId]) {
         
         // 看看是否已经处理过了，防止无限循环
@@ -83,19 +77,6 @@ static NSString * const kKKJSBridgeAjaxResponseHeaderAC = @"Access-Control-Allow
     NSDictionary *headers = mutableReqeust.allHTTPHeaderFields;
     NSString *requestId;
     
-    // 处理 OPTIONS 的情况
-    NSString *acrequestHeader = headers[kKKJSBridgeAjaxRequestHeaderAC];
-    if ([mutableReqeust.HTTPMethod isEqualToString:@"OPTIONS"] && [acrequestHeader containsString:[kKKJSBridgeRequestId lowercaseString]]) {
-        NSMutableString *acrequestHeaderM = [acrequestHeader mutableCopy];
-        [acrequestHeaderM replaceOccurrencesOfString:[NSString stringWithFormat:@",%@", [kKKJSBridgeRequestId lowercaseString]] withString:@"" options:0 range:NSMakeRange(0, acrequestHeaderM.length)];
-        [acrequestHeaderM replaceOccurrencesOfString:[NSString stringWithFormat:@"%@", [kKKJSBridgeRequestId lowercaseString]] withString:@"" options:0 range:NSMakeRange(0, acrequestHeaderM.length)];
-        if (acrequestHeaderM.length == 0) {
-            [mutableReqeust setValue:nil forHTTPHeaderField:kKKJSBridgeAjaxRequestHeaderAC];
-        } else {
-            [mutableReqeust setValue:acrequestHeaderM forHTTPHeaderField:kKKJSBridgeAjaxRequestHeaderAC];
-        }
-    }
-    
     headers = mutableReqeust.allHTTPHeaderFields;
     if ([self.class validateRequestId:mutableReqeust.URL.absoluteString]) {
         requestId = [self fetchRequestId:mutableReqeust.URL.absoluteString];
@@ -103,10 +84,6 @@ static NSString * const kKKJSBridgeAjaxResponseHeaderAC = @"Access-Control-Allow
         NSString *reqeustHash = [self fetchRequestHash:mutableReqeust.URL.absoluteString];
         NSString *absString = [mutableReqeust.URL.absoluteString stringByReplacingOccurrencesOfString:reqeustHash withString:@""];
         mutableReqeust.URL = [NSURL URLWithString:absString];
-    } else if ([headers.allKeys containsObject:kKKJSBridgeRequestId]) {
-        requestId = headers[kKKJSBridgeRequestId];
-        // 移除临时的请求头
-        [mutableReqeust setValue:nil forHTTPHeaderField:kKKJSBridgeRequestId];
     } else {
         //?KKJSBridge-RequestId=1592741662922_76828
         NSDictionary *queryParams = [self queryParams:mutableReqeust.URL.absoluteString];
@@ -141,8 +118,23 @@ static NSString * const kKKJSBridgeAjaxResponseHeaderAC = @"Access-Control-Allow
 }
 
 - (void)clearRequestBody {
+    /**
+     参考
+     全部的 method
+     http://www.iana.org/assignments/http-methods/http-methods.xhtml
+     https://stackoverflow.com/questions/41411152/how-many-http-verbs-are-there
+     
+     Http 1.1
+     https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Methods
+     
+     HTTP Extensions WebDAV
+     http://www.webdav.org/specs/rfc4918.html#http.methods.for.distributed.authoring
+     */
+    
     // 清除缓存
-    if (![self.requestHTTPMethod isEqualToString:@"OPTIONS"]) {
+    // 针对有 body 的 method，才需要清除 body 缓存
+    NSArray<NSString *> *methods = @[@"POST", @"PUT", @"DELETE", @"PATCH", @"LOCK", @"PROPFIND", @"PROPPATCH", @"SEARCH"];
+    if (self.requestHTTPMethod.length > 0 && [methods containsObject:self.requestHTTPMethod]) {
         [KKJSBridgeXMLBodyCacheRequest deleteRequestBody:self.requestId];
     }
 }
@@ -160,7 +152,6 @@ static NSString * const kKKJSBridgeAjaxResponseHeaderAC = @"Access-Control-Allow
 }
 
 - (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveResponse:(NSURLResponse *)response completionHandler:(void (^)(NSURLSessionResponseDisposition))completionHandler {
-    response = [self appendRequestIdToResponseHeader:response];
     [self.client URLProtocol:self didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageAllowed];
     completionHandler(NSURLSessionResponseAllow);
 }
@@ -171,7 +162,6 @@ static NSString * const kKKJSBridgeAjaxResponseHeaderAC = @"Access-Control-Allow
 
 #pragma mark - KKJSBridgeAjaxDelegate - 处理来自外部网络库的数据
 - (void)JSBridgeAjax:(id<KKJSBridgeAjaxDelegate>)ajax didReceiveResponse:(NSURLResponse *)response {
-    response = [self appendRequestIdToResponseHeader:response];
     [self.client URLProtocol:self didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageAllowed];
 }
 

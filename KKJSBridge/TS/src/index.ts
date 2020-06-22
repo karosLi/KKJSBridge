@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-06-20 11:29:12
- * @LastEditTime: 2020-06-22 23:01:17
+ * @LastEditTime: 2020-06-23 00:13:16
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /TS/src/indexnew.ts
@@ -452,7 +452,7 @@ var init = function() {
       xhr.requestMethod = method;
 
       if (!KKJSBridgeConfig.ajaxHook) {// 如果没有开启 ajax hook，则调用原始 open
-        return originSend.apply(xhr, args);
+        return originOpen.apply(xhr, args);
       }
       
       if (method === "GET") {// 调用原始 open

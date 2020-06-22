@@ -1093,7 +1093,7 @@
             xhr.requestHref = document.location.href;
             xhr.requestMethod = method;
             if (!KKJSBridgeConfig.ajaxHook) { // 如果没有开启 ajax hook，则调用原始 open
-                return originSend.apply(xhr, args);
+                return originOpen.apply(xhr, args);
             }
             if (method === "GET") { // 调用原始 open
                 return originOpen.apply(xhr, args);
