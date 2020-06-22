@@ -70,6 +70,14 @@ server.on('request', function (req,res) {
             res.setHeader('Set-Cookie', ['test_token1=1;', 'test_token2=2;domain='+srvUrl.hostname+';path=/;expires=Mon, 01 Aug 2050 06:44:35 GMT;', 'test_token3=3;domain='+srvUrl.hostname+';path=/;expires=Mon, 01 Aug 2050 06:44:35 GMT;HTTPOnly;']);
             res.end(data)
         })
+    }  
+    else if (req.url === '/ajaxiframeTest') {// ajax iframe
+        fs.readFile(path.join(__dirname,'ajaxiframeTest.html'),function (err,data) {
+            if (err) {
+                throw err;
+            }
+            res.end(data)
+        })
     } else if (req.url === '/client302') {// ajax - 重定向
         fs.readFile(path.join(__dirname,'client302.html'),function (err,data) {
             if (err) {
