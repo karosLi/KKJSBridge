@@ -703,6 +703,15 @@
                         }
                     }
                 }
+                // 处理有 iframe 的情况
+                var iframes = document.querySelectorAll("iframe");
+                if (iframes) {
+                    var len = iframes.length;
+                    for (var i = 0; i < len; i++) {
+                        var win = iframes[i].contentWindow;
+                        win.postMessage(messageString, '*');
+                    }
+                }
             };
             /**
              * 调用方法
@@ -744,6 +753,10 @@
         }());
         // 初始化 KKJSBridge
         var KKJSBridgeInstance = new KKJSBridge();
+        // iframe 内处理来自父 window 的消息
+        window.addEventListener('message', function (e) {
+            KKJSBridgeInstance._handleMessageFromNative(e.data);
+        });
         /**
          * KKJSBridge 工具
          */

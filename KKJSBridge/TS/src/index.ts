@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-06-20 11:29:12
- * @LastEditTime: 2020-06-22 15:14:32
+ * @LastEditTime: 2020-06-22 15:41:48
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /TS/src/indexnew.ts
@@ -78,6 +78,16 @@ var init = function() {
             }
           }
         }
+
+        // 处理有 iframe 的情况
+        let iframes : NodeListOf<HTMLIFrameElement> = document.querySelectorAll("iframe");
+        if (iframes) {
+          let len: number = iframes.length;
+          for (let i = 0; i < len; i++) {
+            let win: any = iframes[i].contentWindow;
+            win.postMessage(messageString,'*');
+          }
+        }
       }
   
       /**
@@ -121,6 +131,11 @@ var init = function() {
   
     // 初始化 KKJSBridge
     let KKJSBridgeInstance = new KKJSBridge();
+
+    // iframe 内处理来自父 window 的消息
+    window.addEventListener('message', e => {
+      KKJSBridgeInstance._handleMessageFromNative(e.data);
+    })
   
     /**
      * KKJSBridge 工具
