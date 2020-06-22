@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-06-20 11:29:12
- * @LastEditTime: 2020-06-22 15:52:33
+ * @LastEditTime: 2020-06-22 17:48:22
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /TS/src/indexnew.ts
@@ -432,7 +432,7 @@ var init = function() {
         bodyType: "String",
         value: null
       };
-
+      
       if (!KKJSBridgeConfig.ajaxHook) {// 如果没有开启 ajax hook，则调用原始 send
         return originSend.apply(xhr, args);
       }

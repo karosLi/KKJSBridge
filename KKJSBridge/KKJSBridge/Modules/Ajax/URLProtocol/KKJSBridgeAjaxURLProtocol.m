@@ -72,6 +72,10 @@ static NSString * const kKKJSBridgeAjaxResponseHeaderAC = @"Access-Control-Allow
 }
 
 - (void)startLoading {
+    if ([[self request].URL.absoluteString containsString:@"dreport.meituan.net"]) {
+        NSLog(@"==================");
+    }
+    
     NSMutableURLRequest *mutableReqeust = [[self request] mutableCopy];
     //给我们处理过的请求设置一个标识符, 防止无限循环,
     [NSURLProtocol setProperty:@YES forKey:kKKJSBridgeNSURLProtocolKey inRequest:mutableReqeust];
@@ -163,14 +167,14 @@ static NSString * const kKKJSBridgeAjaxResponseHeaderAC = @"Access-Control-Allow
 }
 
 - (void)JSBridgeAjax:(id<KKJSBridgeAjaxDelegate>)ajax didCompleteWithError:(NSError *)error {
+    // 清除缓存
+    [KKJSBridgeXMLBodyCacheRequest deleteRequestBody:self.requestId];
+    
     if (error) {
         [self.client URLProtocol:self didFailWithError:error];
     } else {
         [self.client URLProtocolDidFinishLoading:self];
     }
-    
-    // 清除缓存
-    [KKJSBridgeXMLBodyCacheRequest deleteRequestBody:self.requestId];
 }
 
 #pragma mark - util
@@ -309,8 +313,14 @@ static NSString * const kKKJSBridgeAjaxResponseHeaderAC = @"Access-Control-Allow
 
 #pragma mark - 响应头
 - (NSURLResponse *)appendRequestIdToResponseHeader:(NSURLResponse *)response {
+    if ([response.URL.absoluteString containsString:@"dreport.meituan.net"]) {
+        NSLog(@"==================");
+    }
+    
+    
     if ([response isKindOfClass:NSHTTPURLResponse.class]) {
         NSHTTPURLResponse *res = (NSHTTPURLResponse *)response;
+        NSInteger statusCode = res.statusCode;
         NSMutableDictionary *headers = [res.allHeaderFields mutableCopy];
         if (!headers) {
             headers = [NSMutableDictionary dictionary];
@@ -321,12 +331,26 @@ static NSString * const kKKJSBridgeAjaxResponseHeaderAC = @"Access-Control-Allow
             [string appendFormat:@",%@", kKKJSBridgeRequestId];
         } else {
             string = [kKKJSBridgeRequestId mutableCopy];
+            [string appendFormat:@",%@", @"X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Request-Method"];
+            headers[@"Access-Control-Allow-Methods"] = @"POST";
         }
         headers[kKKJSBridgeAjaxResponseHeaderAC] = [string copy];
         
-        NSHTTPURLResponse *updateRes = [[NSHTTPURLResponse alloc] initWithURL:res.URL statusCode:res.statusCode HTTPVersion:[self getHttpVersionFromResponse:res] headerFields:[headers copy]];
+        statusCode = 200;
+
+//        "Access-Control-Request-Headers" = "kkjsbridge-requestid";
+//        "Access-Control-Request-Method" = POST;
+        
+        // Access-Control-Allow-Credentials 响应头表示是否可以将对请求的响应暴露给页面。返回true则可以，其他值均不可以。
+        headers[@"Access-Control-Allow-Credentials"] = @"true";
+        headers[@"Access-Control-Allow-Origin"] = @"*";
+        headers[@"Access-Control-Allow-Methods"] = @"OPTIONS,GET,POST,PUT,DELETE";
+        
+        NSHTTPURLResponse *updateRes = [[NSHTTPURLResponse alloc] initWithURL:res.URL statusCode:statusCode HTTPVersion:[self getHttpVersionFromResponse:res] headerFields:[headers copy]];
         response = updateRes;
-      }
+    } else {
+        NSLog(@"==============1====");
+    }
     
     return response;
 }
@@ -360,7 +384,7 @@ static NSString * const kKKJSBridgeAjaxResponseHeaderAC = @"Access-Control-Allow
     }
 
     // 获取失败的话则设置一个默认值
-    if (nil == version || 0 == version.length) {
+    if (nil == version || ![version isKindOfClass:NSString.class] || version.length == 0) {
         version = @"HTTP/1.1";
     }
 

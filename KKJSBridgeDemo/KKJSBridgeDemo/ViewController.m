@@ -42,6 +42,7 @@
     }
     
 //    url = @"https://www.wenjuan.com/s/JBVRje4/";
+    url = @"https://i.meituan.com/";
     
     WebViewController *web = [[WebViewController alloc] initWithUrl:url];
     [self.navigationController pushViewController:web animated:YES];
