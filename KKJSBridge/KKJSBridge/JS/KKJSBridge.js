@@ -3,6 +3,22 @@
     typeof define === 'function' && define.amd ? define('lib/fetch.js', factory) :
     (global = global || self, global.KKJSBridge = factory());
 }(this, (function () { 'use strict';
+
+    /*! *****************************************************************************
+    Copyright (c) Microsoft Corporation. All rights reserved.
+    Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+    this file except in compliance with the License. You may obtain a copy of the
+    License at http://www.apache.org/licenses/LICENSE-2.0
+
+    THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
+    WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
+    MERCHANTABLITY OR NON-INFRINGEMENT.
+
+    See the Apache Version 2.0 License for specific language governing permissions
+    and limitations under the License.
+    ***************************************************************************** */
+
     function __awaiter(thisArg, _arguments, P, generator) {
         return new (P || (P = Promise))(function (resolve, reject) {
             function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -980,16 +996,16 @@
              * @param originArguments
              * @param body
              */
-            _XHR.sendBodyToNativeForCache = function (target, originMethod, originArguments, request) {
+            _XHR.sendBodyToNativeForCache = function (targetType, target, originMethod, originArguments, request) {
                 var requestId = target.requestId;
                 var cacheCallback = {
                     requestId: requestId,
                     callback: function () {
-                        if (target instanceof XMLHttpRequest) { // ajax
+                        if (targetType === "AJAX") { // ajax
                             // 发送之前设置自定义请求头，好让 native 拦截并从缓存里获取 body
                             target.setRequestHeader("KKJSBridge-RequestId", requestId);
                         }
-                        else if (target instanceof HTMLFormElement) { // 表单 submit
+                        else if (targetType === "FORM") { // 表单 submit
                             // 发送之前修改 action，让 action 带上 requestId
                             _XHR.generateNewActionForForm(target, requestId);
                         }
@@ -1028,6 +1044,7 @@
             xhr.requestId = _XHR.generateXHRRequestId();
             xhr.requestUrl = url;
             xhr.requestHref = document.location.href;
+            xhr.requestMethod = method;
             originOpen.apply(xhr, args);
         };
         var originSend = XMLHttpRequest.prototype.send;
@@ -1057,7 +1074,7 @@
                 fileReader.onload = function (ev) {
                     var base64 = ev.target.result;
                     request.value = base64;
-                    _XHR.sendBodyToNativeForCache(xhr, originSend, args, request);
+                    _XHR.sendBodyToNativeForCache("AJAX", xhr, originSend, args, request);
                 };
                 fileReader.readAsDataURL(body);
                 return;
@@ -1066,7 +1083,7 @@
                 request.bodyType = "FormData";
                 KKJSBridgeUtil.convertFormDataToJson(body, function (json) {
                     request.value = json;
-                    _XHR.sendBodyToNativeForCache(xhr, originSend, args, request);
+                    _XHR.sendBodyToNativeForCache("AJAX", xhr, originSend, args, request);
                 });
                 return;
             }
@@ -1075,7 +1092,7 @@
                 request.value = body;
             }
             // 发送到 native 缓存起来
-            _XHR.sendBodyToNativeForCache(xhr, originSend, args, request);
+            _XHR.sendBodyToNativeForCache("AJAX", xhr, originSend, args, request);
         };
         /**
          * hook form submit 方法
@@ -1104,7 +1121,7 @@
             var formData = new FormData(form);
             KKJSBridgeUtil.convertFormDataToJson(formData, function (json) {
                 request.value = json;
-                _XHR.sendBodyToNativeForCache(form, originSubmit, args, request);
+                _XHR.sendBodyToNativeForCache("FORM", form, originSubmit, args, request);
             });
         };
         /**
@@ -1134,6 +1151,7 @@
              * bridge Ready
              */
             KKJSBridgeConfig.bridgeReady = function () {
+                window.KKJSBridge.call(_COOKIE.moduleName, 'bridgeReady', {});
                 // 告诉 H5 新的 KKJSBridge 已经 ready
                 var KKJSBridgeReadyEvent = document.createEvent("Events");
                 KKJSBridgeReadyEvent.initEvent("KKJSBridgeReady");

@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-06-20 11:29:12
- * @LastEditTime: 2020-06-21 20:08:38
+ * @LastEditTime: 2020-06-22 15:14:32
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /TS/src/indexnew.ts
@@ -342,7 +342,7 @@ var init = function() {
        * @param originArguments 
        * @param body 
        */
-      public static sendBodyToNativeForCache: Function = (target: XMLHttpRequest | HTMLFormElement, 
+      public static sendBodyToNativeForCache: Function = (targetType: "AJAX" | "FORM", target: XMLHttpRequest | HTMLFormElement, 
         originMethod: any, 
         originArguments: any, 
         request: KK.AJAXBodyCacheRequest) => {
@@ -351,10 +351,10 @@ var init = function() {
         let cacheCallback: KK.AJAXBodyCacheCallback = {
           requestId: requestId,
           callback: ()=> {
-            if (target instanceof XMLHttpRequest) {// ajax
+            if (targetType === "AJAX") {// ajax
               // 发送之前设置自定义请求头，好让 native 拦截并从缓存里获取 body
               target.setRequestHeader("KKJSBridge-RequestId", requestId);
-            } else if (target instanceof HTMLFormElement) {// 表单 submit
+            } else if (targetType === "FORM") {// 表单 submit
               // 发送之前修改 action，让 action 带上 requestId
               _XHR.generateNewActionForForm(target, requestId);
             }
@@ -395,6 +395,7 @@ var init = function() {
       xhr.requestId = _XHR.generateXHRRequestId();
       xhr.requestUrl = url;
       xhr.requestHref = document.location.href;
+      xhr.requestMethod = method;
       
       originOpen.apply(xhr, args);
     } as any;
@@ -426,7 +427,7 @@ var init = function() {
         fileReader.onload = function(this: FileReader, ev: ProgressEvent) {
           let base64: string = (ev.target as any).result;
           request.value = base64;
-          _XHR.sendBodyToNativeForCache(xhr, originSend, args, request);
+          _XHR.sendBodyToNativeForCache("AJAX", xhr, originSend, args, request);
         };
 
         fileReader.readAsDataURL(body);
@@ -435,7 +436,7 @@ var init = function() {
         request.bodyType = "FormData";
         KKJSBridgeUtil.convertFormDataToJson(body, (json: any) => {
           request.value = json;
-          _XHR.sendBodyToNativeForCache(xhr, originSend, args, request);
+          _XHR.sendBodyToNativeForCache("AJAX", xhr, originSend, args, request);
         });
         return;
       } else {// 说明是字符串或者json
@@ -444,7 +445,7 @@ var init = function() {
       } 
       
       // 发送到 native 缓存起来
-      _XHR.sendBodyToNativeForCache(xhr, originSend, args, request);
+      _XHR.sendBodyToNativeForCache("AJAX", xhr, originSend, args, request);
     } as any;
 
     /**
@@ -478,7 +479,7 @@ var init = function() {
       let formData: any = new FormData(form);
       KKJSBridgeUtil.convertFormDataToJson(formData, (json: any) => {
         request.value = json;
-        _XHR.sendBodyToNativeForCache(form, originSubmit, args, request);
+        _XHR.sendBodyToNativeForCache("FORM", form, originSubmit, args, request);
       });
     };
   
@@ -509,6 +510,8 @@ var init = function() {
        * bridge Ready
        */
       public static bridgeReady: Function = () => {
+        window.KKJSBridge.call(_COOKIE.moduleName, 'bridgeReady', {});
+
         // 告诉 H5 新的 KKJSBridge 已经 ready
         let KKJSBridgeReadyEvent: Event = document.createEvent("Events");
         KKJSBridgeReadyEvent.initEvent("KKJSBridgeReady");

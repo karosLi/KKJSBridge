@@ -25,6 +25,11 @@
     return true;
 }
 
+// 用于确定 jsbridge 已经准备好了
+- (void)bridgeReady:(KKJSBridgeEngine *)engine params:(NSDictionary *)params responseCallback:(void (^)(NSDictionary *responseData))responseCallback {
+    // nothing
+}
+
 /**
  Hook cookie 修改操作，把 WKWebView cookie 同步给 NSHTTPCookieStorage
  

@@ -6,14 +6,22 @@
 //
 
 #import "KKJSBridgeAjaxURLProtocol.h"
+#import <CFNetwork/CFNetwork.h>
+#import <CoreFoundation/CoreFoundation.h>
+#import <dlfcn.h>
 #import "KKJSBridgeXMLBodyCacheRequest.h"
 #import "KKJSBridgeURLRequestSerialization.h"
 #import "KKJSBridgeFormDataFile.h"
 #import "KKJSBridgeConfig.h"
 #import "KKJSBridgeAjaxDelegate.h"
+#import "KKJSBridgeSwizzle.h"
+
+typedef CFHTTPMessageRef (*KKJSBridgeURLResponseGetHTTPResponse)(CFURLRef response);
 
 static NSString * const kKKJSBridgeNSURLProtocolKey = @"kKKJSBridgeNSURLProtocolKey";
 static NSString * const kKKJSBridgeRequestId = @"KKJSBridge-RequestId";
+static NSString * const kKKJSBridgeAjaxRequestHeaderAC = @"Access-Control-Request-Headers";
+static NSString * const kKKJSBridgeAjaxResponseHeaderAC = @"Access-Control-Allow-Headers";
 
 @interface KKJSBridgeAjaxURLProtocol () <NSURLSessionDelegate, KKJSBridgeAjaxDelegate>
 
@@ -26,8 +34,16 @@ static NSString * const kKKJSBridgeRequestId = @"KKJSBridge-RequestId";
 
 + (BOOL)canInitWithRequest:(NSURLRequest *)request {
     NSDictionary *headers = request.allHTTPHeaderFields;
-    // 请求头或者链接有 RequestId
-    if ([headers.allKeys containsObject:kKKJSBridgeRequestId] || [request.URL.absoluteString containsString:kKKJSBridgeRequestId]) {
+    NSString *acrequestHeader = headers[kKKJSBridgeAjaxRequestHeaderAC];
+    /**
+     1、OPTIONS请求
+     2、请求头有 RequestId
+     3、链接有 RequestId
+     */
+    if (([request.HTTPMethod isEqualToString:@"OPTIONS"] && [acrequestHeader containsString:[kKKJSBridgeRequestId lowercaseString]])
+        || [headers.allKeys containsObject:kKKJSBridgeRequestId]
+        || [request.URL.absoluteString containsString:kKKJSBridgeRequestId]) {
+        
         // 看看是否已经处理过了，防止无限循环
         if ([NSURLProtocol propertyForKey:kKKJSBridgeNSURLProtocolKey inRequest:request]) {
             return NO;
@@ -62,8 +78,25 @@ static NSString * const kKKJSBridgeRequestId = @"KKJSBridge-RequestId";
     
     NSDictionary *headers = mutableReqeust.allHTTPHeaderFields;
     NSString *requestId;
+    
+    // 处理 OPTIONS 的情况
+    NSString *acrequestHeader = headers[kKKJSBridgeAjaxRequestHeaderAC];
+    if ([mutableReqeust.HTTPMethod isEqualToString:@"OPTIONS"] && [acrequestHeader containsString:[kKKJSBridgeRequestId lowercaseString]]) {
+        NSMutableString *acrequestHeaderM = [acrequestHeader mutableCopy];
+        [acrequestHeaderM replaceOccurrencesOfString:[NSString stringWithFormat:@",%@", [kKKJSBridgeRequestId lowercaseString]] withString:@"" options:0 range:NSMakeRange(0, acrequestHeaderM.length)];
+        [acrequestHeaderM replaceOccurrencesOfString:[NSString stringWithFormat:@"%@", [kKKJSBridgeRequestId lowercaseString]] withString:@"" options:0 range:NSMakeRange(0, acrequestHeaderM.length)];
+        if (acrequestHeaderM.length == 0) {
+            [mutableReqeust setValue:nil forHTTPHeaderField:kKKJSBridgeAjaxRequestHeaderAC];
+        } else {
+            [mutableReqeust setValue:acrequestHeaderM forHTTPHeaderField:kKKJSBridgeAjaxRequestHeaderAC];
+        }
+    }
+    
+    headers = mutableReqeust.allHTTPHeaderFields;
     if ([headers.allKeys containsObject:kKKJSBridgeRequestId]) {
         requestId = headers[kKKJSBridgeRequestId];
+        // 移除临时的请求头
+        [mutableReqeust setValue:nil forHTTPHeaderField:kKKJSBridgeRequestId];
     } else {
         //?KKJSBridge-RequestId=1592741662922_76828
         NSDictionary *queryParams = [self queryParams:mutableReqeust.URL.absoluteString];
@@ -72,29 +105,20 @@ static NSString * const kKKJSBridgeRequestId = @"KKJSBridge-RequestId";
     
     NSDictionary *bodyReqeust = [KKJSBridgeXMLBodyCacheRequest getRequestBody:requestId];
     if (bodyReqeust) {
-        // 移除临时的请求头
-        NSMutableDictionary *mutableHeaders = [headers mutableCopy];
-        [mutableHeaders removeObjectForKey:kKKJSBridgeRequestId];
-        mutableReqeust.allHTTPHeaderFields = mutableHeaders;
-        
         // 从把缓存的 body 设置给 request
         [self setBodyRequest:bodyReqeust toRequest:mutableReqeust];
-        
-        // 发送请求
         self.requestId = requestId;
-        
-        if (KKJSBridgeConfig.ajaxDelegateManager && [KKJSBridgeConfig.ajaxDelegateManager respondsToSelector:@selector(dataTaskWithRequest:callbackDelegate:)]) {
-            // 实际请求代理外部网络库处理
-            self.customTask = [KKJSBridgeConfig.ajaxDelegateManager dataTaskWithRequest:mutableReqeust callbackDelegate:self];
-        } else {
-            NSURLSession *session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration] delegate:self delegateQueue:nil];
-            self.customTask = [session dataTaskWithRequest:mutableReqeust];
-        }
-        
-        [self.customTask resume];
-    } else {
-        [self.client URLProtocol:self didFailWithError:[NSError errorWithDomain:@"KKJSBridge" code:-999 userInfo:@{@"error": @"can not find cached body request"}]];
     }
+    
+    if (KKJSBridgeConfig.ajaxDelegateManager && [KKJSBridgeConfig.ajaxDelegateManager respondsToSelector:@selector(dataTaskWithRequest:callbackDelegate:)]) {
+        // 实际请求代理外部网络库处理
+        self.customTask = [KKJSBridgeConfig.ajaxDelegateManager dataTaskWithRequest:mutableReqeust callbackDelegate:self];
+    } else {
+        NSURLSession *session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration] delegate:self delegateQueue:nil];
+        self.customTask = [session dataTaskWithRequest:mutableReqeust];
+    }
+    
+    [self.customTask resume];
 }
 
 - (void)stopLoading {
@@ -119,6 +143,7 @@ static NSString * const kKKJSBridgeRequestId = @"KKJSBridge-RequestId";
 }
 
 - (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveResponse:(NSURLResponse *)response completionHandler:(void (^)(NSURLSessionResponseDisposition))completionHandler {
+    response = [self appendRequestIdToResponseHeader:response];
     [self.client URLProtocol:self didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageAllowed];
     completionHandler(NSURLSessionResponseAllow);
 }
@@ -129,6 +154,7 @@ static NSString * const kKKJSBridgeRequestId = @"KKJSBridge-RequestId";
 
 #pragma mark - KKJSBridgeAjaxDelegate - 处理来自外部网络库的数据
 - (void)JSBridgeAjax:(id<KKJSBridgeAjaxDelegate>)ajax didReceiveResponse:(NSURLResponse *)response {
+    response = [self appendRequestIdToResponseHeader:response];
     [self.client URLProtocol:self didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageAllowed];
 }
 
@@ -279,6 +305,66 @@ static NSString * const kKKJSBridgeRequestId = @"KKJSBridge-RequestId";
     }
     
     return [NSDictionary dictionaryWithDictionary:pairs];
+}
+
+#pragma mark - 响应头
+- (NSURLResponse *)appendRequestIdToResponseHeader:(NSURLResponse *)response {
+    if ([response isKindOfClass:NSHTTPURLResponse.class]) {
+        NSHTTPURLResponse *res = (NSHTTPURLResponse *)response;
+        NSMutableDictionary *headers = [res.allHeaderFields mutableCopy];
+        if (!headers) {
+            headers = [NSMutableDictionary dictionary];
+        }
+        
+        NSMutableString *string = [headers[kKKJSBridgeAjaxResponseHeaderAC] mutableCopy];
+        if (string) {
+            [string appendFormat:@",%@", kKKJSBridgeRequestId];
+        } else {
+            string = [kKKJSBridgeRequestId mutableCopy];
+        }
+        headers[kKKJSBridgeAjaxResponseHeaderAC] = [string copy];
+        
+        NSHTTPURLResponse *updateRes = [[NSHTTPURLResponse alloc] initWithURL:res.URL statusCode:res.statusCode HTTPVersion:[self getHttpVersionFromResponse:res] headerFields:[headers copy]];
+        response = updateRes;
+      }
+    
+    return response;
+}
+
+- (NSString *)getHttpVersionFromResponse:(NSURLResponse *)response {
+    NSString *version;
+    // 获取CFURLResponseGetHTTPResponse的函数实现
+    NSString *funName = @"CFURLResponseGetHTTPResponse";
+    KKJSBridgeURLResponseGetHTTPResponse originURLResponseGetHTTPResponse = dlsym(RTLD_DEFAULT, [funName UTF8String]);
+
+    SEL theSelector = NSSelectorFromString(@"_CFURLResponse");
+    if ([response respondsToSelector:theSelector] &&
+        NULL != originURLResponseGetHTTPResponse) {
+        // 获取NSURLResponse的_CFURLResponse
+        #pragma clang diagnostic push
+        #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+        CFTypeRef cfResponse = CFBridgingRetain([response performSelector:theSelector]);
+        #pragma clang diagnostic pop
+        
+        if (NULL != cfResponse) {
+            // 将CFURLResponseRef转化为CFHTTPMessageRef
+            CFHTTPMessageRef message = originURLResponseGetHTTPResponse(cfResponse);
+            // 获取http协议版本
+            CFStringRef cfVersion = CFHTTPMessageCopyVersion(message);
+            if (NULL != cfVersion) {
+                version = (__bridge NSString *)cfVersion;
+                CFRelease(cfVersion);
+            }
+            CFRelease(cfResponse);
+        }
+    }
+
+    // 获取失败的话则设置一个默认值
+    if (nil == version || 0 == version.length) {
+        version = @"HTTP/1.1";
+    }
+
+    return version;
 }
 
 #pragma mark - KKJSBridgeURLRequestSerialization

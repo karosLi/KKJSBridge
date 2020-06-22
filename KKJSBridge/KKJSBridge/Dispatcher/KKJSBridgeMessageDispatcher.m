@@ -47,7 +47,9 @@ typedef void (^KKJSBridgeMessageCallback)(NSDictionary *responseData);
 
 - (void)dispatchCallbackMessage:(KKJSBridgeMessage *)message {
     // 收到消息表示已经准备好了
-    self.engine.bridgeReady = YES;
+    if (!self.engine.bridgeReady) {
+        self.engine.bridgeReady = YES;
+    }
     
     __weak typeof(self) weakSelf = self;
     [self.dispatchQueue addOperationWithBlock:^{
