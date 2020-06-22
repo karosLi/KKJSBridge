@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-06-20 11:29:12
- * @LastEditTime: 2020-06-22 15:41:48
+ * @LastEditTime: 2020-06-22 15:52:33
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /TS/src/indexnew.ts
@@ -134,7 +134,13 @@ var init = function() {
 
     // iframe 内处理来自父 window 的消息
     window.addEventListener('message', e => {
-      KKJSBridgeInstance._handleMessageFromNative(e.data);
+      let data: any = e.data;
+      if (typeof data == "string") {
+        let str: string = data as string;
+        if (str.indexOf("messageType") != -1) {
+          KKJSBridgeInstance._handleMessageFromNative(str);
+        }
+      }
     })
   
     /**

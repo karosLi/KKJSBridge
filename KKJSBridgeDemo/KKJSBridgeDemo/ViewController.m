@@ -35,10 +35,10 @@
      3、npm run qtoken
      */
     
-    NSString *url = @"http://192.168.1.101:50000/index";
+    NSString *url = @"http://172.16.14.8:50000/index";
     {
         // 测试第三方网站 ajax 请求
-        url = @"https://m.taobao.com";
+//        url = @"https://m.taobao.com";
     }
     
 //    url = @"https://www.wenjuan.com/s/JBVRje4/";

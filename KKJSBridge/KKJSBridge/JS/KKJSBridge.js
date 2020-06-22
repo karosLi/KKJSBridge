@@ -755,7 +755,13 @@
         var KKJSBridgeInstance = new KKJSBridge();
         // iframe 内处理来自父 window 的消息
         window.addEventListener('message', function (e) {
-            KKJSBridgeInstance._handleMessageFromNative(e.data);
+            var data = e.data;
+            if (typeof data == "string") {
+                var str = data;
+                if (str.indexOf("messageType") != -1) {
+                    KKJSBridgeInstance._handleMessageFromNative(str);
+                }
+            }
         });
         /**
          * KKJSBridge 工具
