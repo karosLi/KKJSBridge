@@ -194,7 +194,7 @@ window.KKJSBridge.call('b', 'callToGetVCTitle', {}, function(res) {
    
 ## 更新历史
 
-### 2020.6.23 (1.1.5-beta)
+### 2020.6.23 (1.1.5-beta2)
 - 使用新的 hook 方式，提升 hook 兼容性 
 - 支持 iframe 和 form 标签
 
