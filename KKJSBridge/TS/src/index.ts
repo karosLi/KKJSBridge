@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-06-20 11:29:12
- * @LastEditTime: 2020-06-23 00:13:16
+ * @LastEditTime: 2020-06-23 09:58:11
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /TS/src/indexnew.ts
@@ -327,6 +327,14 @@ var init = function() {
        */
       public static generateNewActionForForm: Function = (form: HTMLFormElement, requestId: string) => {
         let orignAction: string = form.action;
+        form.action = _XHR.generateNewUrlWithRequestId(orignAction, requestId);
+      }
+
+      /**
+       * 利用 requestId 生成新的 url
+       */
+      public static generateNewUrlWithRequestId: Function = (url: string, requestId: string) => {
+        let orignAction: string = url;
 
         // 通过 a 标签来辅助拼接新的 action
         let aTag: HTMLAnchorElement = document.createElement("a");
@@ -347,15 +355,14 @@ var init = function() {
           aTag.search = "?KKJSBridge-RequestId=" + requestId;
         }
 
-        let url: string = orignAction.replace(search, "").replace(hash, "");
+        url = orignAction.replace(search, "").replace(hash, "");
         if ("#" === url.trim()) {
           url = "";
         }
 
         let newAction: string = url + aTag.search + aTag.hash;
-        form.action = newAction;
+        return newAction;
       }
-
 
       /**
        * 给 open url 生成带请求 id 的新 url
@@ -460,7 +467,7 @@ var init = function() {
       }
 
       // 生成新的 url
-      args[1] = _XHR.generateNewOpenUrlWithRequestId(url, xhr.requestId);
+      args[1] = _XHR.generateNewUrlWithRequestId(url, xhr.requestId);
       originOpen.apply(xhr, args);
     } as any;
 

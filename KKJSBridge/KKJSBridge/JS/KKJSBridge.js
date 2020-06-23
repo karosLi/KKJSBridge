@@ -3,22 +3,6 @@
     typeof define === 'function' && define.amd ? define('lib/fetch.js', factory) :
     (global = global || self, global.KKJSBridge = factory());
 }(this, (function () { 'use strict';
-
-    /*! *****************************************************************************
-    Copyright (c) Microsoft Corporation. All rights reserved.
-    Licensed under the Apache License, Version 2.0 (the "License"); you may not use
-    this file except in compliance with the License. You may obtain a copy of the
-    License at http://www.apache.org/licenses/LICENSE-2.0
-
-    THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-    KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
-    WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
-    MERCHANTABLITY OR NON-INFRINGEMENT.
-
-    See the Apache Version 2.0 License for specific language governing permissions
-    and limitations under the License.
-    ***************************************************************************** */
-
     function __awaiter(thisArg, _arguments, P, generator) {
         return new (P || (P = Promise))(function (resolve, reject) {
             function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -981,6 +965,13 @@
              */
             _XHR.generateNewActionForForm = function (form, requestId) {
                 var orignAction = form.action;
+                form.action = _XHR.generateNewUrlWithRequestId(orignAction, requestId);
+            };
+            /**
+             * 利用 requestId 生成新的 url
+             */
+            _XHR.generateNewUrlWithRequestId = function (url, requestId) {
+                var orignAction = url;
                 // 通过 a 标签来辅助拼接新的 action
                 var aTag = document.createElement("a");
                 aTag.href = orignAction;
@@ -1001,12 +992,12 @@
                 else {
                     aTag.search = "?KKJSBridge-RequestId=" + requestId;
                 }
-                var url = orignAction.replace(search, "").replace(hash, "");
+                url = orignAction.replace(search, "").replace(hash, "");
                 if ("#" === url.trim()) {
                     url = "";
                 }
                 var newAction = url + aTag.search + aTag.hash;
-                form.action = newAction;
+                return newAction;
             };
             /**
              * 给 open url 生成带请求 id 的新 url
@@ -1099,7 +1090,7 @@
                 return originOpen.apply(xhr, args);
             }
             // 生成新的 url
-            args[1] = _XHR.generateNewOpenUrlWithRequestId(url, xhr.requestId);
+            args[1] = _XHR.generateNewUrlWithRequestId(url, xhr.requestId);
             originOpen.apply(xhr, args);
         };
         var originSend = XMLHttpRequest.prototype.send;

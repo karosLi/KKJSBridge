@@ -981,6 +981,13 @@
              */
             _XHR.generateNewActionForForm = function (form, requestId) {
                 var orignAction = form.action;
+                form.action = _XHR.generateNewUrlWithRequestId(orignAction, requestId);
+            };
+            /**
+             * 利用 requestId 生成新的 url
+             */
+            _XHR.generateNewUrlWithRequestId = function (url, requestId) {
+                var orignAction = url;
                 // 通过 a 标签来辅助拼接新的 action
                 var aTag = document.createElement("a");
                 aTag.href = orignAction;
@@ -1001,12 +1008,12 @@
                 else {
                     aTag.search = "?KKJSBridge-RequestId=" + requestId;
                 }
-                var url = orignAction.replace(search, "").replace(hash, "");
+                url = orignAction.replace(search, "").replace(hash, "");
                 if ("#" === url.trim()) {
                     url = "";
                 }
                 var newAction = url + aTag.search + aTag.hash;
-                form.action = newAction;
+                return newAction;
             };
             /**
              * 给 open url 生成带请求 id 的新 url
@@ -1099,7 +1106,7 @@
                 return originOpen.apply(xhr, args);
             }
             // 生成新的 url
-            args[1] = _XHR.generateNewOpenUrlWithRequestId(url, xhr.requestId);
+            args[1] = _XHR.generateNewUrlWithRequestId(url, xhr.requestId);
             originOpen.apply(xhr, args);
         };
         var originSend = XMLHttpRequest.prototype.send;

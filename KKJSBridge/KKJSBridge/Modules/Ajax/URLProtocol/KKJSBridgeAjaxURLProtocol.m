@@ -20,8 +20,10 @@ typedef CFHTTPMessageRef (*KKJSBridgeURLResponseGetHTTPResponse)(CFURLRef respon
 
 static NSString * const kKKJSBridgeNSURLProtocolKey = @"kKKJSBridgeNSURLProtocolKey";
 static NSString * const kKKJSBridgeRequestId = @"KKJSBridge-RequestId";
+static NSString * const kKKJSBridgeUrlRequestIdRegex = @"^.*?[&|\\?]?KKJSBridge-RequestId=(\\d+).*?$";
+static NSString * const kKKJSBridgeUrlRequestIdPairRegex = @"^.*?([&|\\?]?KKJSBridge-RequestId=\\d+).*?$";
 static NSString * const kKKJSBridgeOpenUrlRequestIdRegex = @"^.*#%5E%5E%5E%5E(\\d+)%5E%5E%5E%5E$";
-static NSString * const kKKJSBridgeOpenUrlRequestIdHashRegex = @"^.*(#%5E%5E%5E%5E\\d+%5E%5E%5E%5E)$";
+static NSString * const kKKJSBridgeOpenUrlRequestIdPairRegex = @"^.*(#%5E%5E%5E%5E\\d+%5E%5E%5E%5E)$";
 static NSString * const kKKJSBridgeAjaxRequestHeaderAC = @"Access-Control-Request-Headers";
 static NSString * const kKKJSBridgeAjaxResponseHeaderAC = @"Access-Control-Allow-Headers";
 
@@ -37,11 +39,10 @@ static NSString * const kKKJSBridgeAjaxResponseHeaderAC = @"Access-Control-Allow
 
 + (BOOL)canInitWithRequest:(NSURLRequest *)request {
     /**
+     //?KKJSBridge-RequestId=159274166292276828
      链接有 RequestId
      */
-    if ([self validateRequestId:request.URL.absoluteString]
-        || [request.URL.absoluteString containsString:kKKJSBridgeRequestId]) {
-        
+    if ([request.URL.absoluteString containsString:kKKJSBridgeRequestId]) {
         // 看看是否已经处理过了，防止无限循环
         if ([NSURLProtocol propertyForKey:kKKJSBridgeNSURLProtocolKey inRequest:request]) {
             return NO;
@@ -74,20 +75,14 @@ static NSString * const kKKJSBridgeAjaxResponseHeaderAC = @"Access-Control-Allow
     //给我们处理过的请求设置一个标识符, 防止无限循环,
     [NSURLProtocol setProperty:@YES forKey:kKKJSBridgeNSURLProtocolKey inRequest:mutableReqeust];
     
-    NSDictionary *headers = mutableReqeust.allHTTPHeaderFields;
     NSString *requestId;
-    
-    headers = mutableReqeust.allHTTPHeaderFields;
-    if ([self.class validateRequestId:mutableReqeust.URL.absoluteString]) {
+    //?KKJSBridge-RequestId=159274166292276828
+    if ([mutableReqeust.URL.absoluteString containsString:kKKJSBridgeRequestId]) {
         requestId = [self fetchRequestId:mutableReqeust.URL.absoluteString];
-        // 移除临时的请求hash
-        NSString *reqeustHash = [self fetchRequestHash:mutableReqeust.URL.absoluteString];
-        NSString *absString = [mutableReqeust.URL.absoluteString stringByReplacingOccurrencesOfString:reqeustHash withString:@""];
+        // 移除临时的请求id键值对
+        NSString *reqeustPair = [self fetchRequestIdPair:mutableReqeust.URL.absoluteString];
+        NSString *absString = [mutableReqeust.URL.absoluteString stringByReplacingOccurrencesOfString:reqeustPair withString:@""];
         mutableReqeust.URL = [NSURL URLWithString:absString];
-    } else {
-        //?KKJSBridge-RequestId=1592741662922_76828
-        NSDictionary *queryParams = [self queryParams:mutableReqeust.URL.absoluteString];
-        requestId = queryParams[kKKJSBridgeRequestId];
     }
     
     self.requestId = requestId;
@@ -379,11 +374,11 @@ static NSString * const kKKJSBridgeAjaxResponseHeaderAC = @"Access-Control-Allow
 }
 
 - (NSString *)fetchRequestId:(NSString *)url {
-    return [self fetchMatchedTextFromUrl:url withRegex:kKKJSBridgeOpenUrlRequestIdRegex];
+    return [self fetchMatchedTextFromUrl:url withRegex:kKKJSBridgeUrlRequestIdRegex];
 }
 
-- (NSString *)fetchRequestHash:(NSString *)url {
-    return [self fetchMatchedTextFromUrl:url withRegex:kKKJSBridgeOpenUrlRequestIdHashRegex];
+- (NSString *)fetchRequestIdPair:(NSString *)url {
+    return [self fetchMatchedTextFromUrl:url withRegex:kKKJSBridgeUrlRequestIdPairRegex];
 }
 
 - (NSString *)fetchMatchedTextFromUrl:(NSString *)url withRegex:(NSString *)regexString {
@@ -403,9 +398,9 @@ static NSString * const kKKJSBridgeAjaxResponseHeaderAC = @"Access-Control-Allow
     return content;
 }
 
-+ (BOOL)validateRequestId:(NSString *)url
++ (BOOL)validateRequestId:(NSString *)url withRegex:(NSString *)regexString
 {
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", kKKJSBridgeOpenUrlRequestIdRegex];
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", regexString];
     return [predicate evaluateWithObject:url];
 }
 
