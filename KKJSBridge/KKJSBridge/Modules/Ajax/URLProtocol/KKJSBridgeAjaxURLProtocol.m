@@ -246,7 +246,7 @@ static NSString * const kKKJSBridgeAjaxResponseHeaderAC = @"Access-Control-Allow
 }
 
 - (void)setFormData:(NSDictionary *)formDataJson formEnctype:(NSString *)formEnctype toRequest:(NSMutableURLRequest *)request {
-//     type FormEnctype = "application/x-www-form-urlencoded" | "text/plain" | "multipart/form-datamData" | string;
+//     type FormEnctype = "application/x-www-form-urlencoded" | "text/plain" | "multipart/form-data" | string;
     
     NSArray<NSString *> *fileKeys = formDataJson[@"fileKeys"];
     NSArray<NSArray *> *formData = formDataJson[@"formData"];
