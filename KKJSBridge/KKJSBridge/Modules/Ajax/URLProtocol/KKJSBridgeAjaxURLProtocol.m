@@ -20,8 +20,8 @@ typedef CFHTTPMessageRef (*KKJSBridgeURLResponseGetHTTPResponse)(CFURLRef respon
 
 static NSString * const kKKJSBridgeNSURLProtocolKey = @"kKKJSBridgeNSURLProtocolKey";
 static NSString * const kKKJSBridgeRequestId = @"KKJSBridge-RequestId";
-static NSString * const kKKJSBridgeUrlRequestIdRegex = @"^.*?[&|\\?]?KKJSBridge-RequestId=(\\d+).*?$";
-static NSString * const kKKJSBridgeUrlRequestIdPairRegex = @"^.*?([&|\\?]?KKJSBridge-RequestId=\\d+).*?$";
+static NSString * const kKKJSBridgeUrlRequestIdRegex = @"^.*?[&|\\?|%3f]?KKJSBridge-RequestId[=|%3d](\\d+).*?$";
+static NSString * const kKKJSBridgeUrlRequestIdPairRegex = @"^.*?([&|\\?|%3f]?KKJSBridge-RequestId[=|%3d]\\d+).*?$";
 static NSString * const kKKJSBridgeOpenUrlRequestIdRegex = @"^.*#%5E%5E%5E%5E(\\d+)%5E%5E%5E%5E$";
 static NSString * const kKKJSBridgeOpenUrlRequestIdPairRegex = @"^.*(#%5E%5E%5E%5E\\d+%5E%5E%5E%5E)$";
 static NSString * const kKKJSBridgeAjaxRequestHeaderAC = @"Access-Control-Request-Headers";
@@ -81,8 +81,10 @@ static NSString * const kKKJSBridgeAjaxResponseHeaderAC = @"Access-Control-Allow
         requestId = [self fetchRequestId:mutableReqeust.URL.absoluteString];
         // 移除临时的请求id键值对
         NSString *reqeustPair = [self fetchRequestIdPair:mutableReqeust.URL.absoluteString];
-        NSString *absString = [mutableReqeust.URL.absoluteString stringByReplacingOccurrencesOfString:reqeustPair withString:@""];
-        mutableReqeust.URL = [NSURL URLWithString:absString];
+        if (reqeustPair) {
+            NSString *absString = [mutableReqeust.URL.absoluteString stringByReplacingOccurrencesOfString:reqeustPair withString:@""];
+            mutableReqeust.URL = [NSURL URLWithString:absString];
+        }
     }
     
     self.requestId = requestId;
