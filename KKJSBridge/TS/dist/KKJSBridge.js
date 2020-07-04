@@ -1143,6 +1143,7 @@
             }
             else if (body instanceof FormData) { // 说明是表单
                 request.bodyType = "FormData";
+                request.formEnctype = "multipart/form-data";
                 KKJSBridgeUtil.convertFormDataToJson(body, function (json) {
                     request.value = json;
                     _XHR.sendBodyToNativeForCache("AJAX", xhr, originSend, args, request);
@@ -1171,6 +1172,7 @@
                 requestHref: form.requestHref,
                 requestUrl: form.requestUrl,
                 bodyType: "FormData",
+                formEnctype: form.enctype,
                 value: null
             };
             if (!KKJSBridgeConfig.ajaxHook) { // 如果没有开启 ajax hook，则调用原始 submit

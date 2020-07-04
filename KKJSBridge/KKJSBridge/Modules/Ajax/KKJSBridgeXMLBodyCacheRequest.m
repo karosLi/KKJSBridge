@@ -58,6 +58,8 @@ static KKJSBridgeSafeDictionary *bodyCache;
      requestUrl,
      //body 类型
      bodyType
+     //表单编码类型
+     formEnctype
      //body 具体值
      value
  }

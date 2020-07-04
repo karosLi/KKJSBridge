@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-06-20 11:29:12
- * @LastEditTime: 2020-06-23 09:58:11
+ * @LastEditTime: 2020-07-04 21:37:08
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /TS/src/indexnew.ts
@@ -505,8 +505,9 @@ var init = function() {
         return;
       } else if (body instanceof FormData) {// 说明是表单
         request.bodyType = "FormData";
+        request.formEnctype = "multipart/form-data";
         KKJSBridgeUtil.convertFormDataToJson(body, (json: any) => {
-          request.value = json;
+          request.value = json; 
           _XHR.sendBodyToNativeForCache("AJAX", xhr, originSend, args, request);
         });
         return;
@@ -535,6 +536,7 @@ var init = function() {
         requestHref: form.requestHref,
         requestUrl: form.requestUrl,
         bodyType: "FormData",
+        formEnctype: form.enctype,
         value: null
       };
 

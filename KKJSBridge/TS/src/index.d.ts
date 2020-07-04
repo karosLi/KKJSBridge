@@ -3,6 +3,7 @@
 declare namespace KK {
 
     type BodyType = "String" | "Blob" | "FormData" | "ArrayBuffer";
+    type FormEnctype = "application/x-www-form-urlencoded" | "text/plain" | "multipart/form-data" | string;
 
     interface AJAXBodyCacheRequest {
         /**
@@ -20,7 +21,12 @@ declare namespace KK {
         /**
          * body 类型
          */
-        bodyType: BodyType
+        bodyType: BodyType,
+
+        /**
+         * 表单编码类型
+         */
+        formEnctype?: FormEnctype,
         /**
          * body 具体值
          */

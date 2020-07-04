@@ -179,6 +179,7 @@ static NSString * const kKKJSBridgeAjaxResponseHeaderAC = @"Access-Control-Allow
 /**
  
  type BodyType = "String" | "Blob" | "FormData" | "ArrayBuffer";
+ type FormEnctype = "application/x-www-form-urlencoded" | "text/plain" | "multipart/form-data" | string;
  
  {
     //请求唯一id
@@ -189,6 +190,8 @@ static NSString * const kKKJSBridgeAjaxResponseHeaderAC = @"Access-Control-Allow
     requestUrl,
     //body 类型
     bodyType
+    //表单编码类型
+    formEnctype
     //body 具体值
     value
 }
@@ -196,6 +199,7 @@ static NSString * const kKKJSBridgeAjaxResponseHeaderAC = @"Access-Control-Allow
 - (void)setBodyRequest:(NSDictionary *)bodyRequest toRequest:(NSMutableURLRequest *)request {
     NSData *data = nil;
     NSString *bodyType = bodyRequest[@"bodyType"];
+    NSString *formEnctype = bodyRequest[@"formEnctype"];
     id value = bodyRequest[@"value"];
     if (!value) {
         return;
@@ -206,7 +210,7 @@ static NSString * const kKKJSBridgeAjaxResponseHeaderAC = @"Access-Control-Allow
     } else if ([bodyType isEqualToString:@"ArrayBuffer"]) {
         data = [self dataFromBase64:value];
     } else if ([bodyType isEqualToString:@"FormData"]) {
-        [self setFormData:value toRequest:request];
+        [self setFormData:value formEnctype:formEnctype toRequest:request];
         return;
     } else {//String
         if ([value isKindOfClass:NSDictionary.class]) {
@@ -239,7 +243,9 @@ static NSString * const kKKJSBridgeAjaxResponseHeaderAC = @"Access-Control-Allow
     return data;
 }
 
-- (void)setFormData:(NSDictionary *)formDataJson toRequest:(NSMutableURLRequest *)request {
+- (void)setFormData:(NSDictionary *)formDataJson formEnctype:(NSString *)formEnctype toRequest:(NSMutableURLRequest *)request {
+//     type FormEnctype = "application/x-www-form-urlencoded" | "text/plain" | "multipart/form-datamData" | string;
+    
     NSArray<NSString *> *fileKeys = formDataJson[@"fileKeys"];
     NSArray<NSArray *> *formData = formDataJson[@"formData"];
     NSMutableDictionary *params = [NSMutableDictionary dictionary];
@@ -266,24 +272,55 @@ static NSString * const kKKJSBridgeAjaxResponseHeaderAC = @"Access-Control-Allow
             if (fileJson[@"lastModified"] && [fileJson[@"lastModified"] unsignedIntegerValue] > 0) {
                 fileData.lastModified = [fileJson[@"lastModified"] unsignedIntegerValue];
             }
-            if ([fileJson[@"data"] isKindOfClass:NSString.class]) {
-                NSString *base64 = (NSString *)fileJson[@"data"];
-                NSData *byteData = [self dataFromBase64:base64];
-                fileData.data = byteData;
-            }
             
-            [fileDatas addObject:fileData];
+            if ([formEnctype isEqualToString:@"multipart/form-data"]) {
+                if ([fileJson[@"data"] isKindOfClass:NSString.class]) {
+                    NSString *base64 = (NSString *)fileJson[@"data"];
+                    NSData *byteData = [self dataFromBase64:base64];
+                    fileData.data = byteData;
+                }
+                
+                [fileDatas addObject:fileData];
+            } else {
+                params[key] = fileData.fileName;
+            }
         } else {
             params[key] = pair[1];
         }
     }
     
-    KKJSBridgeURLRequestSerialization *serializer = [KKJSBridgeAjaxURLProtocol urlRequestSerialization];
-    [serializer multipartFormRequestWithRequest:request parameters:params constructingBodyWithBlock:^(id<KKJSBridgeMultipartFormData>  _Nonnull formData) {
-        for (KKJSBridgeFormDataFile *fileData in fileDatas) {
-            [formData appendPartWithFileData:fileData.data name:fileData.key fileName:fileData.fileName mimeType:fileData.type];
+    if ([formEnctype isEqualToString:@"multipart/form-data"]) {
+        KKJSBridgeURLRequestSerialization *serializer = [KKJSBridgeAjaxURLProtocol urlRequestSerialization];
+        [serializer multipartFormRequestWithRequest:request parameters:params constructingBodyWithBlock:^(id<KKJSBridgeMultipartFormData>  _Nonnull formData) {
+            for (KKJSBridgeFormDataFile *fileData in fileDatas) {
+                [formData appendPartWithFileData:fileData.data name:fileData.key fileName:fileData.fileName mimeType:fileData.type];
+            }
+        } error:nil];
+    } else if ([formEnctype isEqualToString:@"text/plain"]) {
+        NSMutableString *string = [NSMutableString new];
+        NSString *lastKey = params.allKeys.lastObject;
+        for (NSString *key in params.allKeys) {
+            [string appendFormat:@"%@=%@", key, params[key]];
+            if (![key isEqualToString:lastKey]) {
+                [string appendString:@"\r\n"];
+            }
         }
-    } error:nil];
+        
+        NSData *data = [string dataUsingEncoding:NSUTF8StringEncoding];
+        request.HTTPBody = data;
+    } else {// application/x-www-form-urlencoded
+        NSMutableString *string = [NSMutableString new];
+        NSString *lastKey = params.allKeys.lastObject;
+        for (NSString *key in params.allKeys) {
+            [string appendFormat:@"%@=%@", key, params[key]];
+            if (![key isEqualToString:lastKey]) {
+                [string appendString:@"&"];
+            }
+        }
+        
+        NSData *data = [string dataUsingEncoding:NSUTF8StringEncoding];
+        request.HTTPBody = data;
+    }
 }
 
 #pragma mark - 响应头
