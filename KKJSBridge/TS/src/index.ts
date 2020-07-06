@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-06-20 11:29:12
- * @LastEditTime: 2020-07-04 21:37:08
+ * @LastEditTime: 2020-07-06 18:18:19
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /TS/src/indexnew.ts
@@ -462,10 +462,6 @@ var init = function() {
         return originOpen.apply(xhr, args);
       }
       
-      if (method === "GET") {// 调用原始 open
-        return originOpen.apply(xhr, args);
-      }
-
       // 生成新的 url
       args[1] = _XHR.generateNewUrlWithRequestId(url, xhr.requestId);
       originOpen.apply(xhr, args);

@@ -1102,9 +1102,6 @@
             if (!KKJSBridgeConfig.ajaxHook) { // 如果没有开启 ajax hook，则调用原始 open
                 return originOpen.apply(xhr, args);
             }
-            if (method === "GET") { // 调用原始 open
-                return originOpen.apply(xhr, args);
-            }
             // 生成新的 url
             args[1] = _XHR.generateNewUrlWithRequestId(url, xhr.requestId);
             originOpen.apply(xhr, args);
