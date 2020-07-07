@@ -31,13 +31,19 @@
         title="Inline Frame Example"
         width="100%"
         height="400"
-        src="/ajaxiframeTest">
+        src="/ajaxiframeTest" sandbox="allow-same-origin">
 
     </iframe>
 </body>
 <script src="https://cdn.bootcss.com/eruda/1.5.2/eruda.min.js"></script>
 <script>eruda.init();</script>
 <script type="text/javascript">
+    var iframe = document.createElement('iframe');
+    iframe.sandbox = "allow-same-origin";
+    iframe.style.display = "none";
+    document.body.appendChild(iframe);
+
+
     function ajax_get_with_cookie() {
         var xhr = new XMLHttpRequest(),
          method = "GET",

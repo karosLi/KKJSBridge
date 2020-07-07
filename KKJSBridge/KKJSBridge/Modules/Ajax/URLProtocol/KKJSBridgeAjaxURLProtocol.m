@@ -89,6 +89,8 @@ static NSString * const kKKJSBridgeAjaxResponseHeaderAC = @"Access-Control-Allow
     
     self.requestId = requestId;
     self.requestHTTPMethod = mutableReqeust.HTTPMethod;
+    
+    // 设置 body
     NSDictionary *bodyReqeust = [KKJSBridgeXMLBodyCacheRequest getRequestBody:requestId];
     if (bodyReqeust) {
         // 从把缓存的 body 设置给 request
