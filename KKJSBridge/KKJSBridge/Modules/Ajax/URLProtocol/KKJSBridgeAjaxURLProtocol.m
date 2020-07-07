@@ -133,7 +133,7 @@ static NSString * const kKKJSBridgeRequestId = @"KKJSBridge-RequestId";
     [self.client URLProtocol:self didLoadData:data];
 }
 
-- (void)JSBridgeAjax:(id<KKJSBridgeAjaxDelegate>)ajax didCompleteWithError:(NSError *)error {
+- (void)JSBridgeAjax:(id<KKJSBridgeAjaxDelegate>)ajax didCompleteWithError:(NSError * _Nullable)error {
     if (error) {
         [self.client URLProtocol:self didFailWithError:error];
     } else {

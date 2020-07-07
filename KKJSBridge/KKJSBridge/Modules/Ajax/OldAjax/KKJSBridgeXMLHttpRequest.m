@@ -316,7 +316,7 @@ static NSString * const KKJSBridgeXMLHttpRequestStatusTextOK = @"OK";
     [self returnReadySate:KKJSBridgeXMLHttpRequestStateLoading];
 }
 
-- (void)JSBridgeAjax:(id<KKJSBridgeAjaxDelegate>)ajax didCompleteWithError:(NSError *)error {
+- (void)JSBridgeAjax:(id<KKJSBridgeAjaxDelegate>)ajax didCompleteWithError:(NSError * _Nullable)error {
     NSData *data = nil;
     if (!error && self.receiveData) {
         data = [self.receiveData copy];
