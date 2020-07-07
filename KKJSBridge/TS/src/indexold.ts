@@ -70,6 +70,16 @@ var init = function() {
               }
             }
           }
+
+          // 处理有 iframe 的情况
+          let iframes : NodeListOf<HTMLIFrameElement> = document.querySelectorAll("iframe");
+          if (iframes) {
+            let len: number = iframes.length;
+            for (let i = 0; i < len; i++) {
+              let win: any = iframes[i].contentWindow;
+              win.postMessage(messageString,'*');
+            }
+          }
         }
     
         /**
@@ -114,6 +124,17 @@ var init = function() {
       // 初始化 KKJSBridge
       let KKJSBridgeInstance = new KKJSBridge();
     
+      // iframe 内处理来自父 window 的消息
+      window.addEventListener('message', e => {
+        let data: any = e.data;
+        if (typeof data == "string") {
+          let str: string = data as string;
+          if (str.indexOf("messageType") != -1) {
+            KKJSBridgeInstance._handleMessageFromNative(str);
+          }
+        }
+      })
+      
       /**
        * KKJSBridge 工具
        */

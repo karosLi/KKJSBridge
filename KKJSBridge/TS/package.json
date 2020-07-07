@@ -9,6 +9,7 @@
   "scope": "",
   "scripts": {
     "build": "rollup -c",
+    "oldbuild": "rollup -c rollup.old.config.js",
     "qtoken": "node ./util/qtoken.js"
   },
   "author": "",
