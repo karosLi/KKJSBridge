@@ -6,6 +6,95 @@ var init = function() {
       return;
     }
 
+    /**
+     * 处理 iframe 相关
+     */
+    class KKJSBridgeIframe {
+      /**
+       * 分发消息
+       * @param messageString
+       */
+      public static dispatchMessage(messageString: string) {
+        // 处理有 iframe 的情况
+        let iframes : NodeListOf<HTMLIFrameElement> = document.querySelectorAll("iframe");
+        if (iframes) {
+          let len: number = iframes.length;
+          for (let i = 0; i < len; i++) {
+            let win: any = iframes[i].contentWindow;
+            win.postMessage(messageString, '*');
+          }
+        }
+      }
+
+      /**
+       * 添加消息监听处理
+       */
+      public static addMessageListener() {
+        // iframe 内处理来自父 window 的消息
+        window.addEventListener('message', e => {
+          let data: any = e.data;
+          if (typeof data == "string") {
+            let str: string = data as string;
+            if (str.indexOf("messageType") != -1) {
+              KKJSBridgeInstance._handleMessageFromNative(str);
+            }
+          }
+        });
+      }
+
+      /**
+       * 让 iframe 能够注入 app 里面的脚本
+       */
+      public static hookSandbox() {
+        // 设置 iframe 标签 的 sandbox 属性
+        document.addEventListener('DOMContentLoaded',function(){
+          let iframes : NodeListOf<HTMLIFrameElement> = document.querySelectorAll("iframe");
+          if (iframes) {
+            let len: number = iframes.length;
+            for (let i = 0; i < len; i++) {
+              let iframe: HTMLIFrameElement = iframes[i];
+              if (iframe.getAttribute('sandbox') && iframe.getAttribute('sandbox').indexOf('allow-scripts') == -1) {
+                iframe.setAttribute('sandbox', iframe.getAttribute('sandbox') + ' allow-scripts');
+              }
+            }
+          }
+        });
+
+        // 设置 iframe 动态创建的 sandbox 属性
+        let originalCreateElement = document.createElement;
+        document.createElement = function (tag: string) {
+          var element = originalCreateElement.call(document, tag);
+          if (tag.toLowerCase() === 'iframe') {
+            try {
+              var iframeSandbox = Object.getOwnPropertyDescriptor(window.HTMLIFrameElement, 'sandbox') ||
+                            Object.getOwnPropertyDescriptor(HTMLIFrameElement.prototype, 'sandbox');
+              if (iframeSandbox && iframeSandbox.configurable) {
+                  Object.defineProperty(element, 'sandbox', {
+                    configurable: true,
+                    enumerable: true,
+                    get: function () {
+                      return iframeSandbox.get.call(element);
+                    },
+                    set: function (val) {
+                      if (val.indexOf('allow-scripts') == -1) {
+                        val = val + ' allow-scripts';
+                      }
+                      iframeSandbox.set.call(element, val);
+                    }
+                  });
+              }
+            } catch(e) {
+              console.log('this browser does not support reconfigure iframe sandbox property', e);
+            }
+          }
+          return element;
+        };
+      }
+    }
+
+    /**
+     * 建立与 native 的数据通信
+     */
     class KKJSBridge {
       private uniqueId: number; // 用于记录标记唯一的函数回调
       private callbackCache: { [key: string]: KK.Callback }; // 用于 H5 监听来自 Native 的回调
@@ -72,14 +161,7 @@ var init = function() {
         }
 
         // 处理有 iframe 的情况
-        let iframes : NodeListOf<HTMLIFrameElement> = document.querySelectorAll("iframe");
-        if (iframes) {
-          let len: number = iframes.length;
-          for (let i = 0; i < len; i++) {
-            let win: any = iframes[i].contentWindow;
-            win.postMessage(messageString,'*');
-          }
-        }
+        KKJSBridgeIframe.dispatchMessage(messageString);
       }
   
       /**
@@ -125,15 +207,9 @@ var init = function() {
     let KKJSBridgeInstance = new KKJSBridge();
   
     // iframe 内处理来自父 window 的消息
-    window.addEventListener('message', e => {
-      let data: any = e.data;
-      if (typeof data == "string") {
-        let str: string = data as string;
-        if (str.indexOf("messageType") != -1) {
-          KKJSBridgeInstance._handleMessageFromNative(str);
-        }
-      }
-    })
+    KKJSBridgeIframe.addMessageListener();
+    // 设置 iframe 的 sandbox 属性
+    KKJSBridgeIframe.hookSandbox();
     
     /**
      * KKJSBridge 工具
