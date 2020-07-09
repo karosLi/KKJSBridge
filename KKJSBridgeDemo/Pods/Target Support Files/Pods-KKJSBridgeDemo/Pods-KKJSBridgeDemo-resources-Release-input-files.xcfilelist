@@ -1,2 +1,2 @@
 ${PODS_ROOT}/Target Support Files/Pods-KKJSBridgeDemo/Pods-KKJSBridgeDemo-resources.sh
-${PODS_ROOT}/../../KKJSBridge/KKJSBridge/JS/KKJSBridgeAJAXHook.js
+${PODS_ROOT}/../../KKJSBridge/KKJSBridge/JS/KKJSBridgeAJAXProtocolHook.js
