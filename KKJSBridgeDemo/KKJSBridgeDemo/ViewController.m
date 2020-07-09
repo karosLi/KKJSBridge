@@ -43,6 +43,20 @@
         url = @"https://i.meituan.com/";
     }
     
+    {
+        // 测试 file 协议
+//        NSMutableDictionary *properties = [NSMutableDictionary dictionary];
+//        properties[NSHTTPCookieName] = @"kktoken";
+//        properties[NSHTTPCookieValue] = @"ASDFSAOBFDSLFL";
+//        properties[NSHTTPCookiePath] = @"/";
+//        properties[NSHTTPCookieDomain] = @"127.0.0.1";
+//        properties[NSHTTPCookieExpires] = @"Mon, 01 Aug 2050 06:44:35 GMT";
+//        NSHTTPCookie *cookieObject = [NSHTTPCookie cookieWithProperties:properties];
+//        [[NSHTTPCookieStorage sharedHTTPCookieStorage] setCookie:cookieObject];
+//        NSString *path = [[NSBundle mainBundle] pathForResource:@"ajaxHookTestLocalFile" ofType:@"html"];
+//        url = [NSString stringWithFormat:@"file://%@", path];
+    }
+    
     WebViewController *web = [[WebViewController alloc] initWithUrl:url];
     [self.navigationController pushViewController:web animated:YES];
 }

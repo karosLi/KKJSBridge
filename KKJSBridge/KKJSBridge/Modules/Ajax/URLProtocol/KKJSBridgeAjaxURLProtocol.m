@@ -15,6 +15,7 @@
 #import "KKJSBridgeConfig.h"
 #import "KKJSBridgeAjaxDelegate.h"
 #import "KKJSBridgeSwizzle.h"
+#import "KKWebViewCookieManager.h"
 
 typedef CFHTTPMessageRef (*KKJSBridgeURLResponseGetHTTPResponse)(CFURLRef response);
 
@@ -38,16 +39,16 @@ static NSString * const kKKJSBridgeAjaxResponseHeaderAC = @"Access-Control-Allow
 @implementation KKJSBridgeAjaxURLProtocol
 
 + (BOOL)canInitWithRequest:(NSURLRequest *)request {
+    // 看看是否已经处理过了，防止无限循环
+    if ([NSURLProtocol propertyForKey:kKKJSBridgeNSURLProtocolKey inRequest:request]) {
+        return NO;
+    }
+    
     /**
      //?KKJSBridge-RequestId=159274166292276828
      链接有 RequestId
      */
     if ([request.URL.absoluteString containsString:kKKJSBridgeRequestId]) {
-        // 看看是否已经处理过了，防止无限循环
-        if ([NSURLProtocol propertyForKey:kKKJSBridgeNSURLProtocolKey inRequest:request]) {
-            return NO;
-        }
-        
         return YES;
     }
   
@@ -90,6 +91,9 @@ static NSString * const kKKJSBridgeAjaxResponseHeaderAC = @"Access-Control-Allow
     self.requestId = requestId;
     self.requestHTTPMethod = mutableReqeust.HTTPMethod;
     
+    // 同步 cookie。有的时候 KKJSBridge 并不是和 KKWebView 同时被使用，所以 KKJSBridge 需要自己完成 cookie 同步
+    [KKWebViewCookieManager syncRequestCookie:mutableReqeust];
+    
     // 设置 body
     NSDictionary *bodyReqeust = [KKJSBridgeXMLBodyCacheRequest getRequestBody:requestId];
     if (bodyReqeust) {
@@ -111,6 +115,7 @@ static NSString * const kKKJSBridgeAjaxResponseHeaderAC = @"Access-Control-Allow
 - (void)stopLoading {
     if (self.customTask != nil) {
         [self.customTask  cancel];
+        self.customTask = nil;
     }
     
     [self clearRequestBody];

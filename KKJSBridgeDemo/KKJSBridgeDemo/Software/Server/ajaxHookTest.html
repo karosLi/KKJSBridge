@@ -59,6 +59,7 @@
     function ajax_post_with_cookie() {
         var xhr = new XMLHttpRequest(),
          method = "POST",
+         // url = "http://172.16.14.8:50000/testAjaxPost";
          url = "/testAjaxPost";
          xhr.open(method, url, true);
          xhr.onreadystatechange = function () {
