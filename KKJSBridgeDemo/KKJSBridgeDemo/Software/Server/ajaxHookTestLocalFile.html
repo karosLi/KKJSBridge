@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title>KKJSBridge Ajax Hook</title>
+<style>
+    button {
+        background:#000;
+        color:#fff;
+        padding: 6px 12px;
+        font-size: 14px;
+        display:block;
+        margin-bottom:5px;
+        border:none;
+        border-radius: 3px;
+    }
+</style>
+</head>
+<body>
+    <button onclick="ajax_get_with_cookie()">ajax_get_with_cookie</button>
+    <button onclick="ajax_post_with_cookie()">ajax_post_with_cookie</button>
+</body>
+<script src="https://cdn.bootcss.com/eruda/1.5.2/eruda.min.js"></script>
+<script>eruda.init();</script>
+<script type="text/javascript">
+    function ajax_get_with_cookie() {
+        var xhr = new XMLHttpRequest(),
+         method = "GET",
+         url = "http://127.0.0.1:50000/testAjaxGet";
+         xhr.open(method, url, true);
+         xhr.onreadystatechange = function () {
+            if(xhr.readyState === 4 && xhr.status === 200) {
+                console.log(xhr.responseText);
+            }
+         };
+         xhr.send();
+    }
+    function ajax_post_with_cookie() {
+        var xhr = new XMLHttpRequest(),
+         method = "POST",
+         url = "http://127.0.0.1:50000/testAjaxPost";
+         xhr.open(method, url, true);
+         xhr.onreadystatechange = function () {
+            if(xhr.readyState === 4 && xhr.status === 200) {
+                console.log(xhr.responseText);
+            }
+         };
+         xhr.send("bodyData");
+    }
+    
+    
+</script>
+</html>
