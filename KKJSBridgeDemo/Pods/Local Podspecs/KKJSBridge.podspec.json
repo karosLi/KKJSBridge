@@ -1,6 +1,6 @@
 {
   "name": "KKJSBridge",
-  "version": "1.1.5-beta8",
+  "version": "1.1.5-beta9",
   "summary": "One-stop solution for WKWebView to support offline resource，ajax/fetch request and cookie sync issues.",
   "description": "One-stop solution for WKWebView to support offline resource，ajax/fetch request and cookie sync issues",
   "homepage": "https://github.com/karosLi/KKJSBridge",
@@ -16,7 +16,7 @@
   },
   "source": {
     "git": "https://github.com/karosLi/KKJSBridge.git",
-    "tag": "1.1.5-beta8"
+    "tag": "1.1.5-beta9"
   },
   "default_subspecs": "AjaxProtocolHook",
   "frameworks": [
