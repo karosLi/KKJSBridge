@@ -10,7 +10,7 @@
 #import "KKJSBridgeJSExecutor.h"
 #import "KKJSBridgeEngine.h"
 
-#if __has_include("KKJSBridgeXMLBodyCacheRequest.h")
+#ifdef KKAjaxProtocolHook
 #import "NSURLProtocol+KKJSBridgeWKWebView.h"
 #endif
 
