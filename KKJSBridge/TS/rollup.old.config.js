@@ -1,8 +1,8 @@
 /*
  * @Author: your name
  * @Date: 2020-07-06 18:25:49
- * @LastEditTime: 2020-07-06 18:26:22
- * @LastEditors: your name
+ * @LastEditTime: 2020-07-09 16:44:19
+ * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /TS/rollup.old.config.js
  */ 
@@ -14,7 +14,7 @@ export default {
     input: 'src/indexold.ts',
     plugins: [typescript()],
     output: {
-        file: 'dist/KKJSBridgeOld.js',
+        file: 'dist/KKJSBridgeAJAXHook.js',
         format: 'umd',
         name: "KKJSBridge",
         amd: {

@@ -1,1 +1,1 @@
-../../../../../KKJSBridge/KKJSBridge/Modules/Ajax/KKJSBridgeXMLBodyCacheRequest.h
+../../../../../KKJSBridge/KKJSBridge/Modules/Ajax/AjaxProtocolHook/KKJSBridgeXMLBodyCacheRequest.h

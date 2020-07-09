@@ -8,9 +8,14 @@
 
 #import "KKJSBridgeEngine.h"
 #import "KKJSBridgeMessageDispatcher.h"
-#import "KKJSBridgeXMLBodyCacheRequest.h"
 #import "KKJSBridgeModuleCookie.h"
 #import "KKJSBridgeWeakScriptMessageDelegate.h"
+
+#ifdef KKAjaxProtocolHook
+    #import "KKJSBridgeXMLBodyCacheRequest.h"
+#else
+    #import "KKJSBridgeModuleXMLHttpRequestDispatcher.h"
+#endif
 
 static NSString * const KKJSBridgeMessageName = @"KKJSBridgeMessage";
 
@@ -70,7 +75,14 @@ static NSString * const KKJSBridgeMessageName = @"KKJSBridgeMessage";
         self.webView.configuration.userContentController = [WKUserContentController new];
     }
     
-    NSString *bridgeJSString = [[NSString alloc] initWithContentsOfFile:[[NSBundle bundleForClass:self.class] pathForResource:@"KKJSBridge" ofType:@"js"] encoding:NSUTF8StringEncoding error:NULL];
+    NSString *bridgeJSName = @"KKJSBridgeAJAXProtocolHook";
+#ifdef KKAjaxProtocolHook
+    bridgeJSName = @"KKJSBridgeAJAXProtocolHook";
+#else
+    bridgeJSName = @"KKJSBridgeAJAXHook";
+#endif
+
+    NSString *bridgeJSString = [[NSString alloc] initWithContentsOfFile:[[NSBundle bundleForClass:self.class] pathForResource:bridgeJSName ofType:@"js"] encoding:NSUTF8StringEncoding error:NULL];
     WKUserScript *userScript = [[WKUserScript alloc] initWithSource:bridgeJSString injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:NO];
     [self.webView.configuration.userContentController removeAllUserScripts];
     [self.webView.configuration.userContentController removeScriptMessageHandlerForName:KKJSBridgeMessageName];
@@ -80,7 +92,12 @@ static NSString * const KKJSBridgeMessageName = @"KKJSBridgeMessage";
 }
 
 - (void)setupDefaultModuleRegister {
+#ifdef KKAjaxProtocolHook
     [self.moduleRegister registerModuleClass:KKJSBridgeXMLBodyCacheRequest.class];
+#else
+    [self.moduleRegister registerModuleClass:KKJSBridgeModuleXMLHttpRequestDispatcher.class];
+#endif
+    
     [self.moduleRegister registerModuleClass:KKJSBridgeModuleCookie.class];
 }
 

@@ -14,7 +14,11 @@ PODS:
   - AFNetworking/Serialization (3.2.1)
   - AFNetworking/UIKit (3.2.1):
     - AFNetworking/NSURLSession
-  - KKJSBridge (1.1.0)
+  - KKJSBridge (1.1.5-beta6):
+    - KKJSBridge/AjaxProtocolHook (= 1.1.5-beta6)
+  - KKJSBridge/AjaxProtocolHook (1.1.5-beta6):
+    - KKJSBridge/Core
+  - KKJSBridge/Core (1.1.5-beta6)
 
 DEPENDENCIES:
   - AFNetworking
@@ -30,7 +34,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   AFNetworking: b6f891fdfaed196b46c7a83cf209e09697b94057
-  KKJSBridge: 95a4c327a9d429503ef2fa028ea68c6b786ce232
+  KKJSBridge: 87401d74fbf839ed588d29ccc8f97f61d3def503
 
 PODFILE CHECKSUM: cb790ca7d841e6c617de93aaa6acb511ed9b1251
 

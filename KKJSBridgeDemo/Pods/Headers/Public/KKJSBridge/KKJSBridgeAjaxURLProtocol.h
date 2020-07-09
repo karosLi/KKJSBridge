@@ -1,1 +1,1 @@
-../../../../../KKJSBridge/KKJSBridge/Modules/Ajax/URLProtocol/KKJSBridgeAjaxURLProtocol.h
+../../../../../KKJSBridge/KKJSBridge/Modules/Ajax/AjaxProtocolHook/KKJSBridgeAjaxURLProtocol.h
