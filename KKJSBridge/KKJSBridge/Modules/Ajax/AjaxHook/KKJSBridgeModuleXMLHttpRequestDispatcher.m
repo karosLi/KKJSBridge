@@ -94,33 +94,6 @@
     }
 }
 
-- (NSData *)convertToDataFromUInt8Array:(NSArray<NSNumber *> *)array {
-    UInt8 bytes[array.count];
-    for (NSInteger i = 0; i< array.count; i++) {
-        NSNumber *obj = array[i];
-        UInt8 byte = (UInt8)obj.intValue;
-        bytes[i] = byte;
-    }
-    
-    NSData *byteData= [NSData dataWithBytes:bytes length:array.count];
-    return byteData;
-}
-
-- (NSData *)convertToDataFromBase64:(NSString *)base64 {
-    // data:image/png;base64,iVBORw0...
-    NSArray<NSString *> *components = [base64 componentsSeparatedByString:@","];
-    if (components.count != 2) {
-        return nil;
-    }
-    
-    NSString *splitBase64 = components.lastObject;
-    NSUInteger paddedLength = splitBase64.length + (splitBase64.length % 4);
-    NSString *fixBase64 = [splitBase64 stringByPaddingToLength:paddedLength withString:@"=" startingAtIndex:0];
-    NSData *data = [[NSData alloc] initWithBase64EncodedString:fixBase64 options:NSDataBase64DecodingIgnoreUnknownCharacters];
-    
-    return data;
-}
-
 - (void)setRequestHeader:(KKJSBridgeEngine *)engine params:(NSDictionary *)params responseCallback:(void (^)(NSDictionary *responseData))responseCallback {
     NSNumber *objectId = params[@"id"];
     KKJSBridgeXMLHttpRequest *xhr = [self getXHR:engine.webView objectId:objectId];
