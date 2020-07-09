@@ -11,10 +11,10 @@
 #import "KKJSBridgeModuleCookie.h"
 #import "KKJSBridgeWeakScriptMessageDelegate.h"
 
-#ifdef KKAjaxProtocolHook
-    #import "KKJSBridgeXMLBodyCacheRequest.h"
+#if __has_include("KKJSBridgeXMLBodyCacheRequest.h")
+#import "KKJSBridgeXMLBodyCacheRequest.h"
 #else
-    #import "KKJSBridgeModuleXMLHttpRequestDispatcher.h"
+#import "KKJSBridgeModuleXMLHttpRequestDispatcher.h"
 #endif
 
 static NSString * const KKJSBridgeMessageName = @"KKJSBridgeMessage";
