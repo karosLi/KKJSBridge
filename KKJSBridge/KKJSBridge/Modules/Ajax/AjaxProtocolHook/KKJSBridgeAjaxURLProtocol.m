@@ -9,9 +9,8 @@
 #import <CFNetwork/CFNetwork.h>
 #import <CoreFoundation/CoreFoundation.h>
 #import <dlfcn.h>
+#import "KKJSBridgeAjaxBodyHelper.h"
 #import "KKJSBridgeXMLBodyCacheRequest.h"
-#import "KKJSBridgeURLRequestSerialization.h"
-#import "KKJSBridgeFormDataFile.h"
 #import "KKJSBridgeConfig.h"
 #import "KKJSBridgeAjaxDelegate.h"
 #import "KKJSBridgeSwizzle.h"
@@ -92,13 +91,16 @@ static NSString * const kKKJSBridgeAjaxResponseHeaderAC = @"Access-Control-Allow
     self.requestHTTPMethod = mutableReqeust.HTTPMethod;
     
     // 同步 cookie。有的时候 KKJSBridge 并不是和 KKWebView 同时被使用，所以 KKJSBridge 需要自己完成 cookie 同步
-    [KKWebViewCookieManager syncRequestCookie:mutableReqeust];
+    // 没有携带 Cookie 时，才附加 Cookie，防止覆盖 WKWebView 中的 Cookie
+    if (![mutableReqeust valueForHTTPHeaderField:@"Cookie"]) {
+        [KKWebViewCookieManager syncRequestCookie:mutableReqeust];
+    }
     
     // 设置 body
     NSDictionary *bodyReqeust = [KKJSBridgeXMLBodyCacheRequest getRequestBody:requestId];
     if (bodyReqeust) {
         // 从把缓存的 body 设置给 request
-        [self setBodyRequest:bodyReqeust toRequest:mutableReqeust];
+        [KKJSBridgeAjaxBodyHelper setBodyRequest:bodyReqeust toRequest:mutableReqeust];
     }
     
     if (KKJSBridgeConfig.ajaxDelegateManager && [KKJSBridgeConfig.ajaxDelegateManager respondsToSelector:@selector(dataTaskWithRequest:callbackDelegate:)]) {
@@ -184,155 +186,39 @@ static NSString * const kKKJSBridgeAjaxResponseHeaderAC = @"Access-Control-Allow
     }
 }
 
-#pragma mark - util
-/**
- 
- type BodyType = "String" | "Blob" | "FormData" | "ArrayBuffer";
- type FormEnctype = "application/x-www-form-urlencoded" | "text/plain" | "multipart/form-data" | string;
- 
- {
-    //请求唯一id
-    requestId,
-    //当前 href url
-    requestHref,
-    //请求 Url
-    requestUrl,
-    //body 类型
-    bodyType
-    //表单编码类型
-    formEnctype
-    //body 具体值
-    value
-}
-*/
-- (void)setBodyRequest:(NSDictionary *)bodyRequest toRequest:(NSMutableURLRequest *)request {
-    NSData *data = nil;
-    NSString *bodyType = bodyRequest[@"bodyType"];
-    NSString *formEnctype = bodyRequest[@"formEnctype"];
-    id value = bodyRequest[@"value"];
-    if (!value) {
-        return;
-    }
-    
-    if ([bodyType isEqualToString:@"Blob"]) {
-        data = [self dataFromBase64:value];
-    } else if ([bodyType isEqualToString:@"ArrayBuffer"]) {
-        data = [self dataFromBase64:value];
-    } else if ([bodyType isEqualToString:@"FormData"]) {
-        [self setFormData:value formEnctype:formEnctype toRequest:request];
-        return;
-    } else {//String
-        if ([value isKindOfClass:NSDictionary.class]) {
-            // application/json
-            data = [NSJSONSerialization dataWithJSONObject:value options:0 error:nil];
-        } else if ([value isKindOfClass:NSString.class]) {
-            // application/x-www-form-urlencoded
-            // name1=value1&name2=value2
-            data = [value dataUsingEncoding:NSUTF8StringEncoding];
-        } else {
-            data = value;
-        }
-    }
-    
-    request.HTTPBody = data;
+#pragma mark - 请求id相关
+- (NSString *)fetchRequestId:(NSString *)url {
+    return [self fetchMatchedTextFromUrl:url withRegex:kKKJSBridgeUrlRequestIdRegex];
 }
 
-- (NSData *)dataFromBase64:(NSString *)base64 {
-    // data:image/png;base64,iVBORw0...
-    NSArray<NSString *> *components = [base64 componentsSeparatedByString:@","];
-    if (components.count != 2) {
-        return nil;
-    }
-    
-    NSString *splitBase64 = components.lastObject;
-    NSUInteger paddedLength = splitBase64.length + (splitBase64.length % 4);
-    NSString *fixBase64 = [splitBase64 stringByPaddingToLength:paddedLength withString:@"=" startingAtIndex:0];
-    NSData *data = [[NSData alloc] initWithBase64EncodedString:fixBase64 options:NSDataBase64DecodingIgnoreUnknownCharacters];
-    
-    return data;
+- (NSString *)fetchRequestIdPair:(NSString *)url {
+    return [self fetchMatchedTextFromUrl:url withRegex:kKKJSBridgeUrlRequestIdPairRegex];
 }
 
-- (void)setFormData:(NSDictionary *)formDataJson formEnctype:(NSString *)formEnctype toRequest:(NSMutableURLRequest *)request {
-//     type FormEnctype = "application/x-www-form-urlencoded" | "text/plain" | "multipart/form-data" | string;
-    
-    NSArray<NSString *> *fileKeys = formDataJson[@"fileKeys"];
-    NSArray<NSArray *> *formData = formDataJson[@"formData"];
-    NSMutableDictionary *params = [NSMutableDictionary dictionary];
-    NSMutableArray<KKJSBridgeFormDataFile *> *fileDatas = [NSMutableArray array];
-    
-    for (NSArray *pair in formData) {
-        if (pair.count < 2) {
-            continue;
-        }
-        
-        NSString *key = pair[0];
-        if ([fileKeys containsObject:key]) {// 说明存储的是个文件数据
-            NSDictionary *fileJson = pair[1];
-            KKJSBridgeFormDataFile *fileData = [KKJSBridgeFormDataFile new];
-            fileData.key = key;
-            fileData.size = [fileJson[@"size"] unsignedIntegerValue];
-            fileData.type = fileJson[@"type"];
-            
-            if (fileJson[@"name"] && [fileJson[@"name"] length] > 0) {
-                fileData.fileName = fileJson[@"name"];
-            } else {
-                fileData.fileName = fileData.key;
+- (NSString *)fetchMatchedTextFromUrl:(NSString *)url withRegex:(NSString *)regexString {
+    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:regexString options:NSRegularExpressionCaseInsensitive error:NULL];
+    NSArray *matches = [regex matchesInString:url options:0 range:NSMakeRange(0, url.length)];
+    NSString *content;
+    for (NSTextCheckingResult *match in matches) {
+        for (int i = 0; i < [match numberOfRanges]; i++) {
+            //以正则中的(),划分成不同的匹配部分
+            content = [url substringWithRange:[match rangeAtIndex:i]];
+            if (i == 1) {
+                return content;
             }
-            if (fileJson[@"lastModified"] && [fileJson[@"lastModified"] unsignedIntegerValue] > 0) {
-                fileData.lastModified = [fileJson[@"lastModified"] unsignedIntegerValue];
-            }
-            
-            if ([formEnctype isEqualToString:@"multipart/form-data"]) {
-                if ([fileJson[@"data"] isKindOfClass:NSString.class]) {
-                    NSString *base64 = (NSString *)fileJson[@"data"];
-                    NSData *byteData = [self dataFromBase64:base64];
-                    fileData.data = byteData;
-                }
-                
-                [fileDatas addObject:fileData];
-            } else {
-                params[key] = fileData.fileName;
-            }
-        } else {
-            params[key] = pair[1];
         }
     }
     
-    if ([formEnctype isEqualToString:@"multipart/form-data"]) {
-        KKJSBridgeURLRequestSerialization *serializer = [KKJSBridgeAjaxURLProtocol urlRequestSerialization];
-        [serializer multipartFormRequestWithRequest:request parameters:params constructingBodyWithBlock:^(id<KKJSBridgeMultipartFormData>  _Nonnull formData) {
-            for (KKJSBridgeFormDataFile *fileData in fileDatas) {
-                [formData appendPartWithFileData:fileData.data name:fileData.key fileName:fileData.fileName mimeType:fileData.type];
-            }
-        } error:nil];
-    } else if ([formEnctype isEqualToString:@"text/plain"]) {
-        NSMutableString *string = [NSMutableString new];
-        NSString *lastKey = params.allKeys.lastObject;
-        for (NSString *key in params.allKeys) {
-            [string appendFormat:@"%@=%@", [self percentEscapedStringFromString:key], [self percentEscapedStringFromString:params[key]]];
-            if (![key isEqualToString:lastKey]) {
-                [string appendString:@"\r\n"];
-            }
-        }
-        
-        NSData *data = [string dataUsingEncoding:NSUTF8StringEncoding];
-        request.HTTPBody = data;
-    } else {// application/x-www-form-urlencoded
-        NSMutableString *string = [NSMutableString new];
-        NSString *lastKey = params.allKeys.lastObject;
-        for (NSString *key in params.allKeys) {
-            [string appendFormat:@"%@=%@", [self percentEscapedStringFromString:key], [self percentEscapedStringFromString:params[key]]];
-            if (![key isEqualToString:lastKey]) {
-                [string appendString:@"&"];
-            }
-        }
-        
-        NSData *data = [string dataUsingEncoding:NSUTF8StringEncoding];
-        request.HTTPBody = data;
-    }
+    return content;
 }
 
-#pragma mark - 响应头
++ (BOOL)validateRequestId:(NSString *)url withRegex:(NSString *)regexString
+{
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", regexString];
+    return [predicate evaluateWithObject:url];
+}
+
+#pragma mark - 私有方法
 - (NSURLResponse *)appendRequestIdToResponseHeader:(NSURLResponse *)response {
     if ([response isKindOfClass:NSHTTPURLResponse.class]) {
         NSHTTPURLResponse *res = (NSHTTPURLResponse *)response;
@@ -393,120 +279,6 @@ static NSString * const kKKJSBridgeAjaxResponseHeaderAC = @"Access-Control-Allow
     }
 
     return version;
-}
-
-#pragma mark - url 处理相关
-- (NSDictionary *)queryParams:(NSString *)absoluteString {
-    NSMutableDictionary *pairs = [NSMutableDictionary dictionary];
-    if (NSNotFound != [absoluteString rangeOfString:@"?"].location) {
-        NSString *paramString = [absoluteString substringFromIndex:
-                                 ([absoluteString rangeOfString:@"?"].location + 1)];
-        NSCharacterSet *delimiterSet = [NSCharacterSet characterSetWithCharactersInString:@"&"];
-        NSScanner *scanner = [[NSScanner alloc] initWithString:paramString];
-        while (![scanner isAtEnd]) {
-            NSString* pairString = nil;
-            [scanner scanUpToCharactersFromSet:delimiterSet intoString:&pairString];
-            [scanner scanCharactersFromSet:delimiterSet intoString:NULL];
-            NSArray *kvPair = [pairString componentsSeparatedByString:@"="];
-            if (kvPair.count == 2) {
-                NSString *key = [[kvPair objectAtIndex:0] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-                NSString *value = [[kvPair objectAtIndex:1] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-                [pairs setValue:value forKey:key];
-            }
-        }
-    }
-    
-    return [NSDictionary dictionaryWithDictionary:pairs];
-}
-
-/**
- 参考AFN
- 
- Returns a percent-escaped string following RFC 3986 for a query string key or value.
- RFC 3986 states that the following characters are "reserved" characters.
-    - General Delimiters: ":", "#", "[", "]", "@", "?", "/"
-    - Sub-Delimiters: "!", "$", "&", "'", "(", ")", "*", "+", ",", ";", "="
-
- In RFC 3986 - Section 3.4, it states that the "?" and "/" characters should not be escaped to allow
- query strings to include a URL. Therefore, all "reserved" characters with the exception of "?" and "/"
- should be percent-escaped in the query string.
-    - parameter string: The string to be percent-escaped.
-    - returns: The percent-escaped string.
- */
-- (NSString *)percentEscapedStringFromString:(NSString *)string {
-    static NSString * const kAFCharactersGeneralDelimitersToEncode = @":#[]@"; // does not include "?" or "/" due to RFC 3986 - Section 3.4
-    static NSString * const kAFCharactersSubDelimitersToEncode = @"!$&'()*+,;=";
-
-    NSMutableCharacterSet * allowedCharacterSet = [[NSCharacterSet URLQueryAllowedCharacterSet] mutableCopy];
-    [allowedCharacterSet removeCharactersInString:[kAFCharactersGeneralDelimitersToEncode stringByAppendingString:kAFCharactersSubDelimitersToEncode]];
-
-    // FIXME: https://github.com/AFNetworking/AFNetworking/pull/3028
-    // return [string stringByAddingPercentEncodingWithAllowedCharacters:allowedCharacterSet];
-
-    static NSUInteger const batchSize = 50;
-
-    NSUInteger index = 0;
-    NSMutableString *escaped = @"".mutableCopy;
-
-    while (index < string.length) {
-        NSUInteger length = MIN(string.length - index, batchSize);
-        NSRange range = NSMakeRange(index, length);
-
-        // To avoid breaking up character sequences such as 👴🏻👮🏽
-        range = [string rangeOfComposedCharacterSequencesForRange:range];
-
-        NSString *substring = [string substringWithRange:range];
-        NSString *encoded = [substring stringByAddingPercentEncodingWithAllowedCharacters:allowedCharacterSet];
-        [escaped appendString:encoded];
-
-        index += range.length;
-    }
-
-    return escaped;
-}
-
-#pragma mark - 请求id相关
-- (NSString *)fetchRequestId:(NSString *)url {
-    return [self fetchMatchedTextFromUrl:url withRegex:kKKJSBridgeUrlRequestIdRegex];
-}
-
-- (NSString *)fetchRequestIdPair:(NSString *)url {
-    return [self fetchMatchedTextFromUrl:url withRegex:kKKJSBridgeUrlRequestIdPairRegex];
-}
-
-- (NSString *)fetchMatchedTextFromUrl:(NSString *)url withRegex:(NSString *)regexString {
-    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:regexString options:NSRegularExpressionCaseInsensitive error:NULL];
-    NSArray *matches = [regex matchesInString:url options:0 range:NSMakeRange(0, url.length)];
-    NSString *content;
-    for (NSTextCheckingResult *match in matches) {
-        for (int i = 0; i < [match numberOfRanges]; i++) {
-            //以正则中的(),划分成不同的匹配部分
-            content = [url substringWithRange:[match rangeAtIndex:i]];
-            if (i == 1) {
-                return content;
-            }
-        }
-    }
-    
-    return content;
-}
-
-+ (BOOL)validateRequestId:(NSString *)url withRegex:(NSString *)regexString
-{
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", regexString];
-    return [predicate evaluateWithObject:url];
-}
-
-#pragma mark - KKJSBridgeURLRequestSerialization
-
-+ (KKJSBridgeURLRequestSerialization *)urlRequestSerialization {
-    static KKJSBridgeURLRequestSerialization *instance;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        instance = [KKJSBridgeURLRequestSerialization new];
-    });
-    
-    return instance;
 }
 
 @end

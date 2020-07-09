@@ -90,60 +90,7 @@
     NSNumber *objectId = params[@"id"];
     KKJSBridgeXMLHttpRequest *xhr = [self getXHR:engine.webView objectId:objectId];
     if (xhr) {
-        id data = params[@"data"];
-        BOOL isByteData = [params[@"isByteData"] boolValue];
-        BOOL isFormData = [params[@"isFormData"] boolValue];
-        if (data) {
-            if (isByteData && [data isKindOfClass:NSArray.class]) { // 字节数据特殊处理
-                NSArray *arrayData = (NSArray *)data;
-                NSData *byteData = [self convertToDataFromUInt8Array:arrayData];
-                [xhr send:byteData];
-            } else if (isFormData) { // 表单特殊处理
-                NSArray<NSString *> *fileKeys = data[@"fileKeys"];
-                NSArray<NSArray *> *formData = data[@"formData"];
-                NSMutableDictionary *params = [NSMutableDictionary dictionary];
-                NSMutableArray<KKJSBridgeFormDataFile *> *fileDatas = [NSMutableArray array];
-                
-                for (NSArray *pair in formData) {
-                    if (pair.count < 2) {
-                        continue;
-                    }
-                    
-                    NSString *key = pair[0];
-                    if ([fileKeys containsObject:key]) {// 说明存储的是个文件数据
-                        NSDictionary *fileJson = pair[1];
-                        KKJSBridgeFormDataFile *fileData = [KKJSBridgeFormDataFile new];
-                        fileData.key = key;
-                        fileData.size = [fileJson[@"size"] unsignedIntegerValue];
-                        fileData.type = fileJson[@"type"];
-                        
-                        if (fileJson[@"name"] && [fileJson[@"name"] length] > 0) {
-                            fileData.fileName = fileJson[@"name"];
-                        } else {
-                            fileData.fileName = fileData.key;
-                        }
-                        if (fileJson[@"lastModified"] && [fileJson[@"lastModified"] unsignedIntegerValue] > 0) {
-                            fileData.lastModified = [fileJson[@"lastModified"] unsignedIntegerValue];
-                        }
-                        if ([fileJson[@"data"] isKindOfClass:NSString.class]) {
-                            NSString *base64 = (NSString *)fileJson[@"data"];
-                            NSData *byteData = [self convertToDataFromBase64:base64];
-                            fileData.data = byteData;
-                        }
-                        
-                        [fileDatas addObject:fileData];
-                    } else {
-                        params[key] = pair[1];
-                    }
-                }
-                
-                [xhr sendFormData:params withFileDatas:fileDatas];
-            } else {
-                [xhr send:data];
-            }
-        } else {
-            [xhr send];
-        }
+        [xhr send:params];
     }
 }
 

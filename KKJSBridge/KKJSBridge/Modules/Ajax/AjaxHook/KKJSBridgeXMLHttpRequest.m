@@ -12,9 +12,9 @@
 #import "KKJSBridgeJSExecutor.h"
 #import "KKJSBridgeLogger.h"
 #import "KKJSBridgeWeakProxy.h"
+#import "KKWebViewCookieManager.h"
 #import "KKJSBridgeAjaxDelegate.h"
-#import "KKJSBridgeURLRequestSerialization.h"
-#import "KKJSBridgeFormDataFile.h"
+#import "KKJSBridgeAjaxBodyHelper.h"
 
 /**
  https://developer.mozilla.org/zh-CN/docs/Web/API/XMLHttpRequest
@@ -144,13 +144,20 @@ static NSString * const KKJSBridgeXMLHttpRequestStatusTextOK = @"OK";
  * for GET and HEAD start data transmission(sending the request and reading
  * the response)
  */
-- (void)send {
+- (void)send:(NSDictionary *)body {
     // open() must be called before calling send()
     if (!self.request)
         return;
     
     self.aborted = NO;
     
+    // 没有携带 Cookie 时，才附加 Cookie，防止覆盖 WKWebView 中的 Cookie
+    if (![self.request valueForHTTPHeaderField:@"Cookie"]) {
+        [KKWebViewCookieManager syncRequestCookie:self.request];
+    }
+    [KKJSBridgeAjaxBodyHelper setBodyRequest:body toRequest:self.request];
+    
+    self.receiveData = [[NSMutableData alloc] init];
     if (KKJSBridgeConfig.ajaxDelegateManager && [KKJSBridgeConfig.ajaxDelegateManager respondsToSelector:@selector(dataTaskWithRequest:callbackDelegate:)]) {
         // 实际请求代理外部网络库处理
         self.dataTask = [KKJSBridgeConfig.ajaxDelegateManager dataTaskWithRequest:self.request callbackDelegate:self];
@@ -158,47 +165,10 @@ static NSString * const KKJSBridgeXMLHttpRequestStatusTextOK = @"OK";
         NSOperationQueue *queue = [NSOperationQueue new];
         NSURLSessionConfiguration *sessionConfiguration = [NSURLSessionConfiguration defaultSessionConfiguration];
         NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConfiguration delegate:(id<NSURLSessionDelegate>)[KKJSBridgeWeakProxy proxyWithTarget:self] delegateQueue:queue]; // 防止内存泄露
-        
-        self.receiveData = [[NSMutableData alloc] init];
         self.dataTask = [session dataTaskWithRequest:self.request];
     }
     
     [self.dataTask resume];
-}
-
-- (void)send:(id)data {
-    if (!self.request)
-        return;
-    
-    NSData *actualData;
-    if ([data isKindOfClass:NSDictionary.class]) {
-        // application/json
-        actualData = [NSJSONSerialization dataWithJSONObject:data options:0 error:nil];
-    } else if ([data isKindOfClass:NSString.class]) {
-        // application/x-www-form-urlencoded
-        // name1=value1&name2=value2
-        actualData = [data dataUsingEncoding:NSUTF8StringEncoding];
-    } else {
-        actualData = data;
-    }
-    
-    KKJS_LOCK(_lock);
-    if (actualData) {
-        self.request.HTTPBody = actualData;
-    }
-    
-    [self send];
-    KKJS_UNLOCK(_lock);
-}
-
-- (void)sendFormData:(NSDictionary *)params withFileDatas:(NSArray<KKJSBridgeFormDataFile *> *)fileDatas {
-    KKJSBridgeURLRequestSerialization *serializer = [KKJSBridgeXMLHttpRequest urlRequestSerialization];
-    [serializer multipartFormRequestWithRequest:self.request parameters:params constructingBodyWithBlock:^(id<KKJSBridgeMultipartFormData>  _Nonnull formData) {
-        for (KKJSBridgeFormDataFile *fileData in fileDatas) {
-            [formData appendPartWithFileData:fileData.data name:fileData.key fileName:fileData.fileName mimeType:fileData.type];
-        }
-    } error:nil];
-    [self send];
 }
 
 - (void)setRequestHeader:(NSString *)headerName headerValue:(NSString *)headerValue {
@@ -399,6 +369,7 @@ static NSString * const KKJSBridgeXMLHttpRequestStatusTextOK = @"OK";
     properties[@"readyState"] = @(readyState);
     properties[@"status"] = @(status);
     properties[@"statusText"] = statusText;
+    properties[@"ajaxType"] = @1;
     
     if (readyState == KKJSBridgeXMLHttpRequestStateHeaderReceived && !self.headerProperties && self.httpResponse) { // 如果响应头没有保存过，那么需要解析响应头，并进行保存
         NSString *contentType = [self.httpResponse.allHeaderFields objectForKey:@"Content-Type"];
@@ -413,6 +384,12 @@ static NSString * const KKJSBridgeXMLHttpRequestStatusTextOK = @"OK";
         properties[@"statusText"] = statusText;
         properties[@"headers"] = self.httpResponse.allHeaderFields;
         self.headerProperties = properties;
+
+        // 同步 AJAX Set-Cookie 到 NSHTTPCookieStorage
+        NSArray *cookies = [NSHTTPCookie cookiesWithResponseHeaderFields:self.httpResponse.allHeaderFields forURL:self.httpResponse.URL];
+        for (NSHTTPCookie *cookie in cookies) {
+            [[NSHTTPCookieStorage sharedHTTPCookieStorage] setCookie:cookie];
+        }
     }
     
     if (readyState == KKJSBridgeXMLHttpRequestStateDone) {
@@ -449,18 +426,6 @@ static NSString * const KKJSBridgeXMLHttpRequestStatusTextOK = @"OK";
 
 + (void)evaluateJSToSetAjaxProperties:(NSDictionary *)json inWebView:(WKWebView *)webView {
     [KKJSBridgeJSExecutor evaluateJavaScriptFunction:@"window._XHR.setProperties" withJson:json inWebView:webView completionHandler:nil];
-}
-
-#pragma mark - KKJSBridgeURLRequestSerialization
-
-+ (KKJSBridgeURLRequestSerialization *)urlRequestSerialization {
-    static KKJSBridgeURLRequestSerialization *instance;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        instance = [KKJSBridgeURLRequestSerialization new];
-    });
-    
-    return instance;
 }
 
 @end

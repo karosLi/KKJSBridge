@@ -40,9 +40,10 @@
         // 测试第三方网站 ajax 请求
 //        url = @"https://m.taobao.com";
 //        url = @"https://www.wenjuan.com/s/JBVRje4/";
-//        url = @"https://i.meituan.com/";
+        url = @"https://i.meituan.com/";
+//        url = @"https://h5.ele.me/";
     }
-    
+
     {
         // 测试 file 协议
 //        NSMutableDictionary *properties = [NSMutableDictionary dictionary];

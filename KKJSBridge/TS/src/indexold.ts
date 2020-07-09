@@ -30,13 +30,29 @@ var init = function() {
        * 添加消息监听处理
        */
       public static addMessageListener() {
-        // iframe 内处理来自父 window 的消息
+        // iframe 内处理来自父 window JSBridge 的消息
         window.addEventListener('message', e => {
           let data: any = e.data;
           if (typeof data == "string") {
             let str: string = data as string;
             if (str.indexOf("messageType") != -1) {
               KKJSBridgeInstance._handleMessageFromNative(str);
+            }
+          }
+        });
+      }
+
+      /**
+       * 添加 ajax 消息监听处理
+       */
+      public static addAjaxMessageListener() {
+        // iframe 内处理来自父 window ajax 回调消息
+        window.addEventListener('message', e => {
+          let data: any = e.data;
+          if (typeof data == "string") {
+            let str: string = data as string;
+            if (str.indexOf("ajaxType") != -1) {
+              window._XHR.setProperties(str);
             }
           }
         });
@@ -208,6 +224,7 @@ var init = function() {
   
     // iframe 内处理来自父 window 的消息
     KKJSBridgeIframe.addMessageListener();
+    KKJSBridgeIframe.addAjaxMessageListener();
     // 设置 iframe 的 sandbox 属性
     KKJSBridgeIframe.hookSandbox();
     
@@ -215,6 +232,20 @@ var init = function() {
      * KKJSBridge 工具
      */
     class KKJSBridgeUtil {
+      /**
+        把 arraybuffer 转成 base64
+      */
+      public static convertArrayBufferToBase64(arraybuffer: ArrayBuffer) {
+        let uint8Array: Uint8Array = new Uint8Array(arraybuffer);
+        let charCode: string = "";
+        let length = uint8Array.byteLength;
+        for (let i = 0; i < length; i++) {
+          charCode += String.fromCharCode(uint8Array[i]);
+        }
+        // 字符串转成base64
+        return window.btoa(charCode);
+      }
+
       public static convertFormDataToJson(formData: any, callback: (json: any) => void) {
         let promise = new Promise<any>(async (resolve, reject) => {
           let formDataJson: any = {};
@@ -503,11 +534,11 @@ var init = function() {
         let jsonObj: any = JSON.parse(jsonString);
         let id: any = jsonObj.id;
         let xhr: any = _XHR.cache[id];
-        if (jsonObj.readyState === xhr.DONE) {
-          // 防止重复利用 xhr 对象发送请求而导致 id 不变的问题
-          xhr.isCached = false;
-        }
         if (xhr) {
+          if (jsonObj.readyState === xhr.DONE) {
+            // 防止重复利用 xhr 对象发送请求而导致 id 不变的问题
+            xhr.isCached = false;
+          }
           // 保存回调对象，对象子属性的处理放在了 hook 里。因为 xhr 代理对象的可读属性（readyState,status,statusText,responseText）都是从实际 xhr 拷贝过来的，相应的我们也是不能直接对这些可读属性赋值的
           xhr.callbackProperties = jsonObj;
           if (xhr.onreadystatechange) {
@@ -529,6 +560,9 @@ var init = function() {
             xhr.dispatchEvent(load);
           }
         }
+
+        // 处理有 iframe 的情况
+        KKJSBridgeIframe.dispatchMessage(jsonString);
       };
   
       /**
@@ -556,27 +590,47 @@ var init = function() {
         // 拦截属性
         readyState: {
           getter: function(v: any, xhr: any) {
-            return xhr.callbackProperties.readyState;
+            if (xhr.callbackProperties) {
+              return xhr.callbackProperties.readyState;
+            }
+
+            return false;
           }
         },
         status: {
           getter: function(v: any, xhr: any) {
-            return xhr.callbackProperties.status;
+            if (xhr.callbackProperties) {
+              return xhr.callbackProperties.status;
+            }
+            
+            return false;
           }
         },
         statusText: {
           getter: function(v: any, xhr: any) {
-            return xhr.callbackProperties.statusText;
+            if (xhr.callbackProperties) {
+              return xhr.callbackProperties.statusText;
+            }
+            
+            return false;
           }
         },
         responseText: {
           getter: function(v: any, xhr: any) {
-            return xhr.callbackProperties.responseText;
+            if (xhr.callbackProperties) {
+              return xhr.callbackProperties.responseText;
+            }
+            
+            return false;
           }
         },
         response: {
           getter: function(v: any, xhr: any) {
-            return xhr.callbackProperties.responseText;
+            if (xhr.callbackProperties) {
+              return xhr.callbackProperties.responseText;
+            }
+            
+            return false;
           }
         },
         //拦截回调
@@ -611,37 +665,41 @@ var init = function() {
         },
         send: function(arg: any[], xhr: any) {
           console.log("send called:", arg[0]);
-          let data: any = arg[0];
-          if (data) {
-            if (data instanceof Uint8Array) {
-              // 特殊处理字节数据
-              data = Array.from(data);
-              window.KKJSBridge.call(_XHR.moduleName, 'send', {
-                "id" : this.id,
-                "isByteData": true,
-                "data" : data
-              });
-            } else if (data instanceof FormData) {
-              // formData 表单
-              KKJSBridgeUtil.convertFormDataToJson(data, (json: any) => {
-                window.KKJSBridge.call(_XHR.moduleName, 'send', {
-                  "id" : this.id,
-                  "isFormData": true,
-                  "data" : json
-                });
-              });
-            } else {
-              window.KKJSBridge.call(_XHR.moduleName, 'send', {
-                "id" : this.id,
-                "data" : data
-              });
-            }
-          } else {
-            window.KKJSBridge.call(_XHR.moduleName, 'send', {
-              "id" : this.id
+          let body: any = arg[0];
+          let bodyRequest: KK.AJAXBodySendRequest = {
+            id: this.id,
+            bodyType: "String",
+            value: null
+          };
+
+          if (body instanceof ArrayBuffer) {// 说明是 ArrayBuffer，转成 base64
+            bodyRequest.bodyType = "ArrayBuffer";
+            bodyRequest.value = KKJSBridgeUtil.convertArrayBufferToBase64(body);
+          } else if (body instanceof Blob) {// 说明是 Blob，转成 base64
+            bodyRequest.bodyType = "Blob";
+            let fileReader: FileReader = new FileReader();
+            fileReader.onload = function(this: FileReader, ev: ProgressEvent) {
+              let base64: string = (ev.target as any).result;
+              bodyRequest.value = base64;
+              window.KKJSBridge.call(_XHR.moduleName, 'send', bodyRequest);
+            };
+    
+            fileReader.readAsDataURL(body);
+            return true;
+          } else if (body instanceof FormData) {// 说明是表单
+            bodyRequest.bodyType = "FormData";
+            bodyRequest.formEnctype = "multipart/form-data";
+            KKJSBridgeUtil.convertFormDataToJson(body, (json: any) => {
+              bodyRequest.value = json; 
+              window.KKJSBridge.call(_XHR.moduleName, 'send', bodyRequest);
             });
-          }
-  
+            return true;
+          } else {// 说明是字符串或者json
+            bodyRequest.bodyType = "String";
+            bodyRequest.value = body;
+          } 
+          
+          window.KKJSBridge.call(_XHR.moduleName, 'send', bodyRequest);
           return true;
         },
         overrideMimeType: function(arg: any[], xhr: any) {

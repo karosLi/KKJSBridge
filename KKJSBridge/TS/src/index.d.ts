@@ -45,6 +45,25 @@ declare namespace KK {
         callback: () => any
     }
 
+    interface AJAXBodySendRequest {
+        /**
+         * 请求唯一id
+         */
+        id: number,
+        /**
+         * body 类型
+         */
+        bodyType: BodyType,
+        /**
+         * 表单编码类型
+         */
+        formEnctype?: FormEnctype,
+        /**
+         * body 具体值
+         */
+        value: any
+    }
+
     interface FormDataFile {
         /**
          * 文件名

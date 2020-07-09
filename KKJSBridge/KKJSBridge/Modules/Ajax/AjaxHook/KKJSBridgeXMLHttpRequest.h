@@ -33,9 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithObjectId:(NSNumber *)objectId engine:(KKJSBridgeEngine *)engine;
 - (void)open:(NSString *)method url:(NSString *)url userAgent:(NSString *)userAgent referer:(NSString *)referer;
-- (void)send;
-- (void)send:(id)data;
-- (void)sendFormData:(NSDictionary *)params withFileDatas:(NSArray<KKJSBridgeFormDataFile *> *)fileDatas;
+- (void)send:(NSDictionary *)body;
 - (void)setRequestHeader:(NSString *)headerName headerValue:(NSString *)headerValue;
 - (void)overrideMimeType:(NSString *)mimeType;
 - (BOOL)isOpened;
