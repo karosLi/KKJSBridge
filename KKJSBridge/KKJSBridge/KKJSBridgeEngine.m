@@ -11,12 +11,6 @@
 #import "KKJSBridgeModuleCookie.h"
 #import "KKJSBridgeWeakScriptMessageDelegate.h"
 
-#ifndef KKAjaxProtocolHook
-#import "KKJSBridgeModuleXMLHttpRequestDispatcher.h"
-#else
-#import "KKJSBridgeXMLBodyCacheRequest.h"
-#endif
-
 static NSString * const KKJSBridgeMessageName = @"KKJSBridgeMessage";
 
 @interface KKJSBridgeEngine()<WKScriptMessageHandler>
@@ -93,9 +87,9 @@ static NSString * const KKJSBridgeMessageName = @"KKJSBridgeMessage";
 
 - (void)setupDefaultModuleRegister {
 #ifdef KKAjaxProtocolHook
-    [self.moduleRegister registerModuleClass:KKJSBridgeXMLBodyCacheRequest.class];
+    [self.moduleRegister registerModuleClass:NSClassFromString(@"KKJSBridgeXMLBodyCacheRequest")];
 #else
-    [self.moduleRegister registerModuleClass:KKJSBridgeModuleXMLHttpRequestDispatcher.class];
+    [self.moduleRegister registerModuleClass:NSClassFromString(@"KKJSBridgeModuleXMLHttpRequestDispatcher")];
 #endif
     
     [self.moduleRegister registerModuleClass:KKJSBridgeModuleCookie.class];

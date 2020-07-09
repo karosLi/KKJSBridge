@@ -3,9 +3,9 @@ platform :ios, '8.0'
 target 'KKJSBridgeDemo' do
   
   # 默认是 ajax protocol hook
-#  pod 'KKJSBridge', :path => '../'
+  pod 'KKJSBridge', :path => '../'
   
-  pod 'KKJSBridge/AjaxHook', :path => '../'
+#  pod 'KKJSBridge/AjaxHook', :path => '../'
   pod 'AFNetworking'
 
 end
