@@ -385,7 +385,7 @@ static NSString * const KKJSBridgeXMLHttpRequestStatusTextOK = @"OK";
         properties[@"headers"] = self.httpResponse.allHeaderFields;
         self.headerProperties = properties;
 
-        // 同步 AJAX Set-Cookie 到 NSHTTPCookieStorage
+        // 因为 NSURLSession 会延迟保存 Set-Cookie，那么会造成 JS 侧的下一次请求可能带不上最新的 Cookie 而报错，所以这里需要主动同步 AJAX Set-Cookie 到 NSHTTPCookieStorage 里
         NSArray *cookies = [NSHTTPCookie cookiesWithResponseHeaderFields:self.httpResponse.allHeaderFields forURL:self.httpResponse.URL];
         for (NSHTTPCookie *cookie in cookies) {
             [[NSHTTPCookieStorage sharedHTTPCookieStorage] setCookie:cookie];
