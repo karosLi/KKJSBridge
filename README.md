@@ -193,6 +193,8 @@ window.KKJSBridge.call('b', 'callToGetVCTitle', {}, function(res) {
    ```
    
 ## 更新历史
+### 2020.7.14 (1.1.5-beta9)
+- 可以根据需求选择是 Ajax Hook 还是 URLProtocolHook
 
 ### 2020.6.23 (1.1.5-beta2)
 - 使用新的 hook 方式，提升 hook 兼容性 
