@@ -8,6 +8,9 @@
 
 #import "ViewController.h"
 #import "WebViewController.h"
+#import "HtmlURLProtocol.h"
+#import <KKJSBridge/KKJSBridge.h>
+#import <KKJSBridge/NSURLProtocol+KKJSBridgeWKWebView.h>
 
 @interface ViewController ()
 
@@ -20,6 +23,9 @@
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"加载" style:UIBarButtonItemStylePlain target:self action:@selector(load)];
     NSString *libraryPath = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask,YES).firstObject;
     NSLog(@"libraryPath = %@", libraryPath);
+    
+    // 注册 HtmlURLProtocol，使用离线包
+    [NSURLProtocol registerClass:HtmlURLProtocol.class];
 }
 
 - (void)load {
@@ -35,7 +41,7 @@
      3、npm run qtoken
      */
     
-    NSString *url = @"http://172.16.14.8:50000/index";
+    NSString *url = @"http://127.0.0.1:50000/index";
     {
         // 测试第三方网站 ajax 请求
 //        url = @"https://m.taobao.com";
@@ -57,7 +63,6 @@
 //        NSString *path = [[NSBundle mainBundle] pathForResource:@"ajaxHookTestLocalFile" ofType:@"html"];
 //        url = [NSString stringWithFormat:@"file://%@", path];
     }
-    
     WebViewController *web = [[WebViewController alloc] initWithUrl:url];
     [self.navigationController pushViewController:web animated:YES];
 }

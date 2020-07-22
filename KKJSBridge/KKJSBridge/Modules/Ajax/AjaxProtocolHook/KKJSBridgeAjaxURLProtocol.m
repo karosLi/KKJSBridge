@@ -168,6 +168,10 @@ static NSString * const kKKJSBridgeAjaxResponseHeaderAC = @"Access-Control-Allow
 
 #pragma mark - KKJSBridgeAjaxDelegate - 处理来自外部网络库的数据
 - (void)JSBridgeAjax:(id<KKJSBridgeAjaxDelegate>)ajax didReceiveResponse:(NSURLResponse *)response {
+    if (!response) {
+        // 兜底处理
+        response = [[NSURLResponse alloc] initWithURL:self.request.URL MIMEType:@"application/octet-stream" expectedContentLength:0 textEncodingName:@"utf-8"];
+    }
     [self.client URLProtocol:self didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageAllowed];
 }
 
