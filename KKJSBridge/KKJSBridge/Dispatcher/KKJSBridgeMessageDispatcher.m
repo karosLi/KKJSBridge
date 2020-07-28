@@ -49,6 +49,9 @@ typedef void (^KKJSBridgeMessageCallback)(NSDictionary *responseData);
     // 收到消息表示已经准备好了
     if (!self.engine.bridgeReady) {
         self.engine.bridgeReady = YES;
+        if (self.engine.bridgeReadyCallback) {
+            self.engine.bridgeReadyCallback(self.engine);
+        }
     }
     
     __weak typeof(self) weakSelf = self;
@@ -185,7 +188,7 @@ typedef void (^KKJSBridgeMessageCallback)(NSDictionary *responseData);
     [KKJSBridgeJSExecutor evaluateJavaScriptFunction:@"window.KKJSBridge._handleMessageFromNative" withJson:messageJson inWebView:self.engine.webView completionHandler:^(id _Nullable result, NSError * _Nullable error) {
 #ifdef DEBUG
         if (error) {
-            NSLog(@"KKJSBridge Error: evaluate JavaScript error %@", error.localizedDescription);
+            NSLog(@"KKJSBridge Error: evaluate JavaScript error %@", error);
         }
 #endif
     }];

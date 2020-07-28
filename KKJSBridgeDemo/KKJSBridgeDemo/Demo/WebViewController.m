@@ -71,6 +71,14 @@
     _webView.navigationDelegate = self;
     _jsBridgeEngine = [KKJSBridgeEngine bridgeForWebView:self.webView];
     _jsBridgeEngine.config.enableAjaxHook = YES;
+    _jsBridgeEngine.bridgeReadyCallback = ^(KKJSBridgeEngine * _Nonnull engine) {
+        NSString *event = @"customEvent";
+        NSDictionary *data = @{
+            @"action": @"testAction",
+            @"data": @YES
+        };
+        [engine dispatchEvent:event data:data];
+    };
     
     [self compatibleWebViewJavascriptBridge];
     [self registerModule];

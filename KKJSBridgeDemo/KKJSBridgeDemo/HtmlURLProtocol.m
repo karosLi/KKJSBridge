@@ -25,10 +25,6 @@ static NSString * const kKKJSBridgeNSURLProtocolKey = @"kKKJSBridgeNSURLProtocol
     if ([NSURLProtocol propertyForKey:kKKJSBridgeNSURLProtocolKey inRequest:request]) {
         return NO;
     }
-    
-    if ([request.URL.absoluteString containsString:@"ttf"]) {
-        return YES;
-    }
   
     NSLog(@"HtmlURLProtocol %@", request.URL.absoluteString);
     return YES;
