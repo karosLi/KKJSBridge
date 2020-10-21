@@ -212,7 +212,7 @@ window.KKJSBridge.call('b', 'callToGetVCTitle', {}, function(res) {
 
 - 兼容性会更好，网络请求都是走 webview 原生的方式。
 - hook 的逻辑会更少，会更加稳定。
-- 可以更好的支持 H5 小游戏场景（例如白鹭引擎是通过异步获取图片资源）。
+- 可以更好的支持 ajax 获取二进制的数据。例如 H5 小游戏场景（白鹭引擎是通过异步获取图片资源）。
 
 缺点：
 
