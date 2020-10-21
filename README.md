@@ -219,7 +219,7 @@ window.KKJSBridge.call('b', 'callToGetVCTitle', {}, function(res) {
 - 需要使用到私有 API browsingContextController 去注册 http/https。（其实现在大部分的离线包方案也是使用了这个私有 API 了）
                                                                                                                                           
 
-### Ajax Hook 全部 API
+### 方案二：Ajax Hook 全部 API
 这个方案对应的是这里的 `KKJSBridge/AjaxHook`。
 
 原理介绍：此种方案，是使用 hook 的 XMLHttpRequest 对象来代理真实的 XMLHttpRequest 去发送请求，相当于是需要 hook ajax 中的所有方法，在 hook 的 open 方法里，调用 JSBridge 让 Native 去创建一个 NSMutableRequest 对象，然后在 hook 的 send 方法，把要发送的 body 通过 JSBridge 发送到 Native 侧，并把 body 设置给刚才创建的 NSMutableRequest 对象，并在 Native 侧完成请求后，通过 JS 执行函数，把请求结果通知给 JS 侧，JS 侧找到 hook 的 XMLHttpRequest 对象，最后调用 onreadystatechange 函数，让 H5 知道有请求结果了。
