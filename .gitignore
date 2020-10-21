@@ -1,6 +1,8 @@
 KKJSBridgeDemo/KKJSBridgeDemo.xcworkspace/xcuserdata/*
+KKJSBridgeDemo/KKJSBridgeDemo.xcworkspace/xcuserdata/*.xcuserdatad/UserInterfaceState.xcuserstate
 *.swp
 .DS_Store
 KKJSBridge/TS/node_modules/*
 KKJSBridge/TS/package-lock.json
+KKJSBridgeDemo/Podfile.lock
 KKJSBridgeDemo/Pods/*
