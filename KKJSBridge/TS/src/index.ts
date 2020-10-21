@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-06-20 11:29:12
- * @LastEditTime: 2020-06-22 00:46:21
+ * @LastEditTime: 2020-10-21 17:58:00
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /TS/src/indexnew.ts
@@ -13,7 +13,96 @@ var init = function() {
     if (window.KKJSBridge) {
       return;
     }
+
+    /**
+     * 处理 iframe 相关
+     */
+    class KKJSBridgeIframe {
+      /**
+       * 分发消息
+       * @param messageString
+       */
+      public static dispatchMessage(messageString: string) {
+        // 处理有 iframe 的情况
+        let iframes : NodeListOf<HTMLIFrameElement> = document.querySelectorAll("iframe");
+        if (iframes) {
+          let len: number = iframes.length;
+          for (let i = 0; i < len; i++) {
+            let win: any = iframes[i].contentWindow;
+            win.postMessage(messageString, '*');
+          }
+        }
+      }
+
+      /**
+       * 添加消息监听处理
+       */
+      public static addMessageListener() {
+        // iframe 内处理来自父 window 的消息
+        window.addEventListener('message', e => {
+          let data: any = e.data;
+          if (typeof data == "string") {
+            let str: string = data as string;
+            if (str.indexOf("messageType") != -1) {
+              KKJSBridgeInstance._handleMessageFromNative(str);
+            }
+          }
+        });
+      }
+
+      /**
+       * 让 iframe 能够注入 app 里面的脚本
+       */
+      public static hookSandbox() {
+        // 设置 iframe 标签 的 sandbox 属性
+        document.addEventListener('DOMContentLoaded',function(){
+          let iframes : NodeListOf<HTMLIFrameElement> = document.querySelectorAll("iframe");
+          if (iframes) {
+            let len: number = iframes.length;
+            for (let i = 0; i < len; i++) {
+              let iframe: HTMLIFrameElement = iframes[i];
+              if (iframe.getAttribute('sandbox') && iframe.getAttribute('sandbox').indexOf('allow-scripts') == -1) {
+                iframe.setAttribute('sandbox', iframe.getAttribute('sandbox') + ' allow-scripts');
+              }
+            }
+          }
+        });
+
+        // 设置 iframe 动态创建的 sandbox 属性
+        let originalCreateElement = document.createElement;
+        document.createElement = function (tag: string) {
+          var element = originalCreateElement.call(document, tag);
+          if (tag.toLowerCase() === 'iframe') {
+            try {
+              var iframeSandbox = Object.getOwnPropertyDescriptor(window.HTMLIFrameElement, 'sandbox') ||
+                            Object.getOwnPropertyDescriptor(HTMLIFrameElement.prototype, 'sandbox');
+              if (iframeSandbox && iframeSandbox.configurable) {
+                  Object.defineProperty(element, 'sandbox', {
+                    configurable: true,
+                    enumerable: true,
+                    get: function () {
+                      return iframeSandbox.get.call(element);
+                    },
+                    set: function (val) {
+                      if (val.indexOf('allow-scripts') == -1) {
+                        val = val + ' allow-scripts';
+                      }
+                      iframeSandbox.set.call(element, val);
+                    }
+                  });
+              }
+            } catch(e) {
+              console.log('this browser does not support reconfigure iframe sandbox property', e);
+            }
+          }
+          return element;
+        };
+      }
+    }
     
+    /**
+     * 建立与 native 的数据通信
+     */
     class KKJSBridge {
       private uniqueId: number; // 用于记录标记唯一的函数回调
       private callbackCache: { [key: string]: KK.Callback }; // 用于 H5 监听来自 Native 的回调
@@ -80,13 +169,7 @@ var init = function() {
         }
 
         // 处理有 iframe 的情况
-        let iframes : NodeListOf<HTMLIFrameElement> = document.querySelectorAll("iframe");
-        if (iframes) {
-          let len: number = iframes.length;
-          for (let i = 0; i < len; i++) {
-            iframes[i].contentWindow.KKJSBridge._handleMessageFromNative(messageString);
-          }
-        }
+        KKJSBridgeIframe.dispatchMessage(messageString);
       }
   
       /**
@@ -130,7 +213,12 @@ var init = function() {
   
     // 初始化 KKJSBridge
     let KKJSBridgeInstance = new KKJSBridge();
-  
+
+    // iframe 内处理来自父 window 的消息
+    KKJSBridgeIframe.addMessageListener();
+    // 设置 iframe 的 sandbox 属性
+    KKJSBridgeIframe.hookSandbox();
+
     /**
      * KKJSBridge 工具
      */
@@ -307,7 +395,7 @@ var init = function() {
        * 生成 ajax 请求唯一id
        */
       public static generateXHRRequestId: Function = () => {
-        return (new Date).getTime() + "_" + _XHR.globalId++; // 时间戳 + 当前上下文唯一id，生成请求id
+        return (new Date).getTime() + "" + _XHR.globalId++; // 时间戳 + 当前上下文唯一id，生成请求id
       }
 
       /**
@@ -331,11 +419,11 @@ var init = function() {
         let hash: string = aTag.hash ? aTag.hash : "";
 
         if (/KKJSBridge-RequestId/.test(orignAction)) {// 防止重复追加 requestId
-          aTag.search = aTag.search.replace(/KKJSBridge-RequestId=(\d+_\d+)/, "KKJSBridge-RequestId=" + requestId);
+          aTag.search = aTag.search.replace(/KKJSBridge-RequestId=(\d+)/, "KKJSBridge-RequestId=" + requestId);
         } else if (aTag.search && aTag.search.length > 0) {
           let s: string = aTag.search;
           if (/KKJSBridge-RequestId/.test(s)) {// 防止重复追加 requestId
-            aTag.search = s.replace(/KKJSBridge-RequestId=(\d+_\d+)/, "KKJSBridge-RequestId=" + requestId);
+            aTag.search = s.replace(/KKJSBridge-RequestId=(\d+)/, "KKJSBridge-RequestId=" + requestId);
           } else {
             aTag.search = s + "&KKJSBridge-RequestId=" + requestId;
           }
@@ -350,6 +438,36 @@ var init = function() {
 
         let newAction: string = url + aTag.search + aTag.hash;
         return newAction;
+      }
+
+      /**
+       * 给 open url 生成带请求 id 的新 url
+       */
+      public static generateNewOpenUrlWithRequestId: Function = (url: string, requestId: string) => {
+        let getOpenUrlReuestId: Function = function(requestId: string) {
+          return "^^^^" + requestId + "^^^^"
+        }
+        let openUrlReuestReg: any = /\^\^\^\^(\d+)\^\^\^\^/;
+        // 通过 a 标签来辅助拼接新的 action
+        let aTag: HTMLAnchorElement = document.createElement("a");
+        aTag.href = url;
+        let hash: string = aTag.hash ? aTag.hash : "";
+        
+        if (openUrlReuestReg.test(aTag.hash)) {
+          aTag.hash = aTag.hash.replace(openUrlReuestReg, getOpenUrlReuestId(requestId));
+        } else if (aTag.hash && aTag.hash.length > 0) {
+          aTag.hash = aTag.hash + getOpenUrlReuestId(requestId);
+        } else {
+          aTag.hash = getOpenUrlReuestId(requestId);
+        }
+
+        url = url.replace(hash, "");
+        if ("#" === url.trim()) {
+          url = "";
+        }
+
+        let newUrl: string = url + aTag.hash;
+        return newUrl;
       }
 
       /**
@@ -368,10 +486,12 @@ var init = function() {
         let cacheCallback: KK.AJAXBodyCacheCallback = {
           requestId: requestId,
           callback: ()=> {
-            if (targetType === "AJAX") {// ajax
-              // 发送之前设置自定义请求头，好让 native 拦截并从缓存里获取 body
-              target.setRequestHeader("KKJSBridge-RequestId", requestId);
-            } else if (targetType === "FORM") {// 表单 submit
+            // if (targetType === "AJAX") {// ajax
+            //   // 发送之前设置自定义请求头，好让 native 拦截并从缓存里获取 body
+            //   target.setRequestHeader("KKJSBridge-RequestId", requestId);
+            // }
+            
+            if (targetType === "FORM") {// 表单 submit
               // 发送之前修改 action，让 action 带上 requestId
               _XHR.generateNewActionForForm(target, requestId);
             }
@@ -412,11 +532,14 @@ var init = function() {
       xhr.requestId = _XHR.generateXHRRequestId();
       xhr.requestUrl = url;
       xhr.requestHref = document.location.href;
-      
+      xhr.requestMethod = method;
+
       if (!KKJSBridgeConfig.ajaxHook) {// 如果没有开启 ajax hook，则调用原始 open
         return originOpen.apply(xhr, args);
       }
-
+      
+      // 生成新的 url
+      args[1] = _XHR.generateNewUrlWithRequestId(url, xhr.requestId);
       originOpen.apply(xhr, args);
     } as any;
 
@@ -431,7 +554,7 @@ var init = function() {
         bodyType: "String",
         value: null
       };
-
+      
       if (!KKJSBridgeConfig.ajaxHook) {// 如果没有开启 ajax hook，则调用原始 send
         return originSend.apply(xhr, args);
       }
@@ -454,8 +577,9 @@ var init = function() {
         return;
       } else if (body instanceof FormData) {// 说明是表单
         request.bodyType = "FormData";
+        request.formEnctype = "multipart/form-data";
         KKJSBridgeUtil.convertFormDataToJson(body, (json: any) => {
-          request.value = json;
+          request.value = json; 
           _XHR.sendBodyToNativeForCache("AJAX", xhr, originSend, args, request);
         });
         return;
@@ -484,6 +608,7 @@ var init = function() {
         requestHref: form.requestHref,
         requestUrl: form.requestUrl,
         bodyType: "FormData",
+        formEnctype: form.enctype,
         value: null
       };
 
@@ -530,6 +655,8 @@ var init = function() {
        * bridge Ready
        */
       public static bridgeReady: Function = () => {
+        window.KKJSBridge.call(_COOKIE.moduleName, 'bridgeReady', {});
+
         // 告诉 H5 新的 KKJSBridge 已经 ready
         let KKJSBridgeReadyEvent: Event = document.createEvent("Events");
         KKJSBridgeReadyEvent.initEvent("KKJSBridgeReady");

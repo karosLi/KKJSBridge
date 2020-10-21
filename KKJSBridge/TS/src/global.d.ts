@@ -7,6 +7,7 @@ interface XMLHttpRequest {
     requestId: string,
     requestUrl: string,
     requestHref: string
+    requestMethod: string
 }
 
 interface HTMLFormElement {

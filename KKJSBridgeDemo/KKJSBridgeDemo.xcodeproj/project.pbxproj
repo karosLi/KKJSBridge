@@ -8,6 +8,18 @@
 
 /* Begin PBXBuildFile section */
 		04FDA27033AE256E32BD6612 /* libPods-KKJSBridgeDemo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 12B3C3553C0548E73E4F24BB /* libPods-KKJSBridgeDemo.a */; };
+		7C0E4EA924B6F2B800DB1E7B /* fetchHookTest.html in Resources */ = {isa = PBXBuildFile; fileRef = 7C0E4E9E24B6F2B700DB1E7B /* fetchHookTest.html */; };
+		7C0E4EAA24B6F2B800DB1E7B /* fetchRelativeTest in Resources */ = {isa = PBXBuildFile; fileRef = 7C0E4E9F24B6F2B700DB1E7B /* fetchRelativeTest */; };
+		7C0E4EAB24B6F2B800DB1E7B /* fetch.umd.js in Resources */ = {isa = PBXBuildFile; fileRef = 7C0E4EA024B6F2B700DB1E7B /* fetch.umd.js */; };
+		7C0E4EAC24B6F2B800DB1E7B /* fetchIndex.html in Resources */ = {isa = PBXBuildFile; fileRef = 7C0E4EA124B6F2B700DB1E7B /* fetchIndex.html */; };
+		7C0E4EAD24B6F2B800DB1E7B /* ajaxIndex.html in Resources */ = {isa = PBXBuildFile; fileRef = 7C0E4EA224B6F2B800DB1E7B /* ajaxIndex.html */; };
+		7C0E4EAE24B6F2B800DB1E7B /* ajaxHookTest.html in Resources */ = {isa = PBXBuildFile; fileRef = 7C0E4EA324B6F2B800DB1E7B /* ajaxHookTest.html */; };
+		7C0E4EAF24B6F2B800DB1E7B /* ajaxRelativeTest in Resources */ = {isa = PBXBuildFile; fileRef = 7C0E4EA424B6F2B800DB1E7B /* ajaxRelativeTest */; };
+		7C0E4EB024B6F2B800DB1E7B /* jsbridgeTest.html in Resources */ = {isa = PBXBuildFile; fileRef = 7C0E4EA524B6F2B800DB1E7B /* jsbridgeTest.html */; };
+		7C0E4EB124B6F2B800DB1E7B /* ajaxiframeTest.html in Resources */ = {isa = PBXBuildFile; fileRef = 7C0E4EA624B6F2B800DB1E7B /* ajaxiframeTest.html */; };
+		7C0E4EB224B6F2B800DB1E7B /* ajaxFormData.html in Resources */ = {isa = PBXBuildFile; fileRef = 7C0E4EA724B6F2B800DB1E7B /* ajaxFormData.html */; };
+		7C0E4EB324B6F2B800DB1E7B /* fetchFormData.html in Resources */ = {isa = PBXBuildFile; fileRef = 7C0E4EA824B6F2B800DB1E7B /* fetchFormData.html */; };
+		7C0E4EB524B6FB7400DB1E7B /* ajaxHookTestLocalFile.html in Resources */ = {isa = PBXBuildFile; fileRef = 7C0E4EB424B6FB7400DB1E7B /* ajaxHookTestLocalFile.html */; };
 		7C31E06B2317F97600152D06 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C31E06A2317F97600152D06 /* AppDelegate.m */; };
 		7C31E06E2317F97600152D06 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C31E06D2317F97600152D06 /* ViewController.m */; };
 		7C31E0712317F97600152D06 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7C31E06F2317F97600152D06 /* Main.storyboard */; };
@@ -25,10 +37,23 @@
 		7C31E09F23181C5F00152D06 /* ModuleContext.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C31E09E23181C5F00152D06 /* ModuleContext.m */; };
 		7C31E0A52318244E00152D06 /* ModuleB.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C31E0A42318244E00152D06 /* ModuleB.m */; };
 		7C31E0AA231924B800152D06 /* ModuleC.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C31E0A9231924B800152D06 /* ModuleC.m */; };
+		7C4383CC24C86570004E4AB0 /* HtmlURLProtocol.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C4383CB24C86570004E4AB0 /* HtmlURLProtocol.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		12B3C3553C0548E73E4F24BB /* libPods-KKJSBridgeDemo.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-KKJSBridgeDemo.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		7C0E4E9E24B6F2B700DB1E7B /* fetchHookTest.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = fetchHookTest.html; sourceTree = "<group>"; };
+		7C0E4E9F24B6F2B700DB1E7B /* fetchRelativeTest */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = fetchRelativeTest; sourceTree = "<group>"; };
+		7C0E4EA024B6F2B700DB1E7B /* fetch.umd.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = fetch.umd.js; sourceTree = "<group>"; };
+		7C0E4EA124B6F2B700DB1E7B /* fetchIndex.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = fetchIndex.html; sourceTree = "<group>"; };
+		7C0E4EA224B6F2B800DB1E7B /* ajaxIndex.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = ajaxIndex.html; sourceTree = "<group>"; };
+		7C0E4EA324B6F2B800DB1E7B /* ajaxHookTest.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = ajaxHookTest.html; sourceTree = "<group>"; };
+		7C0E4EA424B6F2B800DB1E7B /* ajaxRelativeTest */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ajaxRelativeTest; sourceTree = "<group>"; };
+		7C0E4EA524B6F2B800DB1E7B /* jsbridgeTest.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = jsbridgeTest.html; sourceTree = "<group>"; };
+		7C0E4EA624B6F2B800DB1E7B /* ajaxiframeTest.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = ajaxiframeTest.html; sourceTree = "<group>"; };
+		7C0E4EA724B6F2B800DB1E7B /* ajaxFormData.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = ajaxFormData.html; sourceTree = "<group>"; };
+		7C0E4EA824B6F2B800DB1E7B /* fetchFormData.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = fetchFormData.html; sourceTree = "<group>"; };
+		7C0E4EB424B6FB7400DB1E7B /* ajaxHookTestLocalFile.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = ajaxHookTestLocalFile.html; sourceTree = "<group>"; };
 		7C31E0662317F97600152D06 /* KKJSBridgeDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KKJSBridgeDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7C31E0692317F97600152D06 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		7C31E06A2317F97600152D06 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -56,6 +81,8 @@
 		7C31E0A42318244E00152D06 /* ModuleB.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ModuleB.m; sourceTree = "<group>"; };
 		7C31E0A8231924B800152D06 /* ModuleC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ModuleC.h; sourceTree = "<group>"; };
 		7C31E0A9231924B800152D06 /* ModuleC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ModuleC.m; sourceTree = "<group>"; };
+		7C4383CA24C86570004E4AB0 /* HtmlURLProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HtmlURLProtocol.h; sourceTree = "<group>"; };
+		7C4383CB24C86570004E4AB0 /* HtmlURLProtocol.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HtmlURLProtocol.m; sourceTree = "<group>"; };
 		E4439BA0A6CBDEA87FB01283 /* Pods-KKJSBridgeDemo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KKJSBridgeDemo.release.xcconfig"; path = "Pods/Target Support Files/Pods-KKJSBridgeDemo/Pods-KKJSBridgeDemo.release.xcconfig"; sourceTree = "<group>"; };
 		EF6A7197B5A25080AF60C416 /* Pods-KKJSBridgeDemo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KKJSBridgeDemo.debug.xcconfig"; path = "Pods/Target Support Files/Pods-KKJSBridgeDemo/Pods-KKJSBridgeDemo.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -108,6 +135,8 @@
 				7C31E06A2317F97600152D06 /* AppDelegate.m */,
 				7C31E06C2317F97600152D06 /* ViewController.h */,
 				7C31E06D2317F97600152D06 /* ViewController.m */,
+				7C4383CA24C86570004E4AB0 /* HtmlURLProtocol.h */,
+				7C4383CB24C86570004E4AB0 /* HtmlURLProtocol.m */,
 				7C31E06F2317F97600152D06 /* Main.storyboard */,
 				7C31E0722317F97B00152D06 /* Assets.xcassets */,
 				7C31E0742317F97B00152D06 /* LaunchScreen.storyboard */,
@@ -137,6 +166,18 @@
 		7C31E084231803DB00152D06 /* Server */ = {
 			isa = PBXGroup;
 			children = (
+				7C0E4EB424B6FB7400DB1E7B /* ajaxHookTestLocalFile.html */,
+				7C0E4EA724B6F2B800DB1E7B /* ajaxFormData.html */,
+				7C0E4EA324B6F2B800DB1E7B /* ajaxHookTest.html */,
+				7C0E4EA624B6F2B800DB1E7B /* ajaxiframeTest.html */,
+				7C0E4EA224B6F2B800DB1E7B /* ajaxIndex.html */,
+				7C0E4EA424B6F2B800DB1E7B /* ajaxRelativeTest */,
+				7C0E4EA024B6F2B700DB1E7B /* fetch.umd.js */,
+				7C0E4EA824B6F2B800DB1E7B /* fetchFormData.html */,
+				7C0E4E9E24B6F2B700DB1E7B /* fetchHookTest.html */,
+				7C0E4EA124B6F2B700DB1E7B /* fetchIndex.html */,
+				7C0E4E9F24B6F2B700DB1E7B /* fetchRelativeTest */,
+				7C0E4EA524B6F2B800DB1E7B /* jsbridgeTest.html */,
 				7C31E08E2318047500152D06 /* client302.html */,
 				7C31E08F2318047500152D06 /* index.html */,
 				7C31E0902318047500152D06 /* server.js */,
@@ -247,13 +288,25 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7C0E4EAC24B6F2B800DB1E7B /* fetchIndex.html in Resources */,
+				7C0E4EB524B6FB7400DB1E7B /* ajaxHookTestLocalFile.html in Resources */,
 				7C31E0762317F97B00152D06 /* LaunchScreen.storyboard in Resources */,
+				7C0E4EA924B6F2B800DB1E7B /* fetchHookTest.html in Resources */,
+				7C0E4EAF24B6F2B800DB1E7B /* ajaxRelativeTest in Resources */,
+				7C0E4EB224B6F2B800DB1E7B /* ajaxFormData.html in Resources */,
 				7C31E0922318047500152D06 /* index.html in Resources */,
 				7C31E0732317F97B00152D06 /* Assets.xcassets in Resources */,
 				7C31E0932318047500152D06 /* server.js in Resources */,
+				7C0E4EB124B6F2B800DB1E7B /* ajaxiframeTest.html in Resources */,
+				7C0E4EAA24B6F2B800DB1E7B /* fetchRelativeTest in Resources */,
 				7C31E0712317F97600152D06 /* Main.storyboard in Resources */,
+				7C0E4EAB24B6F2B800DB1E7B /* fetch.umd.js in Resources */,
+				7C0E4EAE24B6F2B800DB1E7B /* ajaxHookTest.html in Resources */,
+				7C0E4EB324B6F2B800DB1E7B /* fetchFormData.html in Resources */,
 				7C31E08C231803DB00152D06 /* WebViewJavascriptBridge.js in Resources */,
+				7C0E4EAD24B6F2B800DB1E7B /* ajaxIndex.html in Resources */,
 				7C31E0952318049600152D06 /* BinaryCookieReader.py in Resources */,
+				7C0E4EB024B6F2B800DB1E7B /* jsbridgeTest.html in Resources */,
 				7C31E0912318047500152D06 /* client302.html in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -313,6 +366,7 @@
 				7C31E06B2317F97600152D06 /* AppDelegate.m in Sources */,
 				7C31E08D231803DB00152D06 /* WebViewController.m in Sources */,
 				7C31E0A52318244E00152D06 /* ModuleB.m in Sources */,
+				7C4383CC24C86570004E4AB0 /* HtmlURLProtocol.m in Sources */,
 				7C31E09923181B8B00152D06 /* ModuleA.m in Sources */,
 				7C31E09F23181C5F00152D06 /* ModuleContext.m in Sources */,
 				7C31E09C23181BA000152D06 /* ModuleDefault.m in Sources */,
@@ -466,7 +520,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.karosli.KKJSBridgeDemo;
+				PRODUCT_BUNDLE_IDENTIFIER = com.karosli.KKJSBridgeDemo1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -485,7 +539,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.karosli.KKJSBridgeDemo;
+				PRODUCT_BUNDLE_IDENTIFIER = com.karosli.KKJSBridgeDemo1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

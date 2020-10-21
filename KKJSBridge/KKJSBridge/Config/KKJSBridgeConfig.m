@@ -9,7 +9,10 @@
 #import "KKJSBridgeConfig.h"
 #import "KKJSBridgeJSExecutor.h"
 #import "KKJSBridgeEngine.h"
+
+#ifdef KKAjaxProtocolHook
 #import "NSURLProtocol+KKJSBridgeWKWebView.h"
+#endif
 
 static id<KKJSBridgeAjaxDelegateManager> globalAjaxDelegateManager;
 
@@ -32,6 +35,7 @@ static id<KKJSBridgeAjaxDelegateManager> globalAjaxDelegateManager;
 - (void)setEnableAjaxHook:(BOOL)enableAjaxHook {
     _enableAjaxHook = enableAjaxHook;
     
+#ifdef KKAjaxProtocolHook
     if (enableAjaxHook) {
         [NSURLProtocol KKJSBridgeRegisterScheme:@"https"];
         [NSURLProtocol KKJSBridgeRegisterScheme:@"http"];
@@ -39,6 +43,7 @@ static id<KKJSBridgeAjaxDelegateManager> globalAjaxDelegateManager;
         [NSURLProtocol KKJSBridgeUnregisterScheme:@"https"];
         [NSURLProtocol KKJSBridgeUnregisterScheme:@"http"];
     }
+#endif
     
     NSString *script = [NSString stringWithFormat:@"window.KKJSBridgeConfig.enableAjaxHook(%@)", [NSNumber numberWithBool:enableAjaxHook]];
     if (self.engine.isBridgeReady) {

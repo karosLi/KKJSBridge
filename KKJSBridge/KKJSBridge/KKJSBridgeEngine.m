@@ -8,8 +8,6 @@
 
 #import "KKJSBridgeEngine.h"
 #import "KKJSBridgeMessageDispatcher.h"
-#import "KKJSBridgeModuleXMLHttpRequestDispatcher.h"
-#import "KKJSBridgeXMLBodyCacheRequest.h"
 #import "KKJSBridgeModuleCookie.h"
 #import "KKJSBridgeWeakScriptMessageDelegate.h"
 
@@ -71,7 +69,14 @@ static NSString * const KKJSBridgeMessageName = @"KKJSBridgeMessage";
         self.webView.configuration.userContentController = [WKUserContentController new];
     }
     
-    NSString *bridgeJSString = [[NSString alloc] initWithContentsOfFile:[[NSBundle bundleForClass:self.class] pathForResource:@"KKJSBridge" ofType:@"js"] encoding:NSUTF8StringEncoding error:NULL];
+    NSString *bridgeJSName = @"KKJSBridgeAJAXProtocolHook";
+#ifdef KKAjaxProtocolHook
+    bridgeJSName = @"KKJSBridgeAJAXProtocolHook";
+#else
+    bridgeJSName = @"KKJSBridgeAJAXHook";
+#endif
+
+    NSString *bridgeJSString = [[NSString alloc] initWithContentsOfFile:[[NSBundle bundleForClass:self.class] pathForResource:bridgeJSName ofType:@"js"] encoding:NSUTF8StringEncoding error:NULL];
     WKUserScript *userScript = [[WKUserScript alloc] initWithSource:bridgeJSString injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:NO];
     [self.webView.configuration.userContentController removeAllUserScripts];
     [self.webView.configuration.userContentController removeScriptMessageHandlerForName:KKJSBridgeMessageName];
@@ -81,8 +86,11 @@ static NSString * const KKJSBridgeMessageName = @"KKJSBridgeMessage";
 }
 
 - (void)setupDefaultModuleRegister {
-    [self.moduleRegister registerModuleClass:KKJSBridgeModuleXMLHttpRequestDispatcher.class];
-//    [self.moduleRegister registerModuleClass:KKJSBridgeXMLBodyCacheRequest.class];
+#ifdef KKAjaxProtocolHook
+    [self.moduleRegister registerModuleClass:NSClassFromString(@"KKJSBridgeXMLBodyCacheRequest")];
+#else
+    [self.moduleRegister registerModuleClass:NSClassFromString(@"KKJSBridgeModuleXMLHttpRequestDispatcher")];
+#endif
     [self.moduleRegister registerModuleClass:KKJSBridgeModuleCookie.class];
 }
 

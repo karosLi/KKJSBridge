@@ -71,6 +71,14 @@
     _webView.navigationDelegate = self;
     _jsBridgeEngine = [KKJSBridgeEngine bridgeForWebView:self.webView];
     _jsBridgeEngine.config.enableAjaxHook = YES;
+    _jsBridgeEngine.bridgeReadyCallback = ^(KKJSBridgeEngine * _Nonnull engine) {
+        NSString *event = @"customEvent";
+        NSDictionary *data = @{
+            @"action": @"testAction",
+            @"data": @YES
+        };
+        [engine dispatchEvent:event data:data];
+    };
     
     [self compatibleWebViewJavascriptBridge];
     [self registerModule];
@@ -147,10 +155,28 @@
 
 #pragma mark - 安装视图
 - (void)setupView {
+    if (@available(iOS 11.0, *)) {
+        self.webView.scrollView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    } else {
+        self.automaticallyAdjustsScrollViewInsets = NO;
+    }
+    
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"<返回" style:UIBarButtonItemStyleDone target:self action:@selector(onClickBack)];
     self.view.backgroundColor = [UIColor whiteColor];
     [self.view addSubview:self.webView];
     self.webView.frame = [UIScreen mainScreen].bounds;
+    self.webView.translatesAutoresizingMaskIntoConstraints = NO;
+    
+    NSMutableArray *constraints = [NSMutableArray array];
+    [constraints addObject:[NSLayoutConstraint constraintWithItem:self.webView attribute:NSLayoutAttributeLeading relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeLeading multiplier:1 constant:0]];
+    [constraints addObject:[NSLayoutConstraint constraintWithItem:self.webView attribute:NSLayoutAttributeTrailing relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeTrailing multiplier:1 constant:0]];
+    [constraints addObject:[NSLayoutConstraint constraintWithItem:self.webView attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeBottom multiplier:1 constant:0]];
+    if (@available(iOS 11.0, *)) {
+        [constraints addObject:[NSLayoutConstraint constraintWithItem:self.webView attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self.view.safeAreaLayoutGuide attribute:NSLayoutAttributeTop multiplier:1 constant:0]];
+    } else {
+        [constraints addObject:[NSLayoutConstraint constraintWithItem:self.webView attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self.topLayoutGuide attribute:NSLayoutAttributeTop multiplier:1 constant:0]];
+    }
+    [self.view addConstraints:constraints];
 }
 
 - (void)onClickBack {
