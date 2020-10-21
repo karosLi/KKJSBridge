@@ -233,7 +233,7 @@ window.KKJSBridge.call('b', 'callToGetVCTitle', {}, function(res) {
 
 - 需要 hook XMLHttpRequest 的所有方法。
 - 请求结果是通过 JSBrdige 来进行传输的，性能上肯定没有原生的性能好。
-- 不能支持 ajax 获取二进制的数据。要想支持的话，还额外的序列化工作。
+- 不能支持 ajax 获取二进制的数据。要想支持的话，还需要额外的序列化工作。
 
 
 ## 更新历史
