@@ -63,6 +63,8 @@
 //        url = [NSString stringWithFormat:@"file://%@", path];
     }
     
+    url = @"https://www.docer.com";
+    
     WebViewController *web = [[WebViewController alloc] initWithUrl:url];
     [self.navigationController pushViewController:web animated:YES];
 }

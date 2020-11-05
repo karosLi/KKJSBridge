@@ -11,10 +11,11 @@
 #import "KKJSBridgeModuleRegister.h"
 #import "KKJSBridgeEngine.h"
 #import "KKJSBridgeFormDataFile.h"
+#import "KKJSBridgeSafeDictionary.h"
 
 @interface KKJSBridgeModuleXMLHttpRequestDispatcher()<KKJSBridgeModule, KKJSBridgeModuleXMLHttpRequestDelegate>
 
-@property (nonatomic, copy) NSMutableDictionary *xhrMap;
+@property (nonatomic, copy) KKJSBridgeSafeDictionary *xhrMap;
 @property (nonatomic, copy) NSOperationQueue *queue;
 
 @end
@@ -31,7 +32,7 @@
 
 - (instancetype)initWithEngine:(KKJSBridgeEngine *)engine context:(id)context {
     if (self = [super init]) {
-        _xhrMap = [NSMutableDictionary dictionary];
+        _xhrMap = [KKJSBridgeSafeDictionary dictionary];
         _queue = [NSOperationQueue new];
         _queue.maxConcurrentOperationCount = 1;
     }
