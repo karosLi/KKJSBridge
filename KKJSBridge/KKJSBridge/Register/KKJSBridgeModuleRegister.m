@@ -8,12 +8,13 @@
 
 #import "KKJSBridgeModuleRegister.h"
 #import <objc/message.h>
+#import "KKJSBridgeSafeDictionary.h"
 
 @interface KKJSBridgeModuleRegister()
 
 @property (nonatomic, weak) KKJSBridgeEngine *engine;
-@property (nonatomic, copy) NSMutableDictionary *moduleMetaClassMap;
-@property (nonatomic, copy) NSMutableDictionary *singletonMetaClassMap;
+@property (nonatomic, copy) KKJSBridgeSafeDictionary *moduleMetaClassMap;
+@property (nonatomic, copy) KKJSBridgeSafeDictionary *singletonMetaClassMap;
 
 @end
 
@@ -22,8 +23,8 @@
 - (instancetype)initWithEngine:(KKJSBridgeEngine *)engine {
     if (self = [super init]) {
         _engine = engine;
-        _moduleMetaClassMap = [NSMutableDictionary dictionary];
-        _singletonMetaClassMap = [NSMutableDictionary dictionary];
+        _moduleMetaClassMap = [KKJSBridgeSafeDictionary dictionary];
+        _singletonMetaClassMap = [KKJSBridgeSafeDictionary dictionary];
     }
     
     return self;
