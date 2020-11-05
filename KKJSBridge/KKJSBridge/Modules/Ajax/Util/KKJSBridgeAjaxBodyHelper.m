@@ -65,13 +65,20 @@
 }
 
 + (NSData *)dataFromBase64:(NSString *)base64 {
-    // data:image/png;base64,iVBORw0...
-    NSArray<NSString *> *components = [base64 componentsSeparatedByString:@","];
-    if (components.count != 2) {
-        return nil;
+    if (!base64) {
+        return [NSData data];
     }
     
-    NSString *splitBase64 = components.lastObject;
+    // data:image/png;base64,iVBORw0...
+    NSArray<NSString *> *components = [base64 componentsSeparatedByString:@","];
+    
+    NSString *splitBase64;
+    if (components.count == 2) {
+        splitBase64 = components.lastObject;
+    } else {
+        splitBase64 = base64;
+    }
+    
     NSUInteger paddedLength = splitBase64.length + (splitBase64.length % 4);
     NSString *fixBase64 = [splitBase64 stringByPaddingToLength:paddedLength withString:@"=" startingAtIndex:0];
     NSData *data = [[NSData alloc] initWithBase64EncodedString:fixBase64 options:NSDataBase64DecodingIgnoreUnknownCharacters];
