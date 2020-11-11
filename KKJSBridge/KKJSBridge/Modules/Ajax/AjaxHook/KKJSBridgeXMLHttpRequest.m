@@ -101,6 +101,20 @@ static NSString * const KKJSBridgeXMLHttpRequestStatusTextOK = @"OK";
             self.request.HTTPMethod = @"OPTIONS"; // 一般用于跨域预检查
         } else if ([method caseInsensitiveCompare:@"DELETE"] == NSOrderedSame) {
             self.request.HTTPMethod = @"DELETE"; // 删除指定资源
+        } else if ([method caseInsensitiveCompare:@"PUT"] == NSOrderedSame) {
+            self.request.HTTPMethod = @"PUT"; // 上传资源
+        } else if ([method caseInsensitiveCompare:@"PUT"] == NSOrderedSame) {
+            self.request.HTTPMethod = @"PUT"; // 上传资源
+        } else if ([method caseInsensitiveCompare:@"PATCH"] == NSOrderedSame) {
+            self.request.HTTPMethod = @"PATCH";
+        } else if ([method caseInsensitiveCompare:@"LOCK"] == NSOrderedSame) {
+            self.request.HTTPMethod = @"LOCK";
+        } else if ([method caseInsensitiveCompare:@"PROPFIND"] == NSOrderedSame) {
+            self.request.HTTPMethod = @"PROPFIND";
+        } else if ([method caseInsensitiveCompare:@"PROPPATCH"] == NSOrderedSame) {
+            self.request.HTTPMethod = @"PROPPATCH";
+        } else if ([method caseInsensitiveCompare:@"SEARCH"] == NSOrderedSame) {
+            self.request.HTTPMethod = @"SEARCH";
         } else {
             [self returnError:405 statusText:@"Method Not Allowed"];
             [self notifyFetchFailed];
