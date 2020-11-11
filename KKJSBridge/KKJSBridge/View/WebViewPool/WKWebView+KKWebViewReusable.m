@@ -69,6 +69,7 @@
     [self stopLoading];
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
     [self evaluateJavaScript:@"window.sessionStorage.clear();" completionHandler:nil];
+    [self.configuration.userContentController removeAllUserScripts];
     NSString *reuseLoadUrl = [[KKWebViewPool sharedInstance] webViewReuseLoadUrlStr];
     if (reuseLoadUrl && reuseLoadUrl.length > 0) {
         [self loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:reuseLoadUrl]]];

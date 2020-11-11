@@ -78,7 +78,6 @@ static NSString * const KKJSBridgeMessageName = @"KKJSBridgeMessage";
 
     NSString *bridgeJSString = [[NSString alloc] initWithContentsOfFile:[[NSBundle bundleForClass:self.class] pathForResource:bridgeJSName ofType:@"js"] encoding:NSUTF8StringEncoding error:NULL];
     WKUserScript *userScript = [[WKUserScript alloc] initWithSource:bridgeJSString injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:NO];
-    [self.webView.configuration.userContentController removeAllUserScripts];
     [self.webView.configuration.userContentController removeScriptMessageHandlerForName:KKJSBridgeMessageName];
     [self.webView.configuration.userContentController addUserScript:userScript];
     // 防止内存泄露
