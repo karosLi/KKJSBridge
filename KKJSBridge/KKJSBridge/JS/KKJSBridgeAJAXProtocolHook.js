@@ -1175,6 +1175,7 @@
             xhr.requestUrl = url;
             xhr.requestHref = document.location.href;
             xhr.requestMethod = method;
+            xhr.requestAsync = async;
             if (!KKJSBridgeConfig.ajaxHook) { // 如果没有开启 ajax hook，则调用原始 open
                 return originOpen.apply(xhr, args);
             }
@@ -1194,6 +1195,9 @@
                 value: null
             };
             if (!KKJSBridgeConfig.ajaxHook) { // 如果没有开启 ajax hook，则调用原始 send
+                return originSend.apply(xhr, args);
+            }
+            if (!xhr.requestAsync) { // 如果是同步，直接调用原始 send
                 return originSend.apply(xhr, args);
             }
             if (!body) { // 没有 body，调用原始 send

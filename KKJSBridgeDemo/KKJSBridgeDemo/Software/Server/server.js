@@ -101,7 +101,9 @@ server.on('request', function (req,res) {
         });
         req.on('end', () => {
             console.log(body);
-            res.end('testAjaxPost ' + body);
+            setTimeout(function() {
+              res.end('testAjaxPost ' + body);
+            }, 1000);
         });
         
     } else if (req.url === '/testAjaxGetHtml') {// ajax hook - get html

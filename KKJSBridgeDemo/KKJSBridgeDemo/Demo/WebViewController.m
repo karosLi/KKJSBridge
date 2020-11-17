@@ -121,6 +121,9 @@
             NSData *responseData = [NSJSONSerialization dataWithJSONObject:@{} options:0 error:nil];
             [callbackDelegate JSBridgeAjax:callbackDelegate didReceiveData:responseData];
         }
+        if (responseObject) {
+            error = nil;
+        }
         [callbackDelegate JSBridgeAjax:callbackDelegate didCompleteWithError:error];
     }];
 }

@@ -24,6 +24,7 @@
 	<a href="/client302" target="_blank">_blank 浏览器重定向</a>
 	<button onclick="ajax_get_with_cookie()">ajax_get_with_cookie</button>
 	<button onclick="ajax_post_with_cookie()">ajax_post_with_cookie</button>
+    <button onclick="sync_ajax_post_with_cookie()">sync_ajax_post_with_cookie</button>
 	<button onclick="ajax_get_image()">ajax_get_image</button>
 	<button onclick="ajax_get_html()">ajax_get_html</button>
 	<div id="ajax_get_html_div"></div>
@@ -62,6 +63,19 @@
             }
          };
          xhr.send("bodyData");
+    }
+    function sync_ajax_post_with_cookie() {
+        var xhr = new XMLHttpRequest(),
+         method = "POST",
+         url = "testAjaxPost";
+         xhr.open(method, url, false);
+         xhr.onreadystatechange = function () {
+            if(xhr.readyState === 4 && xhr.status === 200) {
+                console.log(xhr.responseText);
+            }
+         };
+         xhr.send("bodyData");
+         console.log("验证同步请求");
     }
     function ajax_get_image() {
         // https://developer.mozilla.org/zh-CN/docs/Web/API/XMLHttpRequest/Sending_and_Receiving_Binary_Data

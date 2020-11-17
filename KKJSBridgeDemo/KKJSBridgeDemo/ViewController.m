@@ -40,7 +40,7 @@
      3、npm run qtoken
      */
     
-    NSString *url = @"http://172.16.14.8:50000/index";
+    NSString *url = @"http://127.0.0.1:50000/index";
     {
         // 测试第三方网站 ajax 请求
 //        url = @"https://m.taobao.com";
@@ -62,8 +62,6 @@
 //        NSString *path = [[NSBundle mainBundle] pathForResource:@"ajaxHookTestLocalFile" ofType:@"html"];
 //        url = [NSString stringWithFormat:@"file://%@", path];
     }
-    
-    url = @"https://www.docer.com";
     
     WebViewController *web = [[WebViewController alloc] initWithUrl:url];
     [self.navigationController pushViewController:web animated:YES];
