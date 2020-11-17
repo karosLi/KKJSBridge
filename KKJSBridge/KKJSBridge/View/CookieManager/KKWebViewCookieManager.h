@@ -17,6 +17,11 @@ NS_ASSUME_NONNULL_BEGIN
  用于同步首个同步请求的 cookie
  */
 + (void)syncRequestCookie:(NSMutableURLRequest *)request;
+
+/**
+ 仅用于用于同步请求的 htp only cookie
+*/
++ (void)onlySyncRequestHttpOnlyCookie:(NSMutableURLRequest *)request;
 /**
  用于同步 ajax 请求的 cookie
  */

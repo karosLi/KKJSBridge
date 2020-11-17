@@ -90,9 +90,11 @@ static NSString * const kKKJSBridgeAjaxResponseHeaderAC = @"Access-Control-Allow
     self.requestId = requestId;
     self.requestHTTPMethod = mutableReqeust.HTTPMethod;
     
-    // 同步 cookie。有的时候 KKJSBridge 并不是和 KKWebView 同时被使用，所以 KKJSBridge 需要自己完成 cookie 同步
-    // 没有携带 Cookie 时，才附加 Cookie，防止覆盖 WKWebView 中的 Cookie
-    if (![mutableReqeust valueForHTTPHeaderField:@"Cookie"]) {
+    if ([mutableReqeust valueForHTTPHeaderField:@"Cookie"]) {// 仅仅同步 HTTP Only Cookie，防止 H5 是使用 document.cookie 获取 Cookie 并设置的 Cookie 请求头
+        [KKWebViewCookieManager onlySyncRequestHttpOnlyCookie:mutableReqeust];
+    } else {
+        // 同步 cookie。有的时候 KKJSBridge 并不是和 KKWebView 同时被使用，所以 KKJSBridge 需要自己完成 cookie 同步
+        // 没有携带 Cookie 时，才附加 Cookie，防止覆盖 WKWebView 中的 Cookie
         [KKWebViewCookieManager syncRequestCookie:mutableReqeust];
     }
     

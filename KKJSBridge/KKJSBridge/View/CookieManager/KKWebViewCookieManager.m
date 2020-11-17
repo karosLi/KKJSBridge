@@ -16,10 +16,31 @@
         return;
     }
     
-    NSArray *availableCookie = [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookiesForURL:request.URL];
+    NSArray<NSHTTPCookie *> *availableCookie = [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookiesForURL:request.URL];
     if (availableCookie.count > 0) {
         NSDictionary *reqHeader = [NSHTTPCookie requestHeaderFieldsWithCookies:availableCookie];
         NSString *cookieStr = [reqHeader objectForKey:@"Cookie"];
+        [request setValue:cookieStr forHTTPHeaderField:@"Cookie"];
+    }
+}
+
++ (void)onlySyncRequestHttpOnlyCookie:(NSMutableURLRequest *)request {
+    if (!request.URL) {
+        return;
+    }
+    
+    NSArray<NSHTTPCookie *> *availableCookie = [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookiesForURL:request.URL];
+    if (availableCookie.count > 0) {
+        NSMutableString *cookieStr = [[request valueForHTTPHeaderField:@"Cookie"] mutableCopy];
+        if (!cookieStr) {
+            cookieStr = [[NSMutableString alloc] init];
+        }
+        for (NSHTTPCookie *cookie in availableCookie) {
+            if (!cookie.isHTTPOnly) {
+                continue;
+            }
+            [cookieStr appendFormat:@"%@=%@;", cookie.name, cookie.value];
+        }
         [request setValue:cookieStr forHTTPHeaderField:@"Cookie"];
     }
 }
