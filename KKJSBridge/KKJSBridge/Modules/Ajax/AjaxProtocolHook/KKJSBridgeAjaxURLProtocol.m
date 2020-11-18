@@ -97,6 +97,19 @@ static NSString * const kKKJSBridgeAjaxResponseHeaderAC = @"Access-Control-Allow
         // 没有携带 Cookie 时，才附加 Cookie，防止覆盖 WKWebView 中的 Cookie
         [KKWebViewCookieManager syncRequestCookie:mutableReqeust];
     }
+   
+    /**
+     统一的理解：NSHTTPCookieStorage 是唯一读取和存储 Cookie 的仓库，此时是可以不用保证 WKWebView Cookie 是否是最新的，只需要保证 NSHTTPCookieStorage 是最新的，并且每个请求从 NSHTTPCookieStorage 读取 Cookie 即可。因为既然已经代理了请求，就应该全权使用 NSHTTPCookieStorage 存储的 Cookie，来避免 WKWebView 的 Cookie 不是最新的问题。
+     
+     当有如下场景时，都可以统一同步 Cookie
+     1、当 H5 是首次请求时，可以使用 NSHTTPCookieStorage 来同步下最新的 Cookie，因为首次请求之前，Cookie 的存储都是基于 NSHTTPCookieStorage。
+     2、当 H5 是 ajax 异步请求时，可以使用 NSHTTPCookieStorage 来同步下最新的 Cookie，虽然异步请求可以通过 JS 注入的方式让 WKWebView 保持 Cookie 最新，但是无法保证 ajax 响应的 Set-Cookie 是最新的，而这部分 Set-Cookie 是存储在 NSHTTPCookieStorage 里面的。
+     3、当 H5 是使用 document.cookie 获取 Cookie 并设置的 Cookie 请求头，此时是获取不到 HTTP Only Cookie 的，可以使用 NSHTTPCookieStorage 来同步下最新的 Cookie。
+     
+     虽然会产生重复设置，但是这里只要认准 NSHTTPCookieStorage 是唯一读取和存储 Cookie 的仓库事实就好了。
+     唯一不能处理的是，有些 H5 会通过 document.cookie 去获取 cookie 并做一些逻辑的时候。这个要画重点，待后续继续看看。
+     */
+    [KKWebViewCookieManager syncRequestCookie:mutableReqeust];
     
     // 设置 body
     NSDictionary *bodyReqeust = [KKJSBridgeXMLBodyCacheRequest getRequestBody:requestId];
