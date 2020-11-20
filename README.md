@@ -16,6 +16,8 @@
     - 支持模块共享上下文信息
 
     - 支持模块消息转发
+
+    - 支持 JSBridge 同步调用
     
     - 兼容 WebViewJavascriptBridge
 
@@ -178,9 +180,14 @@
 JS 侧调用方式
 
 ```javascript
+// 异步调用
 window.KKJSBridge.call('b', 'callToGetVCTitle', {}, function(res) {
     console.log('receive vc title：', res.title);
 });
+
+// 同步调用
+var res = window.KKJSBridge.syncCall('b', 'callToGetVCTitle', {});
+console.log('receive vc title：', res.title);
 ```
 
 
@@ -237,6 +244,11 @@ window.KKJSBridge.call('b', 'callToGetVCTitle', {}, function(res) {
 
 
 ## 更新历史
+### 2020.11.21 (1.3.1)
+- 支持 JSBridge 同步调用
+- 支持纯文本的 ajax 同步请求（还不支持 Blob 和 表单）
+- 支持通过 document.cookie 同步从 NSHTTPCookieStorage 读取最新的 Cookie
+
 ### 2020.10.21 (1.2.1)
 - 正式版本，分别提供了 ajax hook 和 ajax urlprotocol hook 两种方案，可以根据具体需求自由选择。
 
