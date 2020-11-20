@@ -56,11 +56,14 @@ static NSString * const KKJSBridgeXMLHttpRequestStatusTextOK = @"OK";
 @property (nonatomic, strong) NSMutableData *receiveData;
 
 @property (nonatomic, copy) NSDictionary *headerProperties;
+@property (nonatomic, assign) BOOL async;
 @property (nonatomic, assign) BOOL aborted;
 @property (nonatomic, assign) KKJSBridgeXMLHttpRequestState state;
 
 @property (nonatomic, strong) NSHTTPURLResponse *httpResponse;
 @property (nonatomic, copy) NSString *responseText;
+
+@property (nonatomic, copy) void (^responseCallback)(NSDictionary *responseData);
 
 @property (nonatomic, strong) dispatch_semaphore_t lock;
 
@@ -141,10 +144,12 @@ static NSString * const KKJSBridgeXMLHttpRequestStatusTextOK = @"OK";
  * @param url       - the url to request
  * @param userAgent - User-Agent of the browser(currently WebView)
  * @param referer   - referer of the current request
+ * @param async   -  async
  */
-- (void)open:(NSString *)method url:(NSString *)url userAgent:(NSString *)userAgent referer:(NSString *)referer {
+- (void)open:(NSString *)method url:(NSString *)url userAgent:(NSString *)userAgent referer:(NSString *)referer async:(BOOL)async {
     [self createHttpRequestWithMethod:method url:url];
     if (self.request) {
+        self.async = async;
         [self.request setValue:userAgent forHTTPHeaderField:@"User-Agent"];
         if (referer && ![referer isKindOfClass:[NSNull class]]) {
             [self.request setValue:referer forHTTPHeaderField:@"Referer"];
@@ -158,10 +163,13 @@ static NSString * const KKJSBridgeXMLHttpRequestStatusTextOK = @"OK";
  * for GET and HEAD start data transmission(sending the request and reading
  * the response)
  */
-- (void)send:(NSDictionary *)body {
+- (void)send:(NSDictionary *)body responseCallback:(void (^)(NSDictionary *responseData))responseCallback {
     // open() must be called before calling send()
     if (!self.request)
         return;
+    
+    /// 用于 ajax 同步调用
+    self.responseCallback = responseCallback;
     
     self.aborted = NO;
     
@@ -357,8 +365,17 @@ static NSString * const KKJSBridgeXMLHttpRequestStatusTextOK = @"OK";
     properties[@"status"] = @(statusCode);
     properties[@"statusText"] = statusText;
     
-    [KKJSBridgeXMLHttpRequest evaluateJSToSetAjaxProperties:properties inWebView:self.webView];
     self.state = KKJSBridgeXMLHttpRequestStateDone;
+    
+    [KKJSBridgeXMLHttpRequest evaluateJSToSetAjaxProperties:properties inWebView:self.webView];
+    
+    if (!self.async && self.responseCallback) {// 同步 ajax 回调
+        self.responseCallback(properties);
+        self.responseCallback = nil;
+    } else {// 异步 ajax 回调
+        [KKJSBridgeXMLHttpRequest evaluateJSToSetAjaxProperties:properties inWebView:self.webView];
+    }
+    
     [self cancelTask];
 }
 
@@ -423,8 +440,17 @@ static NSString * const KKJSBridgeXMLHttpRequestStatusTextOK = @"OK";
         [KKJSBridgeLogger log:@"Ajax Callback" module:@"_XHR" method:@"setProperties" data:properties];
     }
     
-    [KKJSBridgeXMLHttpRequest evaluateJSToSetAjaxProperties:properties inWebView:self.webView];
     self.state = readyState;
+    
+    if (!self.async && self.responseCallback) {// 同步 ajax 回调
+        if (readyState == KKJSBridgeXMLHttpRequestStateDone) {
+            self.responseCallback(properties);
+            self.responseCallback = nil;
+        }
+    } else {// 异步 ajax 回调
+        [KKJSBridgeXMLHttpRequest evaluateJSToSetAjaxProperties:properties inWebView:self.webView];
+    }
+    
     return properties;
 }
 

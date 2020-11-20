@@ -32,8 +32,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, weak) id<KKJSBridgeModuleXMLHttpRequestDelegate> delegate;
 
 - (instancetype)initWithObjectId:(NSNumber *)objectId engine:(KKJSBridgeEngine *)engine;
-- (void)open:(NSString *)method url:(NSString *)url userAgent:(NSString *)userAgent referer:(NSString *)referer;
-- (void)send:(NSDictionary *)body;
+- (void)open:(NSString *)method url:(NSString *)url userAgent:(NSString *)userAgent referer:(NSString *)referer async:(BOOL)async;
+- (void)send:(NSDictionary *)body responseCallback:(void (^)(NSDictionary *responseData))responseCallback;
 - (void)setRequestHeader:(NSString *)headerName headerValue:(NSString *)headerValue;
 - (void)overrideMimeType:(NSString *)mimeType;
 - (BOOL)isOpened;

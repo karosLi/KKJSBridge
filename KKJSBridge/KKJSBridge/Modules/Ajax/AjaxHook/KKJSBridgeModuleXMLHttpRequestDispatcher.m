@@ -63,6 +63,7 @@
     NSString *host = params[@"host"];
     NSString *port = params[@"port"] ? params[@"port"] : @"";
     NSString *href = params[@"href"];
+    BOOL async = [params[@"async"] boolValue];
   
     NSURL *nativeURL = [NSURL URLWithString:url];
     if (!nativeURL.scheme) {
@@ -84,14 +85,14 @@
         }
     }
     
-    [xhr open:method url:url userAgent:userAgent referer:referer];
+    [xhr open:method url:url userAgent:userAgent referer:referer async:async];
 }
 
 - (void)send:(KKJSBridgeEngine *)engine params:(NSDictionary *)params responseCallback:(void (^)(NSDictionary *responseData))responseCallback {
     NSNumber *objectId = params[@"id"];
     KKJSBridgeXMLHttpRequest *xhr = [self getXHR:engine.webView objectId:objectId];
     if (xhr) {
-        [xhr send:params];
+        [xhr send:params responseCallback:responseCallback];
     }
 }
 

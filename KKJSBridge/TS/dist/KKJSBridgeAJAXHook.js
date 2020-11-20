@@ -811,7 +811,7 @@
                 KKJSBridgeIframe.dispatchMessage(messageString);
             };
             /**
-             * 调用方法
+             * 异步调用方法
              * @param module 模块
              * @param method 方法
              * @param data 数据
@@ -819,6 +819,22 @@
              */
             KKJSBridge.prototype.call = function (module, method, data, callback) {
                 this.callNative(module, method, data, callback);
+            };
+            /**
+             * 同步调用方法
+             * @param module 模块
+             * @param method 方法
+             * @param data 数据
+             */
+            KKJSBridge.prototype.syncCall = function (module, method, data) {
+                var message = {
+                    module: module || 'default',
+                    method: method,
+                    data: data,
+                };
+                var messageString = JSON.stringify(message);
+                var response = window.prompt("KKJSBridge", messageString);
+                return response ? JSON.parse(response) : null;
             };
             /**
              * 监听事件
@@ -1183,8 +1199,14 @@
             /**
              * 用于处理来自 native 的异步回调
              */
-            _XHR.setProperties = function (jsonString) {
-                var jsonObj = JSON.parse(jsonString);
+            _XHR.setProperties = function (response) {
+                var jsonObj;
+                if (typeof response == "string") {
+                    jsonObj = JSON.parse(response);
+                }
+                else {
+                    jsonObj = response;
+                }
                 var id = jsonObj.id;
                 var xhr = _XHR.cache[id];
                 if (xhr) {
@@ -1211,7 +1233,7 @@
                     }
                 }
                 // 处理有 iframe 的情况
-                KKJSBridgeIframe.dispatchMessage(jsonString);
+                KKJSBridgeIframe.dispatchMessage(response);
             };
             /**
              * 删除已经已经处理过的请求
@@ -1289,6 +1311,7 @@
                     var method = arg[0];
                     var url = arg[1];
                     var async = arg[2];
+                    this.requestAsync = async;
                     _XHR.cacheXHRIfNeed(this);
                     window.KKJSBridge.call(_XHR.moduleName, 'open', {
                         "id": this.id,
@@ -1307,11 +1330,21 @@
                 send: function (arg, xhr) {
                     console.log("send called:", arg[0]);
                     var body = arg[0];
+                    var requestAsync = this.requestAsync;
                     var bodyRequest = {
                         id: this.id,
                         bodyType: "String",
                         value: null
                     };
+                    function sendBody(bodyRequest, requestAsync) {
+                        if (requestAsync) { // 异步 send 请求
+                            window.KKJSBridge.call(_XHR.moduleName, 'send', bodyRequest);
+                            return;
+                        }
+                        // 同步 send 请求
+                        var response = window.KKJSBridge.syncCall(_XHR.moduleName, 'send', bodyRequest);
+                        _XHR.setProperties(response);
+                    }
                     if (body instanceof ArrayBuffer) { // 说明是 ArrayBuffer，转成 base64
                         bodyRequest.bodyType = "ArrayBuffer";
                         bodyRequest.value = KKJSBridgeUtil.convertArrayBufferToBase64(body);
@@ -1322,7 +1355,7 @@
                         fileReader.onload = function (ev) {
                             var base64 = ev.target.result;
                             bodyRequest.value = base64;
-                            window.KKJSBridge.call(_XHR.moduleName, 'send', bodyRequest);
+                            sendBody(bodyRequest, requestAsync);
                         };
                         fileReader.readAsDataURL(body);
                         return true;
@@ -1332,7 +1365,7 @@
                         bodyRequest.formEnctype = "multipart/form-data";
                         KKJSBridgeUtil.convertFormDataToJson(body, function (json) {
                             bodyRequest.value = json;
-                            window.KKJSBridge.call(_XHR.moduleName, 'send', bodyRequest);
+                            sendBody(bodyRequest, requestAsync);
                         });
                         return true;
                     }
@@ -1340,7 +1373,7 @@
                         bodyRequest.bodyType = "String";
                         bodyRequest.value = body;
                     }
-                    window.KKJSBridge.call(_XHR.moduleName, 'send', bodyRequest);
+                    sendBody(bodyRequest, requestAsync);
                     return true;
                 },
                 overrideMimeType: function (arg, xhr) {

@@ -181,7 +181,7 @@ var init = function() {
       }
   
       /**
-       * 调用方法
+       * 异步调用方法
        * @param module 模块
        * @param method 方法
        * @param data 数据
@@ -189,6 +189,24 @@ var init = function() {
        */
       public call(module: string, method: string, data: {}, callback?: KK.Callback) {
         this.callNative(module, method, data, callback);
+      }
+
+      /**
+       * 同步调用方法
+       * @param module 模块
+       * @param method 方法
+       * @param data 数据
+       */
+      public syncCall(module: string, method: string, data: {}) : any {
+        let message: KK.SendMessage = {
+          module: module || 'default',
+          method,
+          data : data,
+        };
+
+        const messageString: string = JSON.stringify(message);
+        let response: any = window.prompt("KKJSBridge", messageString);
+        return response ? JSON.parse(response) : null;
       }
   
       /**
@@ -530,8 +548,15 @@ var init = function() {
       /**
        * 用于处理来自 native 的异步回调
        */
-      public static setProperties: Function = (jsonString: string) => {
-        let jsonObj: any = JSON.parse(jsonString);
+      public static setProperties: Function = (response: any) => {
+        let jsonObj: any;
+
+        if (typeof response == "string") {
+          jsonObj = JSON.parse(response);
+        } else {
+          jsonObj = response;
+        }
+
         let id: any = jsonObj.id;
         let xhr: any = _XHR.cache[id];
         if (xhr) {
@@ -562,7 +587,7 @@ var init = function() {
         }
 
         // 处理有 iframe 的情况
-        KKJSBridgeIframe.dispatchMessage(jsonString);
+        KKJSBridgeIframe.dispatchMessage(response);
       };
   
       /**
@@ -646,6 +671,7 @@ var init = function() {
           const method: string = arg[0];
           const url: string = arg[1];
           const async: boolean = arg[2];
+          this.requestAsync = async;
           _XHR.cacheXHRIfNeed(this);
           window.KKJSBridge.call(_XHR.moduleName, 'open', {
             "id" : this.id,
@@ -666,11 +692,23 @@ var init = function() {
         send: function(arg: any[], xhr: any) {
           console.log("send called:", arg[0]);
           let body: any = arg[0];
+          let requestAsync: boolean = this.requestAsync;
           let bodyRequest: KK.AJAXBodySendRequest = {
             id: this.id,
             bodyType: "String",
             value: null
           };
+
+          function sendBody(bodyRequest: KK.AJAXBodySendRequest, requestAsync: boolean) {
+            if (requestAsync) {// 异步 send 请求
+              window.KKJSBridge.call(_XHR.moduleName, 'send', bodyRequest);
+              return;
+            }
+
+            // 同步 send 请求
+            let response: any = window.KKJSBridge.syncCall(_XHR.moduleName, 'send', bodyRequest);
+            _XHR.setProperties(response);
+          }
 
           if (body instanceof ArrayBuffer) {// 说明是 ArrayBuffer，转成 base64
             bodyRequest.bodyType = "ArrayBuffer";
@@ -681,7 +719,7 @@ var init = function() {
             fileReader.onload = function(this: FileReader, ev: ProgressEvent) {
               let base64: string = (ev.target as any).result;
               bodyRequest.value = base64;
-              window.KKJSBridge.call(_XHR.moduleName, 'send', bodyRequest);
+              sendBody(bodyRequest, requestAsync);
             };
     
             fileReader.readAsDataURL(body);
@@ -691,7 +729,7 @@ var init = function() {
             bodyRequest.formEnctype = "multipart/form-data";
             KKJSBridgeUtil.convertFormDataToJson(body, (json: any) => {
               bodyRequest.value = json; 
-              window.KKJSBridge.call(_XHR.moduleName, 'send', bodyRequest);
+              sendBody(bodyRequest, requestAsync);
             });
             return true;
           } else {// 说明是字符串或者json
@@ -699,7 +737,7 @@ var init = function() {
             bodyRequest.value = body;
           } 
           
-          window.KKJSBridge.call(_XHR.moduleName, 'send', bodyRequest);
+          sendBody(bodyRequest, requestAsync);
           return true;
         },
         overrideMimeType: function(arg: any[], xhr: any) {
