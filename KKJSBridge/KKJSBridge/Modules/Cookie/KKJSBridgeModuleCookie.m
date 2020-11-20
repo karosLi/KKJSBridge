@@ -35,7 +35,7 @@
  
  比如：
  H5 控制台执行如下语句
- document.cookie='qq=55x; domain=172.16.12.72; path=/; expires=Mon, 01 Aug 2050 06:44:35 GMT; Secure'
+ > document.cookie='qq=55x; domain=172.16.12.72; path=/; expires=Mon, 01 Aug 2050 06:44:35 GMT; Secure'
  
  就会触发下方方法的调用。执行完方法后，可以去查看 cookie 同步的结果：
  > Python BinaryCookieReader.py ./Cookies.binarycookies
@@ -95,7 +95,9 @@
 Hook cookie 读取操作，把 NSHTTPCookieStorage cookie 返回给 H5
 
 比如：
-qq=55x; name=66y;
+H5 控制台执行如下语句
+> document.cookie
+> qq=55x; name=66y;
 
 */
 - (void)cookie:(KKJSBridgeEngine *)engine params:(NSDictionary *)params responseCallback:(void (^)(NSDictionary *responseData))responseCallback {

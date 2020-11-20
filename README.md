@@ -34,6 +34,8 @@
     - 支持 ajax/fetch 请求外部代理
     
     - 分别提供了 ajax hook 和 ajax urlprotocol hook 两种方案，可以根据具体需求自由选择
+    
+    - 支持纯文本的 ajax/fetch 同步请求
 
 - WebView 相关
 
@@ -244,7 +246,7 @@ console.log('receive vc title：', res.title);
 
 
 ## 更新历史
-### 2020.11.21 (1.3.1)
+### 2020.11.21 (1.3.2)
 - 支持 JSBridge 同步调用
 - 支持纯文本的 ajax 同步请求（还不支持 Blob 和 表单）
 - 支持通过 document.cookie 同步从 NSHTTPCookieStorage 读取最新的 Cookie
