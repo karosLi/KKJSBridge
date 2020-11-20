@@ -42,6 +42,7 @@
 		7C74CE8124A0499600E22320 /* KKJSBridgeFormDataFile.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C74CE8024A0499500E22320 /* KKJSBridgeFormDataFile.m */; };
 		7C83A73A2340590400A49A52 /* KKJSBridgeStreamingMultipartFormData.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C83A7372340590300A49A52 /* KKJSBridgeStreamingMultipartFormData.m */; };
 		7C83A73B2340590400A49A52 /* KKJSBridgeURLRequestSerialization.m in Sources */ = {isa = PBXBuildFile; fileRef = 7C83A7382340590300A49A52 /* KKJSBridgeURLRequestSerialization.m */; };
+		7CAFA8042567C9FE0039FF6D /* WKWebView+KKJSBridgeEngine.m in Sources */ = {isa = PBXBuildFile; fileRef = 7CAFA8032567C9FE0039FF6D /* WKWebView+KKJSBridgeEngine.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -115,6 +116,8 @@
 		7C83A7372340590300A49A52 /* KKJSBridgeStreamingMultipartFormData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KKJSBridgeStreamingMultipartFormData.m; sourceTree = "<group>"; };
 		7C83A7382340590300A49A52 /* KKJSBridgeURLRequestSerialization.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KKJSBridgeURLRequestSerialization.m; sourceTree = "<group>"; };
 		7C83A7392340590300A49A52 /* KKJSBridgeStreamingMultipartFormData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KKJSBridgeStreamingMultipartFormData.h; sourceTree = "<group>"; };
+		7CAFA8022567C9FE0039FF6D /* WKWebView+KKJSBridgeEngine.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WKWebView+KKJSBridgeEngine.h"; sourceTree = "<group>"; };
+		7CAFA8032567C9FE0039FF6D /* WKWebView+KKJSBridgeEngine.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "WKWebView+KKJSBridgeEngine.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -294,6 +297,8 @@
 			children = (
 				7C31E0372317EC0800152D06 /* WKWebView+KKWebViewExtension.h */,
 				7C31E0362317EC0800152D06 /* WKWebView+KKWebViewExtension.m */,
+				7CAFA8022567C9FE0039FF6D /* WKWebView+KKJSBridgeEngine.h */,
+				7CAFA8032567C9FE0039FF6D /* WKWebView+KKJSBridgeEngine.m */,
 			);
 			path = Extension;
 			sourceTree = "<group>";
@@ -431,6 +436,7 @@
 				7C74CE8124A0499600E22320 /* KKJSBridgeFormDataFile.m in Sources */,
 				7C31E0442317EC0900152D06 /* KKJSBridgeMessageDispatcher.m in Sources */,
 				7C31E04D2317EC0900152D06 /* KKJSBridgeXMLHttpRequest.m in Sources */,
+				7CAFA8042567C9FE0039FF6D /* WKWebView+KKJSBridgeEngine.m in Sources */,
 				7C83A73B2340590400A49A52 /* KKJSBridgeURLRequestSerialization.m in Sources */,
 				7C31DFB02317CB1700152D06 /* ViewController.m in Sources */,
 				7C83A73A2340590400A49A52 /* KKJSBridgeStreamingMultipartFormData.m in Sources */,
@@ -608,7 +614,7 @@
 					"@executable_path/Frameworks",
 				);
 				MACH_O_TYPE = staticlib;
-				PRODUCT_BUNDLE_IDENTIFIER = com.karosli.KKJSBridge;
+				PRODUCT_BUNDLE_IDENTIFIER = com.karosli.KKJSBridge1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -627,7 +633,7 @@
 					"@executable_path/Frameworks",
 				);
 				MACH_O_TYPE = staticlib;
-				PRODUCT_BUNDLE_IDENTIFIER = com.karosli.KKJSBridge;
+				PRODUCT_BUNDLE_IDENTIFIER = com.karosli.KKJSBridge1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

@@ -9,9 +9,10 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "KKWebView.h"
 
 NS_ASSUME_NONNULL_BEGIN
+@class WKWebView;
+@class WKWebViewConfiguration;
 
 @interface KKWebViewPool : NSObject
 
@@ -41,14 +42,14 @@ NS_ASSUME_NONNULL_BEGIN
  @param webViewClass webview的自定义class
  @param webViewHolder webview的持有者，用于自动回收webview
  */
-- (nullable __kindof KKWebView *)dequeueWebViewWithClass:(Class)webViewClass webViewHolder:(nullable NSObject *)webViewHolder;
+- (nullable __kindof WKWebView *)dequeueWebViewWithClass:(Class)webViewClass webViewHolder:(nullable NSObject *)webViewHolder;
 
 /**
  构建 webView configuration，作为所有复用 webView 提供预先的默认 configuration
  
  @param block 构建 block
  */
-- (void)makeWebViewConfiguration:(void(^)(WKWebViewConfiguration *configuration))block;
+- (void)makeWebViewConfiguration:(nullable void(^)(WKWebViewConfiguration *configuration))block;
 
 /**
  创建一个 webview，并且将它放入到回收池中
@@ -60,14 +61,14 @@ NS_ASSUME_NONNULL_BEGIN
  
  @param webView 可复用的webView
  */
-- (void)enqueueWebView:(nullable __kindof KKWebView *)webView;
+- (void)enqueueWebView:(nullable __kindof WKWebView *)webView;
 
 /**
  回收并销毁WKWebView，并且将之从回收池里删除
  
  @param webView 可复用的webView
  */
-- (void)removeReusableWebView:(nullable __kindof KKWebView *)webView;
+- (void)removeReusableWebView:(nullable __kindof WKWebView *)webView;
 
 /**
  销毁全部在回收池中的WebView

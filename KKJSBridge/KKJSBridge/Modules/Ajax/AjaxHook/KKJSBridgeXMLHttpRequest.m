@@ -174,7 +174,7 @@ static NSString * const KKJSBridgeXMLHttpRequestStatusTextOK = @"OK";
      3、当 H5 是使用 document.cookie 获取 Cookie 并设置的 Cookie 请求头，此时是获取不到 HTTP Only Cookie 的，可以使用 NSHTTPCookieStorage 来同步下最新的 Cookie。
      
      虽然会产生重复设置，但是这里只要认准 NSHTTPCookieStorage 是唯一读取和存储 Cookie 的仓库事实就好了。
-     唯一不能处理的是，有些 H5 会通过 document.cookie 去获取 cookie 并做一些逻辑的时候。这个要画重点，待后续继续看看。
+     唯一不能处理的是，有些 H5 会通过 document.cookie 去获取 cookie 并做一些逻辑的时候。目前可以通过 hook document.cookie.get 方法可以从 NSHTTPCookieStorage 读取最新的 Cookie 了。
      */
     [KKWebViewCookieManager syncRequestCookie:self.request];
     
@@ -185,9 +185,8 @@ static NSString * const KKJSBridgeXMLHttpRequestStatusTextOK = @"OK";
         // 实际请求代理外部网络库处理
         self.dataTask = [KKJSBridgeConfig.ajaxDelegateManager dataTaskWithRequest:self.request callbackDelegate:self];
     } else {
-        NSOperationQueue *queue = [NSOperationQueue new];
         NSURLSessionConfiguration *sessionConfiguration = [NSURLSessionConfiguration defaultSessionConfiguration];
-        NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConfiguration delegate:(id<NSURLSessionDelegate>)[KKJSBridgeWeakProxy proxyWithTarget:self] delegateQueue:queue]; // 防止内存泄露
+        NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConfiguration delegate:(id<NSURLSessionDelegate>)[KKJSBridgeWeakProxy proxyWithTarget:self] delegateQueue:nil]; // 防止内存泄露
         self.dataTask = [session dataTaskWithRequest:self.request];
     }
     

@@ -29,6 +29,14 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign, getter=isEnableAjaxHook) BOOL enableAjaxHook;
 
 /**
+是否开启 cookie hook，默认是开启的
+
+讨论：
+当需要开启 cookie hook 时，document.cookie 的修改会通过异步 JSBridge 调用保存到 NSHTTPCookieStorage，document.cookie 的读取会通过同步 JSBridge 调用从 NSHTTPCookieStorage 中读取。
+*/
+@property (nonatomic, assign, getter=isEnableCookieHook) BOOL enableCookieHook;
+
+/**
  ajax 请求回调管理器，一旦指定，JSBridge 引擎内部不会发送请求，而是把发送请求控制权交给该代理。前提是必须先开启 ajax hook。
  
  请求代理没有必要一个 jsbridge 对应一个，而是所有 jsbridge 共用一个

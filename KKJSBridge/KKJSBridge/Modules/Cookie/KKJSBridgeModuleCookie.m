@@ -91,4 +91,28 @@
     }
 }
 
+/**
+Hook cookie 读取操作，把 NSHTTPCookieStorage cookie 返回给 H5
+
+比如：
+qq=55x; name=66y;
+
+*/
+- (void)cookie:(KKJSBridgeEngine *)engine params:(NSDictionary *)params responseCallback:(void (^)(NSDictionary *responseData))responseCallback {
+    NSString *url = params[@"url"];
+    if (!url) {
+        responseCallback ? responseCallback(@{@"cookie": @""}) : nil;
+        return;
+    }
+    
+    NSArray<NSHTTPCookie *> *availableCookie = [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookiesForURL:[NSURL URLWithString:url]];
+    if (availableCookie.count > 0) {
+        NSDictionary *reqHeader = [NSHTTPCookie requestHeaderFieldsWithCookies:availableCookie];
+        NSString *cookieStr = [reqHeader objectForKey:@"Cookie"];
+        responseCallback ? responseCallback(@{@"cookie": cookieStr ? cookieStr : @""}) : nil;
+    } else {
+        responseCallback ? responseCallback(@{@"cookie": @""}) : nil;
+    }
+}
+
 @end

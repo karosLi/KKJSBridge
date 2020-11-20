@@ -9,6 +9,7 @@
 #import "WKWebView+KKWebViewReusable.h"
 #import <objc/runtime.h>
 #import "KKWebViewPool.h"
+#import "WKWebView+KKJSBridgeEngine.h"
 
 @interface _KKWebViewWeakWrapper : NSObject
 @property(nonatomic, weak, readwrite)NSObject *weakObj;
@@ -64,6 +65,7 @@
 
 - (void)componentViewWillEnterPool {
     self.holderObject = nil;
+    self.kk_engine = nil;
     self.scrollView.delegate = nil;
     self.scrollView.scrollEnabled = YES;
     [self stopLoading];

@@ -35,12 +35,22 @@ typedef void (^KKJSBridgeReadyCallback)(KKJSBridgeEngine *engine);
 + (instancetype)bridgeForWebView:(WKWebView *)webView;
 
 /**
- 分发一个事件
+ 分发一个事件到 H5
 
  @param eventName 事件名称
  @param data 数据
  */
 - (void)dispatchEvent:(NSString *)eventName data:(NSDictionary * _Nullable)data;
+
+/**
+ 分发一个调用。这个分发可以是来自 H5，也可以是来自 Native
+
+ @param module 模块名
+ @param method 方法名
+ @param data 数据
+ @param callback 回调
+ */
+- (void)dispatchCall:(NSString *)module method:(NSString *)method data:(NSDictionary * _Nullable)data callback:(void (^)(NSDictionary * _Nullable responseData))callback;
 
 @end
 

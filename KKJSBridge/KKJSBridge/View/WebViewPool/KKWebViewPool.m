@@ -11,8 +11,8 @@
 
 @interface KKWebViewPool ()
 @property (nonatomic, strong, readwrite) dispatch_semaphore_t lock;
-@property (nonatomic, strong, readwrite) NSMutableDictionary<NSString *, NSMutableSet< __kindof KKWebView *> *> *dequeueWebViews;
-@property (nonatomic, strong, readwrite) NSMutableDictionary<NSString *, NSMutableSet< __kindof KKWebView *> *> *enqueueWebViews;
+@property (nonatomic, strong, readwrite) NSMutableDictionary<NSString *, NSMutableSet< __kindof WKWebView *> *> *dequeueWebViews;
+@property (nonatomic, strong, readwrite) NSMutableDictionary<NSString *, NSMutableSet< __kindof WKWebView *> *> *enqueueWebViews;
 @property (nonatomic, copy) void(^makeWebViewConfigurationBlock)(WKWebViewConfiguration *configuration);
 @end
 
@@ -55,8 +55,8 @@
 }
 
 #pragma mark - public method
-- (__kindof KKWebView *)dequeueWebViewWithClass:(Class)webViewClass webViewHolder:(NSObject *)webViewHolder {
-    if (![webViewClass isSubclassOfClass:[KKWebView class]]) {
+- (__kindof WKWebView *)dequeueWebViewWithClass:(Class)webViewClass webViewHolder:(NSObject *)webViewHolder {
+    if (![webViewClass isSubclassOfClass:[WKWebView class]]) {
 #ifdef DEBUG
         NSLog(@"KKWebViewPool dequeue with invalid class:%@", webViewClass);
 #endif
@@ -66,24 +66,24 @@
     //auto recycle
     [self _tryCompactWeakHolderOfWebView];
     
-    __kindof KKWebView *dequeueWebView = [self _getWebViewWithClass:webViewClass];
+    __kindof WKWebView *dequeueWebView = [self _getWebViewWithClass:webViewClass];
     dequeueWebView.holderObject = webViewHolder;
     return dequeueWebView;
 }
 
-- (void)makeWebViewConfiguration:(void(^)(WKWebViewConfiguration *configuration))block {
+- (void)makeWebViewConfiguration:(nullable void(^)(WKWebViewConfiguration *configuration))block {
     self.makeWebViewConfigurationBlock = block;
 }
 
 - (void)enqueueWebViewWithClass:(Class)webViewClass {
-    if (![webViewClass isSubclassOfClass:[KKWebView class]]) {
+    if (![webViewClass isSubclassOfClass:[WKWebView class]]) {
 #ifdef DEBUG
         NSLog(@"KKWebViewPool enqueue with invalid class:%@", webViewClass);
 #endif
     }
 
     dispatch_semaphore_wait(_lock, DISPATCH_TIME_FOREVER);
-    __kindof KKWebView *webView;
+    __kindof WKWebView *webView;
     NSString *webViewClassString = NSStringFromClass(webViewClass);
     
     if ([[_enqueueWebViews allKeys] containsObject:webViewClassString]) {
@@ -103,7 +103,7 @@
     dispatch_semaphore_signal(_lock);
 }
 
-- (void)enqueueWebView:(__kindof KKWebView *)webView {
+- (void)enqueueWebView:(__kindof WKWebView *)webView {
     if (!webView) {
 #ifdef DEBUG
         NSLog(@"KKWebViewPool enqueue with invalid view:%@", webView);
@@ -121,7 +121,7 @@
 - (void)reloadAllReusableWebViews {
     dispatch_semaphore_wait(_lock, DISPATCH_TIME_FOREVER);
     for (NSMutableSet *viewSet in _enqueueWebViews.allValues) {
-        for (__kindof KKWebView *webView in viewSet) {
+        for (__kindof WKWebView *webView in viewSet) {
             [webView componentViewWillEnterPool];
         }
     }
@@ -137,7 +137,7 @@
     dispatch_semaphore_signal(_lock);
 }
 
-- (void)removeReusableWebView:(__kindof KKWebView *)webView {
+- (void)removeReusableWebView:(__kindof WKWebView *)webView {
     if (!webView) {
         return;
     }
@@ -195,7 +195,7 @@
     if (dequeueWebViewsTmp && dequeueWebViewsTmp.count > 0) {
         for (NSMutableSet *viewSet in dequeueWebViewsTmp.allValues) {
             NSSet *webViewSetTmp = viewSet.copy;
-            for (__kindof KKWebView *webView in webViewSetTmp) {
+            for (__kindof WKWebView *webView in webViewSetTmp) {
                 if (!webView.holderObject) {
                     [self enqueueWebView:webView];
                 }
@@ -204,7 +204,7 @@
     }
 }
 
-- (void)_recycleWebView:(__kindof KKWebView *)webView {
+- (void)_recycleWebView:(__kindof WKWebView *)webView {
     if (!webView) {
         return;
     }
@@ -242,14 +242,14 @@
     dispatch_semaphore_signal(_lock);
 }
 
-- (__kindof KKWebView *)_getWebViewWithClass:(Class)webViewClass {
+- (__kindof WKWebView *)_getWebViewWithClass:(Class)webViewClass {
     NSString *webViewClassString = NSStringFromClass(webViewClass);
 
     if (!webViewClassString || webViewClassString.length <= 0) {
         return nil;
     }
 
-    __kindof KKWebView *webView;
+    __kindof WKWebView *webView;
 
     dispatch_semaphore_wait(_lock, DISPATCH_TIME_FOREVER);
 
@@ -289,7 +289,7 @@
     return webView;
 }
 
-- (__kindof KKWebView *)generateInstanceWithWebViewClass:(Class)webViewClass {
+- (__kindof WKWebView *)generateInstanceWithWebViewClass:(Class)webViewClass {
     WKWebViewConfiguration *config = [WKWebViewConfiguration new];
     if (self.makeWebViewConfigurationBlock) {
         self.makeWebViewConfigurationBlock(config);

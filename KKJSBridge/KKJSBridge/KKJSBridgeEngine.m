@@ -8,8 +8,10 @@
 
 #import "KKJSBridgeEngine.h"
 #import "KKJSBridgeMessageDispatcher.h"
+#import "KKJSBridgeMessage.h"
 #import "KKJSBridgeModuleCookie.h"
 #import "KKJSBridgeWeakScriptMessageDelegate.h"
+#import "WKWebView+KKJSBridgeEngine.h"
 
 static NSString * const KKJSBridgeMessageName = @"KKJSBridgeMessage";
 
@@ -34,11 +36,22 @@ static NSString * const KKJSBridgeMessageName = @"KKJSBridgeMessage";
 
 + (instancetype)bridgeForWebView:(WKWebView *)webView {
     KKJSBridgeEngine *bridge = [[self alloc] initWithWebView:webView];
+    webView.kk_engine = bridge;
     return bridge;
 }
 
 - (void)dispatchEvent:(NSString *)eventName data:(NSDictionary * _Nullable)data {
     [self.dispatcher dispatchEventMessage:eventName data:data];
+}
+
+- (void)dispatchCall:(NSString *)module method:(NSString *)method data:(NSDictionary * _Nullable)data callback:(void (^)(NSDictionary * _Nullable responseData))callback {
+    KKJSBridgeMessage *message = [KKJSBridgeMessage new];
+    message.module = module;
+    message.method = method;
+    message.data = data;
+    message.callback = callback;
+    
+    [self.dispatcher dispatchCallbackMessage:message];
 }
 
 - (instancetype)initWithWebView:(WKWebView *)webView {
@@ -61,6 +74,7 @@ static NSString * const KKJSBridgeMessageName = @"KKJSBridgeMessage";
 - (void)setup {
     [self setupJSBridge];
     [self setupDefaultModuleRegister];
+    self.config.enableCookieHook = YES;// 默认开启 cookie hook
 }
 
 - (void)setupJSBridge {

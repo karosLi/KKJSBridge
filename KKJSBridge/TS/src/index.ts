@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2020-06-20 11:29:12
- * @LastEditTime: 2020-11-17 17:31:49
+ * @LastEditTime: 2020-11-20 23:35:57
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /TS/src/indexnew.ts
@@ -173,7 +173,7 @@ var init = function() {
       }
   
       /**
-       * 调用方法
+       * 异步调用方法
        * @param module 模块
        * @param method 方法
        * @param data 数据
@@ -181,6 +181,24 @@ var init = function() {
        */
       public call(module: string, method: string, data: {}, callback?: KK.Callback) {
         this.callNative(module, method, data, callback);
+      }
+
+      /**
+       * 同步调用方法
+       * @param module 模块
+       * @param method 方法
+       * @param data 数据
+       */
+      public syncCall(module: string, method: string, data: {}) : any {
+        let message: KK.SendMessage = {
+          module: module || 'default',
+          method,
+          data : data,
+        };
+
+        const messageString: string = JSON.stringify(message);
+        let response: any = window.prompt("KKJSBridge", messageString);
+        return response ? JSON.parse(response) : null;
       }
   
       /**
@@ -362,14 +380,24 @@ var init = function() {
                 enumerable: true,
                 get: function () {
                   // console.log('getCookie');
+                  if (KKJSBridgeConfig.cookieHook) {// 如果开启 cookie hook，则从 Native 读取 cookie
+                    let cookieJson: any = window.KKJSBridge.syncCall(_COOKIE.moduleName, 'cookie', {
+                      "url" : window.location.href
+                    });
+                    return cookieJson.cookie;
+                  }
+
                   return cookieDesc.get.call(document);
                 },
                 set: function (val) {
                   // console.log('setCookie');
+                  if (KKJSBridgeConfig.cookieHook) {// 如果开启 cookie hook，则需要把 cookie 同步给 Native
+                    window.KKJSBridge.call(_COOKIE.moduleName, 'setCookie', {
+                      "cookie" : val
+                    });
+                  }
+
                   cookieDesc.set.call(document, val);
-                  window.KKJSBridge.call(_COOKIE.moduleName, 'setCookie', {
-                    "cookie" : val
-                  });
                 }
               });
           }
@@ -480,7 +508,8 @@ var init = function() {
       public static sendBodyToNativeForCache: Function = (targetType: "AJAX" | "FORM", target: XMLHttpRequest | HTMLFormElement, 
         originMethod: any, 
         originArguments: any, 
-        request: KK.AJAXBodyCacheRequest) => {
+        request: KK.AJAXBodyCacheRequest,
+        requestAsync: boolean = true) => {
         
         let requestId: string = target.requestId;
         let cacheCallback: KK.AJAXBodyCacheCallback = {
@@ -501,22 +530,31 @@ var init = function() {
           }
         };
 
-        // 缓存 callbcak
-        _XHR.callbackCache[requestId] = cacheCallback;
-        // 发送 body 请求到 native
-        window.KKJSBridge.call(_XHR.moduleName, 'cacheAJAXBody', request, (message: any) => {
-          // 处理 native 侧缓存完毕后的消息
-          let callbackFromNative: KK.AJAXBodyCacheCallback = message;
-          let requestId: string = callbackFromNative.requestId;
-          // 通过请求 id，找到原始方法并调用
-          if (_XHR.callbackCache[requestId]) {
-            let callbackFromNative: KK.AJAXBodyCacheCallback = _XHR.callbackCache[requestId];
-            if (callbackFromNative.callback) {
-              callbackFromNative.callback();
+        if (requestAsync) {// 异步请求
+          // 缓存 callbcak
+          _XHR.callbackCache[requestId] = cacheCallback;
+          // 发送 body 请求到 native
+          window.KKJSBridge.call(_XHR.moduleName, 'cacheAJAXBody', request, (message: any) => {
+            // 处理 native 侧缓存完毕后的消息
+            let callbackFromNative: KK.AJAXBodyCacheCallback = message;
+            let requestId: string = callbackFromNative.requestId;
+            // 通过请求 id，找到原始 send 方法并调用
+            if (_XHR.callbackCache[requestId]) {
+              let callbackFromNative: KK.AJAXBodyCacheCallback = _XHR.callbackCache[requestId];
+              if (callbackFromNative.callback) {
+                callbackFromNative.callback();
+              }
+              delete _XHR.callbackCache[requestId];
             }
-            delete _XHR.callbackCache[requestId];
-          }
-        });
+          });
+          return;
+        }
+
+        // 同步请求
+        // 发送 body 请求到 native
+        window.KKJSBridge.syncCall(_XHR.moduleName, 'cacheAJAXBody', request);
+        // 发送完成后继续请求原始 send 方法
+        cacheCallback.callback();
       }
     }
     window._XHR = _XHR;
@@ -560,10 +598,6 @@ var init = function() {
         return originSend.apply(xhr, args);
       }
 
-      if (!xhr.requestAsync) {// 如果是同步，直接调用原始 send
-        return originSend.apply(xhr, args);
-      }
-
       if (!body) {// 没有 body，调用原始 send
         return originSend.apply(xhr, args);
       } else if (body instanceof ArrayBuffer) {// 说明是 ArrayBuffer，转成 base64
@@ -575,7 +609,7 @@ var init = function() {
         fileReader.onload = function(this: FileReader, ev: ProgressEvent) {
           let base64: string = (ev.target as any).result;
           request.value = base64;
-          _XHR.sendBodyToNativeForCache("AJAX", xhr, originSend, args, request);
+          _XHR.sendBodyToNativeForCache("AJAX", xhr, originSend, args, request, xhr.requestAsync);
         };
 
         fileReader.readAsDataURL(body);
@@ -585,7 +619,7 @@ var init = function() {
         request.formEnctype = "multipart/form-data";
         KKJSBridgeUtil.convertFormDataToJson(body, (json: any) => {
           request.value = json; 
-          _XHR.sendBodyToNativeForCache("AJAX", xhr, originSend, args, request);
+          _XHR.sendBodyToNativeForCache("AJAX", xhr, originSend, args, request, xhr.requestAsync);
         });
         return;
       } else {// 说明是字符串或者json
@@ -594,7 +628,7 @@ var init = function() {
       } 
       
       // 发送到 native 缓存起来
-      _XHR.sendBodyToNativeForCache("AJAX", xhr, originSend, args, request);
+      _XHR.sendBodyToNativeForCache("AJAX", xhr, originSend, args, request, xhr.requestAsync);
     } as any;
 
     /**
@@ -638,6 +672,7 @@ var init = function() {
      */
     class KKJSBridgeConfig {
       public static ajaxHook: boolean = false;
+      public static cookieHook: boolean = true;
       
       public static init: Function = () => {
         window.KKJSBridge = KKJSBridgeInstance; // 设置新的 JSBridge 作为全局对象
@@ -653,6 +688,17 @@ var init = function() {
         } else {
           FetchHook.enableFetchHook(false);
           KKJSBridgeConfig.ajaxHook = false;
+        }
+      };
+
+      /**
+       * 开启 cookie hook
+       */
+      public static enableCookieHook: Function = (enable: boolean) => {
+        if (enable) {
+          KKJSBridgeConfig.cookieHook = true;
+        } else {
+          KKJSBridgeConfig.cookieHook = false;
         }
       };
   

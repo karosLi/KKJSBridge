@@ -41,6 +41,7 @@ typedef void (^KKJSBridgeMessageCallback)(NSDictionary *responseData);
     message.method = json[@"method"];
     message.data = json[@"data"];
     message.callbackId = json[@"callbackId"];
+    message.callback = json[@"callback"];
     
     return message;
 }
@@ -143,6 +144,8 @@ typedef void (^KKJSBridgeMessageCallback)(NSDictionary *responseData);
                     [KKJSBridgeLogger log:@"Send out" module:moduleName method:methodName data:responseData];
                     [self dispatchMessageResponse:callbackMessageResponse];
                 };
+            } else if (message.callback) {
+                callback = message.callback;
             }
             
             [KKJSBridgeLogger log:@"Receive" module:moduleName method:methodName data:params];

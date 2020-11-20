@@ -784,14 +784,24 @@ var init = function() {
                 enumerable: true,
                 get: function () {
                   // console.log('getCookie');
+                  if (KKJSBridgeConfig.cookieHook) {// 如果开启 cookie hook，则从 Native 读取 cookie
+                    let cookieJson: any = window.KKJSBridge.syncCall(_COOKIE.moduleName, 'cookie', {
+                      "url" : window.location.href
+                    });
+                    return cookieJson.cookie;
+                  }
+
                   return cookieDesc.get.call(document);
                 },
                 set: function (val) {
                   // console.log('setCookie');
+                  if (KKJSBridgeConfig.cookieHook) {// 如果开启 cookie hook，则需要把 cookie 同步给 Native
+                    window.KKJSBridge.call(_COOKIE.moduleName, 'setCookie', {
+                      "cookie" : val
+                    });
+                  }
+
                   cookieDesc.set.call(document, val);
-                  window.KKJSBridge.call(_COOKIE.moduleName, 'setCookie', {
-                    "cookie" : val
-                  });
                 }
               });
           }
@@ -808,6 +818,8 @@ var init = function() {
      * KKJSBridge 配置
      */
     class KKJSBridgeConfig {
+      public static cookieHook: boolean = true;
+
       public static init: Function = () => {
         window.KKJSBridge = KKJSBridgeInstance; // 设置新的 JSBridge 作为全局对象
       };
@@ -820,6 +832,17 @@ var init = function() {
           hookAjax();
         } else {
           unHookAjax();
+        }
+      };
+
+      /**
+       * 开启 cookie hook
+       */
+      public static enableCookieHook: Function = (enable: boolean) => {
+        if (enable) {
+          KKJSBridgeConfig.cookieHook = true;
+        } else {
+          KKJSBridgeConfig.cookieHook = false;
         }
       };
   

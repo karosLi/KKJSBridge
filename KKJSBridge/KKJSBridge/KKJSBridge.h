@@ -11,6 +11,7 @@
 
 #import "KKJSBridgeEngine.h"
 #import "KKJSBridgeJSExecutor.h"
+#import "WKWebView+KKJSBridgeEngine.h"
 #import "KKWebView.h"
 #import "KKWebViewPool.h"
 #import "KKWebViewCookieManager.h"

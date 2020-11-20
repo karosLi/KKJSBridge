@@ -54,6 +54,18 @@ static id<KKJSBridgeAjaxDelegateManager> globalAjaxDelegateManager;
     }
 }
 
+- (void)setEnableCookieHook:(BOOL)enableCookieHook {
+    _enableCookieHook = enableCookieHook;
+    
+    NSString *script = [NSString stringWithFormat:@"window.KKJSBridgeConfig.enableCookieHook(%@)", [NSNumber numberWithBool:enableCookieHook]];
+    if (self.engine.isBridgeReady) {
+        [KKJSBridgeJSExecutor evaluateJavaScript:script inWebView:self.engine.webView completionHandler:nil];
+    } else {
+        WKUserScript *userScript = [[WKUserScript alloc] initWithSource:script injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:NO];
+        [self.engine.webView.configuration.userContentController addUserScript:userScript];
+    }
+}
+
 + (void)setAjaxDelegateManager:(id<KKJSBridgeAjaxDelegateManager>)ajaxDelegateManager {
     globalAjaxDelegateManager = ajaxDelegateManager;
 }
