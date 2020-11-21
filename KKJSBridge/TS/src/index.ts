@@ -1,11 +1,3 @@
-/*
- * @Author: your name
- * @Date: 2020-06-20 11:29:12
- * @LastEditTime: 2020-11-20 23:35:57
- * @LastEditors: Please set LastEditors
- * @Description: In User Settings Edit
- * @FilePath: /TS/src/indexnew.ts
- */ 
 /// <reference path="./index.d.ts" />
 import * as FetchHook from "./lib/fetch.js"
 
