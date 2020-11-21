@@ -74,7 +74,6 @@ static NSString * const KKJSBridgeMessageName = @"KKJSBridgeMessage";
 - (void)setup {
     [self setupJSBridge];
     [self setupDefaultModuleRegister];
-    self.config.enableCookieHook = YES;// 默认开启 cookie hook
 }
 
 - (void)setupJSBridge {
