@@ -60,8 +60,10 @@
  【COOKIE 2】为异步 ajax 请求同步 cookie
  */
 - (void)syncAjaxCookie {
-    WKUserScript *cookieScript = [[WKUserScript alloc] initWithSource:[KKWebViewCookieManager ajaxCookieScripts] injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:NO];
-    [self.configuration.userContentController addUserScript:cookieScript];
+    if (!(self.kk_engine && self.kk_engine.config.isEnableCookieHook)) {// 当开启 cookie hook 时，Cookie 处理都会被 NSHTTPCookieStorage 接管，这里就不用注入脚本了
+        WKUserScript *cookieScript = [[WKUserScript alloc] initWithSource:[KKWebViewCookieManager ajaxCookieScripts] injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:NO];
+        [self.configuration.userContentController addUserScript:cookieScript];
+    }
 }
 
 #pragma mark - WKNavigationDelegate
