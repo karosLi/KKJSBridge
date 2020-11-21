@@ -18,4 +18,13 @@
 #define KKJS_UNLOCK(lock) dispatch_semaphore_signal(lock);
 #endif
 
+#ifndef KKJS_SAFE_DISPATCH_ASYNC_MAIN
+#define KKJS_SAFE_DISPATCH_ASYNC_MAIN(block)\
+    if (dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL) == dispatch_queue_get_label(dispatch_get_main_queue())) {\
+        block();\
+    } else {\
+        dispatch_async(dispatch_get_main_queue(), block);\
+    }
+#endif
+
 #endif /* KKJSBridgeMacro_h */
