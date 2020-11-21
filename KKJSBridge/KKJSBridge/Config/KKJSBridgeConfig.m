@@ -27,6 +27,7 @@ static id<KKJSBridgeAjaxDelegateManager> globalAjaxDelegateManager;
 - (instancetype)initWithEngine:(KKJSBridgeEngine *)engine {
     if (self = [super init]) {
         _engine = engine;
+        _enableCookieHook = YES;
     }
     
     return self;
