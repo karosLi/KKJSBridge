@@ -1179,7 +1179,7 @@
                         // 通过请求 id，找到原始 send 方法并调用
                         if (_XHR.callbackCache[requestId]) {
                             var callbackFromNative_1 = _XHR.callbackCache[requestId];
-                            if (callbackFromNative_1.callback) {
+                            if (callbackFromNative_1 && callbackFromNative_1.callback && typeof callbackFromNative_1.callback == "function") {
                                 callbackFromNative_1.callback();
                             }
                             delete _XHR.callbackCache[requestId];

@@ -533,7 +533,7 @@ var init = function() {
             // 通过请求 id，找到原始 send 方法并调用
             if (_XHR.callbackCache[requestId]) {
               let callbackFromNative: KK.AJAXBodyCacheCallback = _XHR.callbackCache[requestId];
-              if (callbackFromNative.callback) {
+              if (callbackFromNative && callbackFromNative.callback && typeof callbackFromNative.callback == "function") {
                 callbackFromNative.callback();
               }
               delete _XHR.callbackCache[requestId];
