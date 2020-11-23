@@ -1337,12 +1337,20 @@
                         value: null
                     };
                     function sendBody(bodyRequest, requestAsync) {
+                        /*
+                          ajax 同步请求只支持纯文本数据，不支持 Blob 和 FormData 数据。
+                          如果要支持的话，必须使用 FileReaderSync 对象，但是该对象只在 workers 里可用，
+                          因为在主线程里进行同步 I/O 操作可能会阻塞用户界面。
+                          https://developer.mozilla.org/zh-CN/docs/Web/API/FileReaderSync
+                        */
+                        if (requestAsync === void 0) { requestAsync = true; }
                         if (requestAsync) { // 异步 send 请求
                             window.KKJSBridge.call(_XHR.moduleName, 'send', bodyRequest);
                             return;
                         }
                         // 同步 send 请求
                         var response = window.KKJSBridge.syncCall(_XHR.moduleName, 'send', bodyRequest);
+                        // 处理请求回来的结果
                         _XHR.setProperties(response);
                     }
                     if (body instanceof ArrayBuffer) { // 说明是 ArrayBuffer，转成 base64
@@ -1355,7 +1363,7 @@
                         fileReader.onload = function (ev) {
                             var base64 = ev.target.result;
                             bodyRequest.value = base64;
-                            sendBody(bodyRequest, requestAsync);
+                            sendBody(bodyRequest);
                         };
                         fileReader.readAsDataURL(body);
                         return true;
@@ -1365,7 +1373,7 @@
                         bodyRequest.formEnctype = "multipart/form-data";
                         KKJSBridgeUtil.convertFormDataToJson(body, function (json) {
                             bodyRequest.value = json;
-                            sendBody(bodyRequest, requestAsync);
+                            sendBody(bodyRequest);
                         });
                         return true;
                     }

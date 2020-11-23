@@ -699,7 +699,14 @@ var init = function() {
             value: null
           };
 
-          function sendBody(bodyRequest: KK.AJAXBodySendRequest, requestAsync: boolean) {
+          function sendBody(bodyRequest: KK.AJAXBodySendRequest, requestAsync: boolean = true) {
+            /* 
+              ajax 同步请求只支持纯文本数据，不支持 Blob 和 FormData 数据。
+              如果要支持的话，必须使用 FileReaderSync 对象，但是该对象只在 workers 里可用，
+              因为在主线程里进行同步 I/O 操作可能会阻塞用户界面。
+              https://developer.mozilla.org/zh-CN/docs/Web/API/FileReaderSync
+            */
+
             if (requestAsync) {// 异步 send 请求
               window.KKJSBridge.call(_XHR.moduleName, 'send', bodyRequest);
               return;
@@ -707,6 +714,7 @@ var init = function() {
 
             // 同步 send 请求
             let response: any = window.KKJSBridge.syncCall(_XHR.moduleName, 'send', bodyRequest);
+            // 处理请求回来的结果
             _XHR.setProperties(response);
           }
 
@@ -719,7 +727,7 @@ var init = function() {
             fileReader.onload = function(this: FileReader, ev: ProgressEvent) {
               let base64: string = (ev.target as any).result;
               bodyRequest.value = base64;
-              sendBody(bodyRequest, requestAsync);
+              sendBody(bodyRequest);
             };
     
             fileReader.readAsDataURL(body);
@@ -729,7 +737,7 @@ var init = function() {
             bodyRequest.formEnctype = "multipart/form-data";
             KKJSBridgeUtil.convertFormDataToJson(body, (json: any) => {
               bodyRequest.value = json; 
-              sendBody(bodyRequest, requestAsync);
+              sendBody(bodyRequest);
             });
             return true;
           } else {// 说明是字符串或者json

@@ -502,6 +502,13 @@ var init = function() {
         originArguments: any, 
         request: KK.AJAXBodyCacheRequest,
         requestAsync: boolean = true) => {
+
+        /* 
+          ajax 同步请求只支持纯文本数据，不支持 Blob 和 FormData 数据。
+          如果要支持的话，必须使用 FileReaderSync 对象，但是该对象只在 workers 里可用，
+          因为在主线程里进行同步 I/O 操作可能会阻塞用户界面。
+          https://developer.mozilla.org/zh-CN/docs/Web/API/FileReaderSync
+        */
         
         let requestId: string = target.requestId;
         let cacheCallback: KK.AJAXBodyCacheCallback = {
@@ -601,7 +608,7 @@ var init = function() {
         fileReader.onload = function(this: FileReader, ev: ProgressEvent) {
           let base64: string = (ev.target as any).result;
           request.value = base64;
-          _XHR.sendBodyToNativeForCache("AJAX", xhr, originSend, args, request, xhr.requestAsync);
+          _XHR.sendBodyToNativeForCache("AJAX", xhr, originSend, args, request);
         };
 
         fileReader.readAsDataURL(body);
@@ -611,7 +618,7 @@ var init = function() {
         request.formEnctype = "multipart/form-data";
         KKJSBridgeUtil.convertFormDataToJson(body, (json: any) => {
           request.value = json; 
-          _XHR.sendBodyToNativeForCache("AJAX", xhr, originSend, args, request, xhr.requestAsync);
+          _XHR.sendBodyToNativeForCache("AJAX", xhr, originSend, args, request);
         });
         return;
       } else {// 说明是字符串或者json
