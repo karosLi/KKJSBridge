@@ -246,7 +246,7 @@ console.log('receive vc title：', res.title);
 
 
 ## 更新历史
-### 2020.11.21 (1.3.2)
+### 2020.11.21 (1.3.4)
 - 支持 JSBridge 同步调用
 - 支持纯文本的 ajax 同步请求（还不支持 Blob 和 表单）
 - 支持通过 document.cookie 同步从 NSHTTPCookieStorage 读取最新的 Cookie
