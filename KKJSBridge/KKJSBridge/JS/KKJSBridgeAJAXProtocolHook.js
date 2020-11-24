@@ -30,6 +30,439 @@
         };
     }
 
+    /// <reference path="../index.d.ts" />
+    /**
+     * KKJSBridge 工具
+     */
+    var KKJSBridgeUtil = /** @class */ (function () {
+        function KKJSBridgeUtil() {
+        }
+        /**
+         * 把 arraybuffer 转成 base64
+         * @param arraybuffer
+         */
+        KKJSBridgeUtil.convertArrayBufferToBase64 = function (arraybuffer) {
+            var uint8Array = new Uint8Array(arraybuffer);
+            var charCode = "";
+            var length = uint8Array.byteLength;
+            for (var i = 0; i < length; i++) {
+                charCode += String.fromCharCode(uint8Array[i]);
+            }
+            // 字符串转成base64
+            return window.btoa(charCode);
+        };
+        /**
+         * 转换 form 表单到 json 对象
+         * @param formData
+         * @param callback
+         */
+        KKJSBridgeUtil.convertFormDataToJson = function (formData, callback) {
+            var e_1, _a;
+            var allPromise = [];
+            if (formData._entries) { // 低版本的 iOS 系统，并不支持 entries() 方法，所以这里做兼容处理
+                for (var i = 0; i < formData._entries.length; i++) {
+                    var pair = formData._entries[i];
+                    var key = pair[0];
+                    var value = pair[1];
+                    var fileName = pair.length > 2 ? pair[2] : null;
+                    allPromise.push(KKJSBridgeUtil.convertSingleFormDataRecordToArray(key, value, fileName));
+                }
+            }
+            else {
+                try {
+                    // JS 里 FormData 表单实际上也是一个键值对
+                    for (var _b = __values(formData.entries()), _c = _b.next(); !_c.done; _c = _b.next()) {
+                        var pair = _c.value;
+                        var key = pair[0];
+                        var value = pair[1];
+                        allPromise.push(KKJSBridgeUtil.convertSingleFormDataRecordToArray(key, value));
+                    }
+                }
+                catch (e_1_1) { e_1 = { error: e_1_1 }; }
+                finally {
+                    try {
+                        if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                    }
+                    finally { if (e_1) throw e_1.error; }
+                }
+            }
+            Promise.all(allPromise).then(function (formDatas) {
+                var formDataJson = {};
+                var formDataFileKeys = [];
+                for (var i = 0; i < formDatas.length; i++) {
+                    var singleKeyValue = formDatas[i];
+                    // 只要不是字符串，那就是一个类文件对象，需要加入到 formDataFileKeys 里，方便 native 做编码转换
+                    if (singleKeyValue.length > 1 && !(typeof singleKeyValue[1] == "string")) {
+                        formDataFileKeys.push(singleKeyValue[0]);
+                    }
+                }
+                formDataJson['fileKeys'] = formDataFileKeys;
+                formDataJson['formData'] = formDatas;
+                callback(formDataJson);
+            }).catch(function (error) {
+                console.log(error);
+            });
+        };
+        /**
+         * 转换表单单条记录到一个数组对象
+         * @param key
+         * @param value
+         * @param fileName
+         */
+        KKJSBridgeUtil.convertSingleFormDataRecordToArray = function (key, value, fileName) {
+            return new Promise(function (resolve, reject) {
+                var singleKeyValue = [];
+                singleKeyValue.push(key);
+                if (value instanceof File || value instanceof Blob) { // 针对文件特殊处理
+                    var reader = new FileReader();
+                    reader.readAsDataURL(value);
+                    reader.onload = function (ev) {
+                        var base64 = ev.target.result;
+                        var formDataFile = {
+                            name: fileName ? fileName : (value instanceof File ? value.name : ''),
+                            lastModified: value instanceof File ? value.lastModified : 0,
+                            size: value.size,
+                            type: value.type,
+                            data: base64
+                        };
+                        singleKeyValue.push(formDataFile);
+                        resolve(singleKeyValue);
+                        return null;
+                    };
+                    reader.onerror = function (ev) {
+                        reject(Error("formdata 表单读取文件数据失败"));
+                        return null;
+                    };
+                }
+                else {
+                    singleKeyValue.push(value);
+                    resolve(singleKeyValue);
+                }
+            });
+        };
+        /**
+         * 读取单个文件数据，并转成 base64，最后返回 json 对象
+         * @param file
+         */
+        KKJSBridgeUtil.convertFileToJson = function (file) {
+            return new Promise(function (resolve, reject) {
+                var reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = function (ev) {
+                    var base64 = ev.target.result;
+                    var formDataFile = {
+                        name: file instanceof File ? file.name : '',
+                        lastModified: file instanceof File ? file.lastModified : 0,
+                        size: file.size,
+                        type: file.type,
+                        data: base64
+                    };
+                    resolve(formDataFile);
+                    return null;
+                };
+                reader.onerror = function (ev) {
+                    reject(Error("formdata 表单读取文件数据失败"));
+                    return null;
+                };
+            });
+        };
+        return KKJSBridgeUtil;
+    }());
+    /**
+     * 处理 iframe 相关
+     */
+    var KKJSBridgeIframe = /** @class */ (function () {
+        function KKJSBridgeIframe() {
+        }
+        /**
+         * 分发消息
+         * @param messageString
+         */
+        KKJSBridgeIframe.dispatchMessage = function (messageString) {
+            // 处理有 iframe 的情况
+            var iframes = document.querySelectorAll("iframe");
+            if (iframes) {
+                var len = iframes.length;
+                for (var i = 0; i < len; i++) {
+                    var win = iframes[i].contentWindow;
+                    win.postMessage(messageString, '*');
+                }
+            }
+        };
+        /**
+         * 添加消息监听处理
+         */
+        KKJSBridgeIframe.addMessageListener = function () {
+            // iframe 内处理来自父 window 的消息
+            window.addEventListener('message', function (e) {
+                var data = e.data;
+                if (typeof data == "string") {
+                    var str = data;
+                    if (str.indexOf("messageType") != -1) {
+                        window.KKJSBridge._handleMessageFromNative(str);
+                    }
+                }
+            });
+        };
+        /**
+         * 添加 ajax 消息监听处理
+         */
+        KKJSBridgeIframe.addAjaxMessageListener = function () {
+            // iframe 内处理来自父 window ajax 回调消息
+            window.addEventListener('message', function (e) {
+                var data = e.data;
+                if (typeof data == "string") {
+                    var str = data;
+                    if (str.indexOf("ajaxType") != -1) {
+                        window._KKJSBridgeXHR.setProperties(str);
+                    }
+                }
+            });
+        };
+        /**
+         * 让 iframe 能够注入 app 里面的脚本
+         */
+        KKJSBridgeIframe.setupHook = function () {
+            // 设置 iframe 标签 的 sandbox 属性
+            document.addEventListener('DOMContentLoaded', function () {
+                var iframes = document.querySelectorAll("iframe");
+                if (iframes) {
+                    var len = iframes.length;
+                    for (var i = 0; i < len; i++) {
+                        var iframe = iframes[i];
+                        if (iframe.getAttribute('sandbox') && iframe.getAttribute('sandbox').indexOf('allow-scripts') == -1) {
+                            iframe.setAttribute('sandbox', iframe.getAttribute('sandbox') + ' allow-scripts');
+                        }
+                    }
+                }
+            });
+            // 设置 iframe 动态创建的 sandbox 属性
+            var originalCreateElement = document.createElement;
+            document.createElement = function (tag) {
+                var element = originalCreateElement.call(document, tag);
+                if (tag.toLowerCase() === 'iframe') {
+                    try {
+                        var iframeSandbox = Object.getOwnPropertyDescriptor(window.HTMLIFrameElement, 'sandbox') ||
+                            Object.getOwnPropertyDescriptor(HTMLIFrameElement.prototype, 'sandbox');
+                        if (iframeSandbox && iframeSandbox.configurable) {
+                            Object.defineProperty(element, 'sandbox', {
+                                configurable: true,
+                                enumerable: true,
+                                get: function () {
+                                    return iframeSandbox.get.call(element);
+                                },
+                                set: function (val) {
+                                    if (val.indexOf('allow-scripts') == -1) {
+                                        val = val + ' allow-scripts';
+                                    }
+                                    iframeSandbox.set.call(element, val);
+                                }
+                            });
+                        }
+                    }
+                    catch (e) {
+                        console.log('this browser does not support reconfigure iframe sandbox property', e);
+                    }
+                }
+                return element;
+            };
+        };
+        return KKJSBridgeIframe;
+    }());
+
+    /**
+     * 建立与 native 的数据通信
+     */
+    var KKJSBridge = /** @class */ (function () {
+        function KKJSBridge() {
+            this.uniqueId = 1;
+            this.callbackCache = {};
+            this.eventCallbackCache = {};
+        }
+        /**
+         * 调用 Natvie 方法
+         * @param module 模块
+         * @param method 方法
+         * @param data 数据
+         * @param callback 调用回调
+         */
+        KKJSBridge.prototype.callNative = function (module, method, data, callback) {
+            var message = {
+                module: module || 'default',
+                method: method,
+                data: data,
+                callbackId: null
+            };
+            if (callback) {
+                // 拼装 callbackId
+                var callbackId = 'cb_' + message.module + '_' + method + '_' + (this.uniqueId++) + '_' + new Date().getTime();
+                // 缓存 callback，用于在 Native 处理完消息后，通知 H5
+                this.callbackCache[callbackId] = callback;
+                // 追加 callbackId 属性
+                message.callbackId = callbackId;
+            }
+            // 发送消息给 Native
+            window.webkit.messageHandlers.KKJSBridgeMessage.postMessage(message);
+        };
+        /**
+         * 用于处理来自 Native 的消息
+         * @param callbackMessage 回调消息
+         */
+        KKJSBridge.prototype._handleMessageFromNative = function (messageString) {
+            var callbackMessage = JSON.parse(messageString);
+            if (callbackMessage.messageType === "callback" /* Callback */) { // 回调消息
+                var callback = this.callbackCache[callbackMessage.callbackId];
+                if (callback) { // 执行 callback 回调，并删除缓存的 callback
+                    callback(callbackMessage.data);
+                    this.callbackCache[callbackMessage.callbackId] = null;
+                    delete this.callbackCache[callbackMessage.callbackId];
+                }
+            }
+            else if (callbackMessage.messageType === "event" /* Event */) { // 事件消息
+                // 支持批量事件调用
+                var obsevers = this.eventCallbackCache[callbackMessage.eventName];
+                if (obsevers) {
+                    for (var i = 0; i < obsevers.length; i++) {
+                        var eventCallback = obsevers[i];
+                        if (eventCallback) {
+                            eventCallback(callbackMessage.data);
+                        }
+                    }
+                }
+            }
+            // 处理有 iframe 的情况
+            KKJSBridgeIframe.dispatchMessage(messageString);
+        };
+        /**
+         * 异步调用方法
+         * @param module 模块
+         * @param method 方法
+         * @param data 数据
+         * @param callback 调用回调
+         */
+        KKJSBridge.prototype.call = function (module, method, data, callback) {
+            this.callNative(module, method, data, callback);
+        };
+        /**
+         * 同步调用方法
+         * @param module 模块
+         * @param method 方法
+         * @param data 数据
+         */
+        KKJSBridge.prototype.syncCall = function (module, method, data) {
+            var message = {
+                module: module || 'default',
+                method: method,
+                data: data,
+            };
+            var messageString = JSON.stringify(message);
+            var response = window.prompt("KKJSBridge", messageString);
+            return response ? JSON.parse(response) : null;
+        };
+        /**
+         * 监听事件
+         * @param eventName 事件名字
+         * @param callback 事件回调
+         */
+        KKJSBridge.prototype.on = function (eventName, callback) {
+            // 使用数组，支持多个观察者
+            var obsevers = this.eventCallbackCache[eventName];
+            if (obsevers) {
+                obsevers.push(callback);
+            }
+            else {
+                obsevers = [callback];
+                this.eventCallbackCache[eventName] = obsevers;
+            }
+        };
+        /**
+         * 取消监听事件
+         * @param eventName 事件名字
+         */
+        KKJSBridge.prototype.off = function (eventName) {
+            var obsevers = this.eventCallbackCache[eventName];
+            if (obsevers && obsevers.length > 0) {
+                obsevers.splice(0, obsevers.length);
+            }
+        };
+        return KKJSBridge;
+    }());
+
+    var _KKJSBridgeFormData = /** @class */ (function () {
+        function _KKJSBridgeFormData() {
+        }
+        /**
+         * Hook FormData，由于低版本的 FormData 没有支持 entries() 等遍历 api，所以只是在 ajax send 里遍历，是无法获取到具体的值的，
+         * 所以针对低版本的 iOS 系统做 Hook FormData 处理。
+         */
+        _KKJSBridgeFormData.setupHook = function () {
+            var originAppend = window.FormData.prototype['append'];
+            var originEntries = window.FormData.prototype['entries'];
+            if (!originEntries) {
+                window.FormData.prototype['append'] = function () {
+                    if (!this._entries) {
+                        this._entries = [];
+                    }
+                    this._entries.push(arguments);
+                    return originAppend.apply(this, arguments);
+                };
+            }
+        };
+        return _KKJSBridgeFormData;
+    }());
+
+    /// <reference path="../index.d.ts" />
+    /**
+     * hook document.cookie
+     */
+    var _KKJSBridgeCOOKIE = /** @class */ (function () {
+        function _KKJSBridgeCOOKIE() {
+        }
+        _KKJSBridgeCOOKIE.ready = function () {
+            window.KKJSBridge.call(_KKJSBridgeCOOKIE.moduleName, 'bridgeReady', {});
+        };
+        // 静态属性和方法
+        _KKJSBridgeCOOKIE.moduleName = 'cookie';
+        /**
+         * 通过重新定义 cookie 属性来进行 cookie hook
+         */
+        _KKJSBridgeCOOKIE.setupHook = function () {
+            try {
+                var cookieDesc = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie') ||
+                    Object.getOwnPropertyDescriptor(HTMLDocument.prototype, 'cookie');
+                if (cookieDesc && cookieDesc.configurable) {
+                    Object.defineProperty(document, 'cookie', {
+                        configurable: true,
+                        enumerable: true,
+                        get: function () {
+                            // console.log('getCookie');
+                            if (window.KKJSBridgeConfig.cookieHook) { // 如果开启 cookie hook，则从 Native 读取 cookie
+                                var cookieJson = window.KKJSBridge.syncCall(_KKJSBridgeCOOKIE.moduleName, 'cookie', {
+                                    "url": window.location.href
+                                });
+                                return cookieJson.cookie;
+                            }
+                            return cookieDesc.get.call(document);
+                        },
+                        set: function (val) {
+                            // console.log('setCookie');
+                            if (window.KKJSBridgeConfig.cookieHook) { // 如果开启 cookie hook，则需要把 cookie 同步给 Native
+                                window.KKJSBridge.call(_KKJSBridgeCOOKIE.moduleName, 'setCookie', {
+                                    "cookie": val
+                                });
+                            }
+                            cookieDesc.set.call(document, val);
+                        }
+                    });
+                }
+            }
+            catch (e) {
+                console.log('this browser does not support reconfigure document.cookie property', e);
+            }
+        };
+        return _KKJSBridgeCOOKIE;
+    }());
+
     var support = {
       searchParams: 'URLSearchParams' in self,
       iterable: 'Symbol' in self && 'iterator' in Symbol,
@@ -605,661 +1038,263 @@
       }
     }
 
+    /// <reference path="../index.d.ts" />
+    /**
+     * AJAX 相关方法
+     */
+    var _KKJSBridgeXHR = /** @class */ (function () {
+        function _KKJSBridgeXHR() {
+        }
+        // 静态属性和方法
+        _KKJSBridgeXHR.moduleName = 'ajax';
+        _KKJSBridgeXHR.globalId = Math.floor(Math.random() * 100000);
+        _KKJSBridgeXHR.callbackCache = [];
+        /**
+         * 生成 ajax 请求唯一id
+         */
+        _KKJSBridgeXHR.generateXHRRequestId = function () {
+            return (new Date).getTime() + "" + _KKJSBridgeXHR.globalId++; // 时间戳 + 当前上下文唯一id，生成请求id
+        };
+        /**
+         * 给表单生成新的 action
+         */
+        _KKJSBridgeXHR.generateNewActionForForm = function (form, requestId) {
+            var orignAction = form.action;
+            form.action = _KKJSBridgeXHR.generateNewUrlWithRequestId(orignAction, requestId);
+        };
+        /**
+         * 利用 requestId 生成新的 url
+         */
+        _KKJSBridgeXHR.generateNewUrlWithRequestId = function (url, requestId) {
+            var orignAction = url;
+            // 通过 a 标签来辅助拼接新的 action
+            var aTag = document.createElement("a");
+            aTag.href = orignAction;
+            var search = aTag.search ? aTag.search : "";
+            var hash = aTag.hash ? aTag.hash : "";
+            if (/KKJSBridge-RequestId/.test(orignAction)) { // 防止重复追加 requestId
+                aTag.search = aTag.search.replace(/KKJSBridge-RequestId=(\d+)/, "KKJSBridge-RequestId=" + requestId);
+            }
+            else if (aTag.search && aTag.search.length > 0) {
+                var s = aTag.search;
+                if (/KKJSBridge-RequestId/.test(s)) { // 防止重复追加 requestId
+                    aTag.search = s.replace(/KKJSBridge-RequestId=(\d+)/, "KKJSBridge-RequestId=" + requestId);
+                }
+                else {
+                    aTag.search = s + "&KKJSBridge-RequestId=" + requestId;
+                }
+            }
+            else {
+                aTag.search = "?KKJSBridge-RequestId=" + requestId;
+            }
+            url = orignAction.replace(search, "").replace(hash, "");
+            if ("#" === url.trim()) {
+                url = "";
+            }
+            var newAction = url + aTag.search + aTag.hash;
+            return newAction;
+        };
+        /**
+         * 给 open url 生成带请求 id 的新 url
+         */
+        _KKJSBridgeXHR.generateNewOpenUrlWithRequestId = function (url, requestId) {
+            var getOpenUrlReuestId = function (requestId) {
+                return "^^^^" + requestId + "^^^^";
+            };
+            var openUrlReuestReg = /\^\^\^\^(\d+)\^\^\^\^/;
+            // 通过 a 标签来辅助拼接新的 action
+            var aTag = document.createElement("a");
+            aTag.href = url;
+            var hash = aTag.hash ? aTag.hash : "";
+            if (openUrlReuestReg.test(aTag.hash)) {
+                aTag.hash = aTag.hash.replace(openUrlReuestReg, getOpenUrlReuestId(requestId));
+            }
+            else if (aTag.hash && aTag.hash.length > 0) {
+                aTag.hash = aTag.hash + getOpenUrlReuestId(requestId);
+            }
+            else {
+                aTag.hash = getOpenUrlReuestId(requestId);
+            }
+            url = url.replace(hash, "");
+            if ("#" === url.trim()) {
+                url = "";
+            }
+            var newUrl = url + aTag.hash;
+            return newUrl;
+        };
+        /**
+         * 发送 body 到 native 侧缓存起来
+         * @param xhr
+         * @param originMethod
+         * @param originArguments
+         * @param body
+         */
+        _KKJSBridgeXHR.sendBodyToNativeForCache = function (targetType, target, originMethod, originArguments, request, requestAsync) {
+            /*
+                ajax 同步请求只支持纯文本数据，不支持 Blob 和 FormData 数据。
+                如果要支持的话，必须使用 FileReaderSync 对象，但是该对象只在 workers 里可用，
+                因为在主线程里进行同步 I/O 操作可能会阻塞用户界面。
+                https://developer.mozilla.org/zh-CN/docs/Web/API/FileReaderSync
+            */
+            if (requestAsync === void 0) { requestAsync = true; }
+            var requestId = target.requestId;
+            var cacheCallback = {
+                requestId: requestId,
+                callback: function () {
+                    // if (targetType === "AJAX") {// ajax
+                    //   // 发送之前设置自定义请求头，好让 native 拦截并从缓存里获取 body
+                    //   target.setRequestHeader("KKJSBridge-RequestId", requestId);
+                    // }
+                    if (targetType === "FORM") { // 表单 submit
+                        // 发送之前修改 action，让 action 带上 requestId
+                        _KKJSBridgeXHR.generateNewActionForForm(target, requestId);
+                    }
+                    // 调用原始 send 方法 
+                    return originMethod.apply(target, originArguments);
+                }
+            };
+            if (requestAsync) { // 异步请求
+                // 缓存 callbcak
+                _KKJSBridgeXHR.callbackCache[requestId] = cacheCallback;
+                // 发送 body 请求到 native
+                window.KKJSBridge.call(_KKJSBridgeXHR.moduleName, 'cacheAJAXBody', request, function (message) {
+                    // 处理 native 侧缓存完毕后的消息
+                    var callbackFromNative = message;
+                    var requestId = callbackFromNative.requestId;
+                    // 通过请求 id，找到原始 send 方法并调用
+                    if (_KKJSBridgeXHR.callbackCache[requestId]) {
+                        var callbackFromNative_1 = _KKJSBridgeXHR.callbackCache[requestId];
+                        if (callbackFromNative_1 && callbackFromNative_1.callback && typeof callbackFromNative_1.callback == "function") {
+                            callbackFromNative_1.callback();
+                        }
+                        delete _KKJSBridgeXHR.callbackCache[requestId];
+                    }
+                });
+                return;
+            }
+            // 同步请求
+            // 发送 body 请求到 native
+            window.KKJSBridge.syncCall(_KKJSBridgeXHR.moduleName, 'cacheAJAXBody', request);
+            // 发送完成后继续请求原始 send 方法
+            cacheCallback.callback();
+        };
+        /**
+         * 安装 AJAX Proxy
+         */
+        _KKJSBridgeXHR.setupHook = function () {
+            /**
+             * 只 hook open/send 方法
+             */
+            var originOpen = XMLHttpRequest.prototype.open;
+            XMLHttpRequest.prototype.open = function (method, url, async, username, password) {
+                var args = [].slice.call(arguments);
+                var xhr = this;
+                // 生成唯一请求id
+                xhr.requestId = _KKJSBridgeXHR.generateXHRRequestId();
+                xhr.requestUrl = url;
+                xhr.requestHref = document.location.href;
+                xhr.requestMethod = method;
+                xhr.requestAsync = async;
+                if (!window.KKJSBridgeConfig.ajaxHook) { // 如果没有开启 ajax hook，则调用原始 open
+                    return originOpen.apply(xhr, args);
+                }
+                // 生成新的 url
+                args[1] = _KKJSBridgeXHR.generateNewUrlWithRequestId(url, xhr.requestId);
+                originOpen.apply(xhr, args);
+            };
+            var originSend = XMLHttpRequest.prototype.send;
+            XMLHttpRequest.prototype.send = function (body) {
+                var args = [].slice.call(arguments);
+                var xhr = this;
+                var request = {
+                    requestId: xhr.requestId,
+                    requestHref: xhr.requestHref,
+                    requestUrl: xhr.requestUrl,
+                    bodyType: "String",
+                    value: null
+                };
+                if (!window.KKJSBridgeConfig.ajaxHook) { // 如果没有开启 ajax hook，则调用原始 send
+                    return originSend.apply(xhr, args);
+                }
+                if (!body) { // 没有 body，调用原始 send
+                    return originSend.apply(xhr, args);
+                }
+                else if (body instanceof ArrayBuffer) { // 说明是 ArrayBuffer，转成 base64
+                    request.bodyType = "ArrayBuffer";
+                    request.value = KKJSBridgeUtil.convertArrayBufferToBase64(body);
+                }
+                else if (body instanceof Blob) { // 说明是 Blob，转成 base64
+                    request.bodyType = "Blob";
+                    var fileReader = new FileReader();
+                    fileReader.onload = function (ev) {
+                        var base64 = ev.target.result;
+                        request.value = base64;
+                        _KKJSBridgeXHR.sendBodyToNativeForCache("AJAX", xhr, originSend, args, request);
+                    };
+                    fileReader.readAsDataURL(body);
+                    return;
+                }
+                else if (body instanceof FormData) { // 说明是表单
+                    request.bodyType = "FormData";
+                    request.formEnctype = "multipart/form-data";
+                    KKJSBridgeUtil.convertFormDataToJson(body, function (json) {
+                        request.value = json;
+                        _KKJSBridgeXHR.sendBodyToNativeForCache("AJAX", xhr, originSend, args, request);
+                    });
+                    return;
+                }
+                else { // 说明是字符串或者json
+                    request.bodyType = "String";
+                    request.value = body;
+                }
+                // 发送到 native 缓存起来
+                _KKJSBridgeXHR.sendBodyToNativeForCache("AJAX", xhr, originSend, args, request, xhr.requestAsync);
+            };
+            /**
+             * hook form submit 方法
+             */
+            var originSubmit = HTMLFormElement.prototype.submit;
+            HTMLFormElement.prototype.submit = function () {
+                var args = [].slice.call(arguments);
+                var form = this;
+                form.requestId = _KKJSBridgeXHR.generateXHRRequestId();
+                form.requestUrl = form.action;
+                form.requestHref = document.location.href;
+                var request = {
+                    requestId: form.requestId,
+                    requestHref: form.requestHref,
+                    requestUrl: form.requestUrl,
+                    bodyType: "FormData",
+                    formEnctype: form.enctype,
+                    value: null
+                };
+                if (!window.KKJSBridgeConfig.ajaxHook) { // 如果没有开启 ajax hook，则调用原始 submit
+                    return originSubmit.apply(form, args);
+                }
+                var action = form.action;
+                if (!action) { // 如果 action 本身是空，则调用原始 submit
+                    return originSubmit.apply(form, args);
+                }
+                var formData = new FormData(form);
+                KKJSBridgeUtil.convertFormDataToJson(formData, function (json) {
+                    request.value = json;
+                    _KKJSBridgeXHR.sendBodyToNativeForCache("FORM", form, originSubmit, args, request);
+                });
+            };
+        };
+        /**
+         * 是否开启 fetch hook
+         */
+        _KKJSBridgeXHR.enableFetchHook = function (enable) {
+            enableFetchHook(enable);
+        };
+        return _KKJSBridgeXHR;
+    }());
+
     var init = function () {
         if (window.KKJSBridge) {
             return;
         }
-        /**
-         * 处理 iframe 相关
-         */
-        var KKJSBridgeIframe = /** @class */ (function () {
-            function KKJSBridgeIframe() {
-            }
-            /**
-             * 分发消息
-             * @param messageString
-             */
-            KKJSBridgeIframe.dispatchMessage = function (messageString) {
-                // 处理有 iframe 的情况
-                var iframes = document.querySelectorAll("iframe");
-                if (iframes) {
-                    var len = iframes.length;
-                    for (var i = 0; i < len; i++) {
-                        var win = iframes[i].contentWindow;
-                        win.postMessage(messageString, '*');
-                    }
-                }
-            };
-            /**
-             * 添加消息监听处理
-             */
-            KKJSBridgeIframe.addMessageListener = function () {
-                // iframe 内处理来自父 window 的消息
-                window.addEventListener('message', function (e) {
-                    var data = e.data;
-                    if (typeof data == "string") {
-                        var str = data;
-                        if (str.indexOf("messageType") != -1) {
-                            KKJSBridgeInstance._handleMessageFromNative(str);
-                        }
-                    }
-                });
-            };
-            /**
-             * 让 iframe 能够注入 app 里面的脚本
-             */
-            KKJSBridgeIframe.hookSandbox = function () {
-                // 设置 iframe 标签 的 sandbox 属性
-                document.addEventListener('DOMContentLoaded', function () {
-                    var iframes = document.querySelectorAll("iframe");
-                    if (iframes) {
-                        var len = iframes.length;
-                        for (var i = 0; i < len; i++) {
-                            var iframe = iframes[i];
-                            if (iframe.getAttribute('sandbox') && iframe.getAttribute('sandbox').indexOf('allow-scripts') == -1) {
-                                iframe.setAttribute('sandbox', iframe.getAttribute('sandbox') + ' allow-scripts');
-                            }
-                        }
-                    }
-                });
-                // 设置 iframe 动态创建的 sandbox 属性
-                var originalCreateElement = document.createElement;
-                document.createElement = function (tag) {
-                    var element = originalCreateElement.call(document, tag);
-                    if (tag.toLowerCase() === 'iframe') {
-                        try {
-                            var iframeSandbox = Object.getOwnPropertyDescriptor(window.HTMLIFrameElement, 'sandbox') ||
-                                Object.getOwnPropertyDescriptor(HTMLIFrameElement.prototype, 'sandbox');
-                            if (iframeSandbox && iframeSandbox.configurable) {
-                                Object.defineProperty(element, 'sandbox', {
-                                    configurable: true,
-                                    enumerable: true,
-                                    get: function () {
-                                        return iframeSandbox.get.call(element);
-                                    },
-                                    set: function (val) {
-                                        if (val.indexOf('allow-scripts') == -1) {
-                                            val = val + ' allow-scripts';
-                                        }
-                                        iframeSandbox.set.call(element, val);
-                                    }
-                                });
-                            }
-                        }
-                        catch (e) {
-                            console.log('this browser does not support reconfigure iframe sandbox property', e);
-                        }
-                    }
-                    return element;
-                };
-            };
-            return KKJSBridgeIframe;
-        }());
-        /**
-         * 建立与 native 的数据通信
-         */
-        var KKJSBridge = /** @class */ (function () {
-            function KKJSBridge() {
-                this.uniqueId = 1;
-                this.callbackCache = {};
-                this.eventCallbackCache = {};
-            }
-            /**
-             * 调用 Natvie 方法
-             * @param module 模块
-             * @param method 方法
-             * @param data 数据
-             * @param callback 调用回调
-             */
-            KKJSBridge.prototype.callNative = function (module, method, data, callback) {
-                var message = {
-                    module: module || 'default',
-                    method: method,
-                    data: data,
-                    callbackId: null
-                };
-                if (callback) {
-                    // 拼装 callbackId
-                    var callbackId = 'cb_' + message.module + '_' + method + '_' + (this.uniqueId++) + '_' + new Date().getTime();
-                    // 缓存 callback，用于在 Native 处理完消息后，通知 H5
-                    this.callbackCache[callbackId] = callback;
-                    // 追加 callbackId 属性
-                    message.callbackId = callbackId;
-                }
-                // 发送消息给 Native
-                window.webkit.messageHandlers.KKJSBridgeMessage.postMessage(message);
-            };
-            /**
-             * 用于处理来自 Native 的消息
-             * @param callbackMessage 回调消息
-             */
-            KKJSBridge.prototype._handleMessageFromNative = function (messageString) {
-                var callbackMessage = JSON.parse(messageString);
-                if (callbackMessage.messageType === "callback" /* Callback */) { // 回调消息
-                    var callback = this.callbackCache[callbackMessage.callbackId];
-                    if (callback) { // 执行 callback 回调，并删除缓存的 callback
-                        callback(callbackMessage.data);
-                        this.callbackCache[callbackMessage.callbackId] = null;
-                        delete this.callbackCache[callbackMessage.callbackId];
-                    }
-                }
-                else if (callbackMessage.messageType === "event" /* Event */) { // 事件消息
-                    // 支持批量事件调用
-                    var obsevers = this.eventCallbackCache[callbackMessage.eventName];
-                    if (obsevers) {
-                        for (var i = 0; i < obsevers.length; i++) {
-                            var eventCallback = obsevers[i];
-                            if (eventCallback) {
-                                eventCallback(callbackMessage.data);
-                            }
-                        }
-                    }
-                }
-                // 处理有 iframe 的情况
-                KKJSBridgeIframe.dispatchMessage(messageString);
-            };
-            /**
-             * 异步调用方法
-             * @param module 模块
-             * @param method 方法
-             * @param data 数据
-             * @param callback 调用回调
-             */
-            KKJSBridge.prototype.call = function (module, method, data, callback) {
-                this.callNative(module, method, data, callback);
-            };
-            /**
-             * 同步调用方法
-             * @param module 模块
-             * @param method 方法
-             * @param data 数据
-             */
-            KKJSBridge.prototype.syncCall = function (module, method, data) {
-                var message = {
-                    module: module || 'default',
-                    method: method,
-                    data: data,
-                };
-                var messageString = JSON.stringify(message);
-                var response = window.prompt("KKJSBridge", messageString);
-                return response ? JSON.parse(response) : null;
-            };
-            /**
-             * 监听事件
-             * @param eventName 事件名字
-             * @param callback 事件回调
-             */
-            KKJSBridge.prototype.on = function (eventName, callback) {
-                // 使用数组，支持多个观察者
-                var obsevers = this.eventCallbackCache[eventName];
-                if (obsevers) {
-                    obsevers.push(callback);
-                }
-                else {
-                    obsevers = [callback];
-                    this.eventCallbackCache[eventName] = obsevers;
-                }
-            };
-            /**
-             * 取消监听事件
-             * @param eventName 事件名字
-             */
-            KKJSBridge.prototype.off = function (eventName) {
-                var obsevers = this.eventCallbackCache[eventName];
-                if (obsevers && obsevers.length > 0) {
-                    obsevers.splice(0, obsevers.length);
-                }
-            };
-            return KKJSBridge;
-        }());
-        // 初始化 KKJSBridge
-        var KKJSBridgeInstance = new KKJSBridge();
-        // iframe 内处理来自父 window 的消息
-        KKJSBridgeIframe.addMessageListener();
-        // 设置 iframe 的 sandbox 属性
-        KKJSBridgeIframe.hookSandbox();
-        /**
-         * KKJSBridge 工具
-         */
-        var KKJSBridgeUtil = /** @class */ (function () {
-            function KKJSBridgeUtil() {
-            }
-            /**
-             * 把 arraybuffer 转成 base64
-             * @param arraybuffer
-             */
-            KKJSBridgeUtil.convertArrayBufferToBase64 = function (arraybuffer) {
-                var uint8Array = new Uint8Array(arraybuffer);
-                var charCode = "";
-                var length = uint8Array.byteLength;
-                for (var i = 0; i < length; i++) {
-                    charCode += String.fromCharCode(uint8Array[i]);
-                }
-                // 字符串转成base64
-                return window.btoa(charCode);
-            };
-            /**
-             * 转换 form 表单到 json 对象
-             * @param formData
-             * @param callback
-             */
-            KKJSBridgeUtil.convertFormDataToJson = function (formData, callback) {
-                var e_1, _a;
-                var allPromise = [];
-                if (formData._entries) { // 低版本的 iOS 系统，并不支持 entries() 方法，所以这里做兼容处理
-                    for (var i = 0; i < formData._entries.length; i++) {
-                        var pair = formData._entries[i];
-                        var key = pair[0];
-                        var value = pair[1];
-                        var fileName = pair.length > 2 ? pair[2] : null;
-                        allPromise.push(KKJSBridgeUtil.convertSingleFormDataRecordToArray(key, value, fileName));
-                    }
-                }
-                else {
-                    try {
-                        // JS 里 FormData 表单实际上也是一个键值对
-                        for (var _b = __values(formData.entries()), _c = _b.next(); !_c.done; _c = _b.next()) {
-                            var pair = _c.value;
-                            var key = pair[0];
-                            var value = pair[1];
-                            allPromise.push(KKJSBridgeUtil.convertSingleFormDataRecordToArray(key, value));
-                        }
-                    }
-                    catch (e_1_1) { e_1 = { error: e_1_1 }; }
-                    finally {
-                        try {
-                            if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                        }
-                        finally { if (e_1) throw e_1.error; }
-                    }
-                }
-                Promise.all(allPromise).then(function (formDatas) {
-                    var formDataJson = {};
-                    var formDataFileKeys = [];
-                    for (var i = 0; i < formDatas.length; i++) {
-                        var singleKeyValue = formDatas[i];
-                        // 只要不是字符串，那就是一个类文件对象，需要加入到 formDataFileKeys 里，方便 native 做编码转换
-                        if (singleKeyValue.length > 1 && !(typeof singleKeyValue[1] == "string")) {
-                            formDataFileKeys.push(singleKeyValue[0]);
-                        }
-                    }
-                    formDataJson['fileKeys'] = formDataFileKeys;
-                    formDataJson['formData'] = formDatas;
-                    callback(formDataJson);
-                }).catch(function (error) {
-                    console.log(error);
-                });
-            };
-            /**
-             * 转换表单单条记录到一个数组对象
-             * @param key
-             * @param value
-             * @param fileName
-             */
-            KKJSBridgeUtil.convertSingleFormDataRecordToArray = function (key, value, fileName) {
-                return new Promise(function (resolve, reject) {
-                    var singleKeyValue = [];
-                    singleKeyValue.push(key);
-                    if (value instanceof File || value instanceof Blob) { // 针对文件特殊处理
-                        var reader = new FileReader();
-                        reader.readAsDataURL(value);
-                        reader.onload = function (ev) {
-                            var base64 = ev.target.result;
-                            var formDataFile = {
-                                name: fileName ? fileName : (value instanceof File ? value.name : ''),
-                                lastModified: value instanceof File ? value.lastModified : 0,
-                                size: value.size,
-                                type: value.type,
-                                data: base64
-                            };
-                            singleKeyValue.push(formDataFile);
-                            resolve(singleKeyValue);
-                            return null;
-                        };
-                        reader.onerror = function (ev) {
-                            reject(Error("formdata 表单读取文件数据失败"));
-                            return null;
-                        };
-                    }
-                    else {
-                        singleKeyValue.push(value);
-                        resolve(singleKeyValue);
-                    }
-                });
-            };
-            /**
-             * 读取单个文件数据，并转成 base64，最后返回 json 对象
-             * @param file
-             */
-            KKJSBridgeUtil.convertFileToJson = function (file) {
-                return new Promise(function (resolve, reject) {
-                    var reader = new FileReader();
-                    reader.readAsDataURL(file);
-                    reader.onload = function (ev) {
-                        var base64 = ev.target.result;
-                        var formDataFile = {
-                            name: file instanceof File ? file.name : '',
-                            lastModified: file instanceof File ? file.lastModified : 0,
-                            size: file.size,
-                            type: file.type,
-                            data: base64
-                        };
-                        resolve(formDataFile);
-                        return null;
-                    };
-                    reader.onerror = function (ev) {
-                        reject(Error("formdata 表单读取文件数据失败"));
-                        return null;
-                    };
-                });
-            };
-            return KKJSBridgeUtil;
-        }());
-        /**
-         * Hook FormData，由于低版本的 FormData 没有支持 entries() 等遍历 api，所以只是在 ajax send 里遍历，是无法获取到具体的值的，
-         * 所以针对低版本的 iOS 系统做 Hook FormData 处理。
-         */
-        var originAppend = window.FormData.prototype['append'];
-        var originEntries = window.FormData.prototype['entries'];
-        if (!originEntries) {
-            window.FormData.prototype['append'] = function () {
-                if (!this._entries) {
-                    this._entries = [];
-                }
-                this._entries.push(arguments);
-                return originAppend.apply(this, arguments);
-            };
-        }
-        /**
-         * hook document.cookie
-         */
-        var _COOKIE = /** @class */ (function () {
-            function _COOKIE() {
-            }
-            // 静态属性和方法
-            _COOKIE.moduleName = 'cookie';
-            /**
-             * 通过重新定义 cookie 属性来进行 cookie hook
-             */
-            _COOKIE.hookCookie = function () {
-                try {
-                    var cookieDesc = Object.getOwnPropertyDescriptor(Document.prototype, 'cookie') ||
-                        Object.getOwnPropertyDescriptor(HTMLDocument.prototype, 'cookie');
-                    if (cookieDesc && cookieDesc.configurable) {
-                        Object.defineProperty(document, 'cookie', {
-                            configurable: true,
-                            enumerable: true,
-                            get: function () {
-                                // console.log('getCookie');
-                                if (KKJSBridgeConfig.cookieHook) { // 如果开启 cookie hook，则从 Native 读取 cookie
-                                    var cookieJson = window.KKJSBridge.syncCall(_COOKIE.moduleName, 'cookie', {
-                                        "url": window.location.href
-                                    });
-                                    return cookieJson.cookie;
-                                }
-                                return cookieDesc.get.call(document);
-                            },
-                            set: function (val) {
-                                // console.log('setCookie');
-                                if (KKJSBridgeConfig.cookieHook) { // 如果开启 cookie hook，则需要把 cookie 同步给 Native
-                                    window.KKJSBridge.call(_COOKIE.moduleName, 'setCookie', {
-                                        "cookie": val
-                                    });
-                                }
-                                cookieDesc.set.call(document, val);
-                            }
-                        });
-                    }
-                }
-                catch (e) {
-                    console.log('this browser does not support reconfigure document.cookie property', e);
-                }
-            };
-            return _COOKIE;
-        }());
-        window._COOKIE = _COOKIE;
-        window._COOKIE.hookCookie();
-        /**
-         * AJAX 相关方法
-         */
-        var _XHR = /** @class */ (function () {
-            function _XHR() {
-            }
-            // 静态属性和方法
-            _XHR.moduleName = 'ajax';
-            _XHR.globalId = Math.floor(Math.random() * 100000);
-            _XHR.callbackCache = [];
-            /**
-             * 生成 ajax 请求唯一id
-             */
-            _XHR.generateXHRRequestId = function () {
-                return (new Date).getTime() + "" + _XHR.globalId++; // 时间戳 + 当前上下文唯一id，生成请求id
-            };
-            /**
-             * 给表单生成新的 action
-             */
-            _XHR.generateNewActionForForm = function (form, requestId) {
-                var orignAction = form.action;
-                form.action = _XHR.generateNewUrlWithRequestId(orignAction, requestId);
-            };
-            /**
-             * 利用 requestId 生成新的 url
-             */
-            _XHR.generateNewUrlWithRequestId = function (url, requestId) {
-                var orignAction = url;
-                // 通过 a 标签来辅助拼接新的 action
-                var aTag = document.createElement("a");
-                aTag.href = orignAction;
-                var search = aTag.search ? aTag.search : "";
-                var hash = aTag.hash ? aTag.hash : "";
-                if (/KKJSBridge-RequestId/.test(orignAction)) { // 防止重复追加 requestId
-                    aTag.search = aTag.search.replace(/KKJSBridge-RequestId=(\d+)/, "KKJSBridge-RequestId=" + requestId);
-                }
-                else if (aTag.search && aTag.search.length > 0) {
-                    var s = aTag.search;
-                    if (/KKJSBridge-RequestId/.test(s)) { // 防止重复追加 requestId
-                        aTag.search = s.replace(/KKJSBridge-RequestId=(\d+)/, "KKJSBridge-RequestId=" + requestId);
-                    }
-                    else {
-                        aTag.search = s + "&KKJSBridge-RequestId=" + requestId;
-                    }
-                }
-                else {
-                    aTag.search = "?KKJSBridge-RequestId=" + requestId;
-                }
-                url = orignAction.replace(search, "").replace(hash, "");
-                if ("#" === url.trim()) {
-                    url = "";
-                }
-                var newAction = url + aTag.search + aTag.hash;
-                return newAction;
-            };
-            /**
-             * 给 open url 生成带请求 id 的新 url
-             */
-            _XHR.generateNewOpenUrlWithRequestId = function (url, requestId) {
-                var getOpenUrlReuestId = function (requestId) {
-                    return "^^^^" + requestId + "^^^^";
-                };
-                var openUrlReuestReg = /\^\^\^\^(\d+)\^\^\^\^/;
-                // 通过 a 标签来辅助拼接新的 action
-                var aTag = document.createElement("a");
-                aTag.href = url;
-                var hash = aTag.hash ? aTag.hash : "";
-                if (openUrlReuestReg.test(aTag.hash)) {
-                    aTag.hash = aTag.hash.replace(openUrlReuestReg, getOpenUrlReuestId(requestId));
-                }
-                else if (aTag.hash && aTag.hash.length > 0) {
-                    aTag.hash = aTag.hash + getOpenUrlReuestId(requestId);
-                }
-                else {
-                    aTag.hash = getOpenUrlReuestId(requestId);
-                }
-                url = url.replace(hash, "");
-                if ("#" === url.trim()) {
-                    url = "";
-                }
-                var newUrl = url + aTag.hash;
-                return newUrl;
-            };
-            /**
-             * 发送 body 到 native 侧缓存起来
-             * @param xhr
-             * @param originMethod
-             * @param originArguments
-             * @param body
-             */
-            _XHR.sendBodyToNativeForCache = function (targetType, target, originMethod, originArguments, request, requestAsync) {
-                /*
-                  ajax 同步请求只支持纯文本数据，不支持 Blob 和 FormData 数据。
-                  如果要支持的话，必须使用 FileReaderSync 对象，但是该对象只在 workers 里可用，
-                  因为在主线程里进行同步 I/O 操作可能会阻塞用户界面。
-                  https://developer.mozilla.org/zh-CN/docs/Web/API/FileReaderSync
-                */
-                if (requestAsync === void 0) { requestAsync = true; }
-                var requestId = target.requestId;
-                var cacheCallback = {
-                    requestId: requestId,
-                    callback: function () {
-                        // if (targetType === "AJAX") {// ajax
-                        //   // 发送之前设置自定义请求头，好让 native 拦截并从缓存里获取 body
-                        //   target.setRequestHeader("KKJSBridge-RequestId", requestId);
-                        // }
-                        if (targetType === "FORM") { // 表单 submit
-                            // 发送之前修改 action，让 action 带上 requestId
-                            _XHR.generateNewActionForForm(target, requestId);
-                        }
-                        // 调用原始 send 方法 
-                        return originMethod.apply(target, originArguments);
-                    }
-                };
-                if (requestAsync) { // 异步请求
-                    // 缓存 callbcak
-                    _XHR.callbackCache[requestId] = cacheCallback;
-                    // 发送 body 请求到 native
-                    window.KKJSBridge.call(_XHR.moduleName, 'cacheAJAXBody', request, function (message) {
-                        // 处理 native 侧缓存完毕后的消息
-                        var callbackFromNative = message;
-                        var requestId = callbackFromNative.requestId;
-                        // 通过请求 id，找到原始 send 方法并调用
-                        if (_XHR.callbackCache[requestId]) {
-                            var callbackFromNative_1 = _XHR.callbackCache[requestId];
-                            if (callbackFromNative_1 && callbackFromNative_1.callback && typeof callbackFromNative_1.callback == "function") {
-                                callbackFromNative_1.callback();
-                            }
-                            delete _XHR.callbackCache[requestId];
-                        }
-                    });
-                    return;
-                }
-                // 同步请求
-                // 发送 body 请求到 native
-                window.KKJSBridge.syncCall(_XHR.moduleName, 'cacheAJAXBody', request);
-                // 发送完成后继续请求原始 send 方法
-                cacheCallback.callback();
-            };
-            return _XHR;
-        }());
-        window._XHR = _XHR;
-        /**
-         * 只 hook open/send 方法
-         */
-        var originOpen = XMLHttpRequest.prototype.open;
-        XMLHttpRequest.prototype.open = function (method, url, async, username, password) {
-            var args = [].slice.call(arguments);
-            var xhr = this;
-            // 生成唯一请求id
-            xhr.requestId = _XHR.generateXHRRequestId();
-            xhr.requestUrl = url;
-            xhr.requestHref = document.location.href;
-            xhr.requestMethod = method;
-            xhr.requestAsync = async;
-            if (!KKJSBridgeConfig.ajaxHook) { // 如果没有开启 ajax hook，则调用原始 open
-                return originOpen.apply(xhr, args);
-            }
-            // 生成新的 url
-            args[1] = _XHR.generateNewUrlWithRequestId(url, xhr.requestId);
-            originOpen.apply(xhr, args);
-        };
-        var originSend = XMLHttpRequest.prototype.send;
-        XMLHttpRequest.prototype.send = function (body) {
-            var args = [].slice.call(arguments);
-            var xhr = this;
-            var request = {
-                requestId: xhr.requestId,
-                requestHref: xhr.requestHref,
-                requestUrl: xhr.requestUrl,
-                bodyType: "String",
-                value: null
-            };
-            if (!KKJSBridgeConfig.ajaxHook) { // 如果没有开启 ajax hook，则调用原始 send
-                return originSend.apply(xhr, args);
-            }
-            if (!body) { // 没有 body，调用原始 send
-                return originSend.apply(xhr, args);
-            }
-            else if (body instanceof ArrayBuffer) { // 说明是 ArrayBuffer，转成 base64
-                request.bodyType = "ArrayBuffer";
-                request.value = KKJSBridgeUtil.convertArrayBufferToBase64(body);
-            }
-            else if (body instanceof Blob) { // 说明是 Blob，转成 base64
-                request.bodyType = "Blob";
-                var fileReader = new FileReader();
-                fileReader.onload = function (ev) {
-                    var base64 = ev.target.result;
-                    request.value = base64;
-                    _XHR.sendBodyToNativeForCache("AJAX", xhr, originSend, args, request);
-                };
-                fileReader.readAsDataURL(body);
-                return;
-            }
-            else if (body instanceof FormData) { // 说明是表单
-                request.bodyType = "FormData";
-                request.formEnctype = "multipart/form-data";
-                KKJSBridgeUtil.convertFormDataToJson(body, function (json) {
-                    request.value = json;
-                    _XHR.sendBodyToNativeForCache("AJAX", xhr, originSend, args, request);
-                });
-                return;
-            }
-            else { // 说明是字符串或者json
-                request.bodyType = "String";
-                request.value = body;
-            }
-            // 发送到 native 缓存起来
-            _XHR.sendBodyToNativeForCache("AJAX", xhr, originSend, args, request, xhr.requestAsync);
-        };
-        /**
-         * hook form submit 方法
-         */
-        var originSubmit = HTMLFormElement.prototype.submit;
-        HTMLFormElement.prototype.submit = function () {
-            var args = [].slice.call(arguments);
-            var form = this;
-            form.requestId = _XHR.generateXHRRequestId();
-            form.requestUrl = form.action;
-            form.requestHref = document.location.href;
-            var request = {
-                requestId: form.requestId,
-                requestHref: form.requestHref,
-                requestUrl: form.requestUrl,
-                bodyType: "FormData",
-                formEnctype: form.enctype,
-                value: null
-            };
-            if (!KKJSBridgeConfig.ajaxHook) { // 如果没有开启 ajax hook，则调用原始 submit
-                return originSubmit.apply(form, args);
-            }
-            var action = form.action;
-            if (!action) { // 如果 action 本身是空，则调用原始 submit
-                return originSubmit.apply(form, args);
-            }
-            var formData = new FormData(form);
-            KKJSBridgeUtil.convertFormDataToJson(formData, function (json) {
-                request.value = json;
-                _XHR.sendBodyToNativeForCache("FORM", form, originSubmit, args, request);
-            });
-        };
         /**
          * KKJSBridge 配置
          */
@@ -1268,19 +1303,16 @@
             }
             KKJSBridgeConfig.ajaxHook = false;
             KKJSBridgeConfig.cookieHook = true;
-            KKJSBridgeConfig.init = function () {
-                window.KKJSBridge = KKJSBridgeInstance; // 设置新的 JSBridge 作为全局对象
-            };
             /**
              * 开启 ajax hook
              */
             KKJSBridgeConfig.enableAjaxHook = function (enable) {
                 if (enable) {
                     KKJSBridgeConfig.ajaxHook = true;
-                    enableFetchHook(true);
+                    window._KKJSBridgeXHR.enableFetchHook(true);
                 }
                 else {
-                    enableFetchHook(false);
+                    window._KKJSBridgeXHR.enableFetchHook(false);
                     KKJSBridgeConfig.ajaxHook = false;
                 }
             };
@@ -1288,18 +1320,13 @@
              * 开启 cookie hook
              */
             KKJSBridgeConfig.enableCookieHook = function (enable) {
-                if (enable) {
-                    KKJSBridgeConfig.cookieHook = true;
-                }
-                else {
-                    KKJSBridgeConfig.cookieHook = false;
-                }
+                KKJSBridgeConfig.cookieHook = enable;
             };
             /**
              * bridge Ready
              */
             KKJSBridgeConfig.bridgeReady = function () {
-                window.KKJSBridge.call(_COOKIE.moduleName, 'bridgeReady', {});
+                _KKJSBridgeCOOKIE.ready();
                 // 告诉 H5 新的 KKJSBridge 已经 ready
                 var KKJSBridgeReadyEvent = document.createEvent("Events");
                 KKJSBridgeReadyEvent.initEvent("KKJSBridgeReady");
@@ -1307,8 +1334,23 @@
             };
             return KKJSBridgeConfig;
         }());
+        // 初始化 KKJSBridge 并设为全局对象
+        window.KKJSBridge = new KKJSBridge();
+        // 设置 KKJSBridgeConfig 为全局对象
         window.KKJSBridgeConfig = KKJSBridgeConfig;
-        window.KKJSBridgeConfig.init(); // JSBridge 配置初始化
+        // 设置 _KKJSBridgeXHR 为全局对象
+        window._KKJSBridgeXHR = _KKJSBridgeXHR;
+        // iframe 内处理来自父 window 的消息
+        KKJSBridgeIframe.addMessageListener();
+        // 安装 iframe hook： 设置 iframe 的 sandbox 属性
+        KKJSBridgeIframe.setupHook();
+        // 安装 formData hook
+        _KKJSBridgeFormData.setupHook();
+        // 安装 cookie hook
+        _KKJSBridgeCOOKIE.setupHook();
+        // 安装 ajax hook
+        _KKJSBridgeXHR.setupHook();
+        // JSBridge 安装完毕
         window.KKJSBridgeConfig.bridgeReady();
     };
     init();

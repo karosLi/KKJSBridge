@@ -469,11 +469,11 @@ static NSString * const KKJSBridgeXMLHttpRequestStatusTextOK = @"OK";
 
 #pragma mark - util
 + (void)evaluateJSToDeleteAjaxCache:(NSNumber *)objectId inWebView:(WKWebView *)webView {
-    [KKJSBridgeJSExecutor evaluateJavaScriptFunction:@"window._XHR.deleteObject" withNumber:objectId inWebView:webView completionHandler:nil];
+    [KKJSBridgeJSExecutor evaluateJavaScriptFunction:@"window._KKJSBridgeXHR.deleteObject" withNumber:objectId inWebView:webView completionHandler:nil];
 }
 
 + (void)evaluateJSToSetAjaxProperties:(NSDictionary *)json inWebView:(WKWebView *)webView {
-    [KKJSBridgeJSExecutor evaluateJavaScriptFunction:@"window._XHR.setProperties" withJson:json inWebView:webView completionHandler:nil];
+    [KKJSBridgeJSExecutor evaluateJavaScriptFunction:@"window._KKJSBridgeXHR.setProperties" withJson:json inWebView:webView completionHandler:nil];
 }
 
 @end
