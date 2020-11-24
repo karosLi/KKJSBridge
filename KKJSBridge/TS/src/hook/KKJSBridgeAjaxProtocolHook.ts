@@ -1,5 +1,4 @@
 /// <reference path="../../types/index.d.ts" />
-import * as FetchHook from "../lib/fetch.js"
 import { KKJSBridgeUtil } from "../util/KKJSBridgeUtil"
 
 /**
@@ -267,12 +266,5 @@ export class _KKJSBridgeXHR {
         _KKJSBridgeXHR.sendBodyToNativeForCache("FORM", form, originSubmit, args, request);
       });
     };
-	}
-
-	/**
-	 * 是否开启 fetch hook
-	 */
-	public static enableFetchHook: Function = (enable: boolean) => {
-		FetchHook.enableFetchHook(enable);
 	}
 }

@@ -1,5 +1,4 @@
 /// <reference path="../../types/index.d.ts" />
-import * as FetchHook from "../lib/fetch.js"
 import { KKJSBridgeUtil, KKJSBridgeIframe } from "../util/KKJSBridgeUtil"
 
 /**
@@ -428,13 +427,6 @@ export class _KKJSBridgeXHR {
 				return strHeaders;
 			},
 		});
-	}
-
-	/**
-	 * 是否开启 fetch hook
-	 */
-	public static enableFetchHook: Function = (enable: boolean) => {
-		FetchHook.enableFetchHook(enable);
 	}
 }
 	

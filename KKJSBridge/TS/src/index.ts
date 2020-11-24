@@ -1,4 +1,5 @@
 /// <reference path="../types/index.d.ts" />
+import * as FetchHook from "./lib/fetch.js"
 import { KKJSBridgeIframe } from "./util/KKJSBridgeUtil"
 import { KKJSBridge } from "./bridge/KKJSBridge"
 import { _KKJSBridgeFormData } from "./hook/KKJSBridgeFormDataHook"
@@ -23,10 +24,10 @@ var init = function() {
     public static enableAjaxHook: Function = (enable: boolean) => {
       if (enable) {
         KKJSBridgeConfig.ajaxHook = true;
-        window._KKJSBridgeXHR.enableFetchHook(true);
+        FetchHook.enableFetchHook(true);
       } else {
-        window._KKJSBridgeXHR.enableFetchHook(false);
         KKJSBridgeConfig.ajaxHook = false;
+        FetchHook.enableFetchHook(false);
       }
     };
 
