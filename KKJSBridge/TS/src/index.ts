@@ -235,8 +235,9 @@ var init = function() {
     class KKJSBridgeUtil {
       
       /**
-        把 arraybuffer 转成 base64
-      */
+       * 把 arraybuffer 转成 base64
+       * @param arraybuffer 
+       */
       public static convertArrayBufferToBase64(arraybuffer: ArrayBuffer) {
         let uint8Array: Uint8Array = new Uint8Array(arraybuffer);
         let charCode: string = "";
@@ -248,64 +249,82 @@ var init = function() {
         return window.btoa(charCode);
       }
 
+      /**
+       * 转换 form 表单到 json 对象
+       * @param formData 
+       * @param callback 
+       */
       public static convertFormDataToJson(formData: any, callback: (json: any) => void) {
-        let promise = new Promise<any>(async (resolve, reject) => {
+        let allPromise: Array<Promise<Array<any>>> = [];
+        if (formData._entries) { // 低版本的 iOS 系统，并不支持 entries() 方法，所以这里做兼容处理
+          for(let i = 0; i < formData._entries.length; i++) {
+            let pair = formData._entries[i];
+            let key: string = pair[0];
+            let value: any = pair[1];
+            let fileName = pair.length > 2 ? pair[2] : null;
+            allPromise.push(KKJSBridgeUtil.convertSingleFormDataRecordToArray(key, value, fileName));
+          }
+        } else {
+          // JS 里 FormData 表单实际上也是一个键值对
+          for(let pair of formData.entries()) {
+            let key: string = pair[0];
+            let value: any = pair[1];
+            allPromise.push(KKJSBridgeUtil.convertSingleFormDataRecordToArray(key, value));
+          }
+        }
+        
+        Promise.all(allPromise).then((formDatas: Array<Array<any>>) => {
           let formDataJson: any = {};
           let formDataFileKeys = [];
-          let formDatas: any = [];
-  
-          if (formData._entries) { // 低版本的 iOS 系统，并不支持 entries() 方法，所以这里做兼容处理
-            for(let i = 0; i < formData._entries.length; i++) {
-              let pair = formData._entries[i];
-              let key: string = pair[0];
-              let value: any = pair[1];
-              let fileName = pair.length > 2 ? pair[2] : null;
-              let singleKeyValue = [];
-              singleKeyValue.push(key);
-  
-              if (value instanceof File || value instanceof Blob) { // 针对文件特殊处理
-                let formDataFile: KK.FormDataFile = await KKJSBridgeUtil.convertFileToJson(value);
-                if (fileName) { // 文件名需要处理下
-                  formDataFile.name = fileName;
-                }
-  
-                singleKeyValue.push(formDataFile);
-                formDataFileKeys.push(key);
-              } else {
-                singleKeyValue.push(value);
-              }
-  
-              formDatas.push(singleKeyValue);
-            }
-          } else {
-            // JS 里 FormData 表单实际上也是一个键值对
-            for(let pair of formData.entries()) {
-              let key: string = pair[0];
-              let value: any = pair[1];
-              let singleKeyValue = [];
-              singleKeyValue.push(key);
-  
-              if (value instanceof File || value instanceof Blob) { // 针对文件特殊处理
-                let formDataFile: KK.FormDataFile = await KKJSBridgeUtil.convertFileToJson(value);
-                singleKeyValue.push(formDataFile);
-                formDataFileKeys.push(key);
-              } else {
-                singleKeyValue.push(value);
-              }
-  
-              formDatas.push(singleKeyValue);
+          for(let i = 0; i < formDatas.length; i++) {
+            let singleKeyValue: Array<any> = formDatas[i];
+            // 只要不是字符串，那就是一个类文件对象，需要加入到 formDataFileKeys 里，方便 native 做编码转换
+            if (singleKeyValue.length > 1 && !(typeof singleKeyValue[1] == "string")) {
+              formDataFileKeys.push(singleKeyValue[0]);
             }
           }
-          
           formDataJson['fileKeys'] = formDataFileKeys;
           formDataJson['formData'] = formDatas;
-          resolve(formDataJson);
-        });
-  
-        promise.then((json: any) => {
-          callback(json);
+          callback(formDataJson);
         }).catch(function (error: Error) {
-            console.log(error);
+          console.log(error);
+        });
+      }
+
+      /**
+       * 转换表单单条记录到一个数组对象
+       * @param key 
+       * @param value 
+       * @param fileName 
+       */
+      public static convertSingleFormDataRecordToArray(key: string, value: any, fileName?: string): Promise<Array<any>> {
+        return new Promise<Array<any>>((resolve, reject) => {
+          let singleKeyValue: Array<any> = [];
+          singleKeyValue.push(key);
+          if (value instanceof File || value instanceof Blob) { // 针对文件特殊处理
+            let reader: FileReader = new FileReader();
+            reader.readAsDataURL(value);
+            reader.onload = function(this: FileReader, ev: ProgressEvent) {
+                let base64: string = (ev.target as any).result;
+                let formDataFile: KK.FormDataFile = {
+                  name: fileName ? fileName : (value instanceof File ? (value as File).name : ''),
+                  lastModified: value instanceof File ? (value as File).lastModified : 0,
+                  size: value.size,
+                  type: value.type,
+                  data: base64
+                };
+                singleKeyValue.push(formDataFile);
+                resolve(singleKeyValue);
+                return null;
+            };
+            reader.onerror = function(this: FileReader, ev: ProgressEvent) {
+              reject(Error("formdata 表单读取文件数据失败"));
+              return null;
+            };
+          } else {
+            singleKeyValue.push(value);
+            resolve(singleKeyValue);
+          }
         });
       }
   
@@ -313,8 +332,8 @@ var init = function() {
        * 读取单个文件数据，并转成 base64，最后返回 json 对象
        * @param file 
        */
-      public static convertFileToJson(file: File | Blob) {
-        return new Promise<any>((resolve, reject) => {
+      public static convertFileToJson(file: File | Blob): Promise<KK.FormDataFile> {
+        return new Promise<KK.FormDataFile>((resolve, reject) => {
           let reader: FileReader = new FileReader();
           reader.readAsDataURL(file);
           reader.onload = function(this: FileReader, ev: ProgressEvent) {
