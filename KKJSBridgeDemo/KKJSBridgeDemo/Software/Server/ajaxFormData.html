@@ -39,7 +39,6 @@
         1、ajax 上传文件到七牛
         <input id="file" name="file" type="file" />
         <button onclick="sendAjaxFormData()">ajax 上传文件到七牛</button>
-        <button onclick="sync_sendAjaxFormData()">sync ajax 上传文件到七牛</button>
     </div>
 
     <div>
@@ -89,28 +88,6 @@
         };
         xhr.send(formData);
     }
-
-    function sync_sendAjaxFormData() {
-        var file = document.getElementById('file').files[0];
-
-        var formData = new FormData();
-        formData.append('key', 'bbbb-' + (new Date()).getTime());
-        formData.append('token', token);
-        formData.append('file', file);
-        
-        var xhr = new XMLHttpRequest();
-        xhr.open('POST', 'http://upload.qiniup.com/', false);
-        xhr.onreadystatechange = () => {
-            if (xhr.status === 200 && xhr.readyState === 4) {
-              console.log(xhr.responseText);
-            }
-        };
-        xhr.onerror = function (e) {
-            console.log(e);
-        };
-        xhr.send(formData);
-    }
-
 
     // https://developer.mozilla.org/en-US/docs/Web/API/FormData/Using_FormData_Objects
     document.addEventListener('submit', function(ev) {
