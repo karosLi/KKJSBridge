@@ -211,7 +211,7 @@ console.log('receive vc title：', res.title);
   
 ## Ajax Hook 方案对比
 
-这里只对比方案间相互比较的优缺点，共同的有点，就不赘述了。如果对私有 API 不敏感的，我是比较推荐使用方案一的。
+这里只对比方案间相互比较的优缺点，共同的优点，就不赘述了。如果对私有 API 不敏感的，我是比较推荐使用方案一的。
 
 ### 方案一：Ajax Hook 部分 API + NSURLProtocol 
 这个方案对应的是这里的 `KKJSBridge/AjaxProtocolHook`。
@@ -247,6 +247,10 @@ console.log('receive vc title：', res.title);
 
 
 ## 更新历史
+### 2020.11.24 (1.3.5)
+- 模块化管理 TS，方便代码阅读和维护
+- 移除 await 关键字，优化表单转 base64 的 js 代码
+
 ### 2020.11.21 (1.3.4)
 - 支持 JSBridge 同步调用
 - 支持 ajax 同步请求
@@ -284,9 +288,6 @@ console.log('receive vc title：', res.title);
 - 支持表单数据，支持图片上传
 - 支持 ajax 请求外部代理
 
-## TODO
-  
-- [ ] 支持 swift
 
 ## 特别鸣谢
 非常感谢下面同学提的问题和建议
