@@ -8,10 +8,10 @@
      init: function (func) {
      },
      registerHandler: function (handlerName, handler) {
-       window.KKJSBridgeInstance.on(handlerName, handler);
+       window.KKJSBridge.on(handlerName, handler);
      },
      callHandler: function (handlerName, data, responseCallback) {
-       window.KKJSBridgeInstance.call(null, handlerName, data, responseCallback);
+       window.KKJSBridge.call(null, handlerName, data, responseCallback);
      }
    };
    window.WebViewJavascriptBridge = WebViewJavascriptBridge;
