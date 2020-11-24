@@ -13,6 +13,8 @@
 
 @interface KKJSBridgeModuleCookie()<KKJSBridgeModule>
 
+@property (nonatomic, copy) NSOperationQueue *queue;
+
 @end
 
 @implementation KKJSBridgeModuleCookie
@@ -23,6 +25,18 @@
 
 + (BOOL)isSingleton {
     return true;
+}
+
+- (instancetype)initWithEngine:(KKJSBridgeEngine *)engine context:(id)context {
+    if (self = [super init]) {
+        _queue = [NSOperationQueue new];
+    }
+    
+    return self;
+}
+
+- (NSOperationQueue *)methodInvokeQueue {
+    return self.queue;
 }
 
 // 用于确定 jsbridge 已经准备好了
