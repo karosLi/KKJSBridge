@@ -1,3 +1,4 @@
+/// <reference path="../../types/index.d.ts" />
 import { KKJSBridgeIframe } from "../util/KKJSBridgeUtil"
 
 /**

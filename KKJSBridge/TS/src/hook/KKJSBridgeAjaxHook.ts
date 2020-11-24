@@ -1,4 +1,4 @@
-/// <reference path="../index.d.ts" />
+/// <reference path="../../types/index.d.ts" />
 import * as FetchHook from "../lib/fetch.js"
 import { KKJSBridgeUtil, KKJSBridgeIframe } from "../util/KKJSBridgeUtil"
 

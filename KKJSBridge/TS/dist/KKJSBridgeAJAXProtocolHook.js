@@ -30,7 +30,7 @@
         };
     }
 
-    /// <reference path="../index.d.ts" />
+    /// <reference path="../../types/index.d.ts" />
     /**
      * KKJSBridge 工具
      */
@@ -270,6 +270,7 @@
         return KKJSBridgeIframe;
     }());
 
+    /// <reference path="../../types/index.d.ts" />
     /**
      * 建立与 native 的数据通信
      */
@@ -411,7 +412,7 @@
         return _KKJSBridgeFormData;
     }());
 
-    /// <reference path="../index.d.ts" />
+    /// <reference path="../../types/index.d.ts" />
     /**
      * hook document.cookie
      */
@@ -1038,7 +1039,7 @@
       }
     }
 
-    /// <reference path="../index.d.ts" />
+    /// <reference path="../../types/index.d.ts" />
     /**
      * AJAX 相关方法
      */
@@ -1291,6 +1292,7 @@
         return _KKJSBridgeXHR;
     }());
 
+    /// <reference path="../types/index.d.ts" />
     var init = function () {
         if (window.KKJSBridge) {
             return;

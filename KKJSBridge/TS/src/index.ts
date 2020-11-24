@@ -1,5 +1,4 @@
-/// <reference path="./index.d.ts" />
-import * as FetchHook from "./lib/fetch.js"
+/// <reference path="../types/index.d.ts" />
 import { KKJSBridgeIframe } from "./util/KKJSBridgeUtil"
 import { KKJSBridge } from "./bridge/KKJSBridge"
 import { _KKJSBridgeFormData } from "./hook/KKJSBridgeFormDataHook"
