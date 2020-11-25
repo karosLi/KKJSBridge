@@ -926,14 +926,24 @@
        * @param data 数据
        */
       KKJSBridge.prototype.syncCall = function (module, method, data) {
-          var message = {
-              module: module || 'default',
-              method: method,
-              data: data,
-          };
-          var messageString = JSON.stringify(message);
-          var response = window.prompt("KKJSBridge", messageString);
-          return response ? JSON.parse(response) : null;
+          function call() {
+              var message = {
+                  module: module || 'default',
+                  method: method,
+                  data: data,
+              };
+              var messageString = JSON.stringify(message);
+              var response = window.prompt("KKJSBridge", messageString);
+              return response ? JSON.parse(response) : null;
+          }
+          try {
+              return call();
+          }
+          catch (e) {
+              // https://developer.mozilla.org/en-US/docs/Web/API/WindowEventHandlers/onbeforeunload
+              console.log('window.prompt will happen error when beforeunload event triggered', e);
+              return null;
+          }
       };
       /**
        * 监听事件

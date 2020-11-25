@@ -91,15 +91,25 @@ export class KKJSBridge {
    * @param data 数据
    */
   public syncCall(module: string, method: string, data: {}) : any {
-    let message: KK.SendMessage = {
-      module: module || 'default',
-      method,
-      data : data,
-    };
+    function call() : any {
+      let message: KK.SendMessage = {
+        module: module || 'default',
+        method,
+        data : data,
+      };
+  
+      const messageString: string = JSON.stringify(message);
+      let response: any = window.prompt("KKJSBridge", messageString);
+      return response ? JSON.parse(response) : null;
+    }
 
-    const messageString: string = JSON.stringify(message);
-    let response: any = window.prompt("KKJSBridge", messageString);
-    return response ? JSON.parse(response) : null;
+    try {
+			return call();
+		} catch(e) {
+      // https://developer.mozilla.org/en-US/docs/Web/API/WindowEventHandlers/onbeforeunload
+			console.log('window.prompt will happen error when beforeunload event triggered', e);
+      return null;
+    }
   }
 
   /**
