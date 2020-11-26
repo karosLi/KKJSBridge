@@ -20,7 +20,9 @@ export class _KKJSBridgeCOOKIE {
 					enumerable: true,
 					get: function () {
 						// console.log('getCookie');
-						if (window.KKJSBridgeConfig.cookieHook) {// 如果开启 cookie hook，则从 Native 读取 cookie
+						// 当同时开启了 ajax hook 和 cookie get hook，才需要把 document.cookie 的读取通过同步 JSBridge 调用从 NSHTTPCookieStorage 中读取 cookie。
+						// 因为当非 ajax hook 情况下，说明是纯 WKWebView 的场景，那么 ajax 响应头里 Set-Cookie 只会存储在 WKCookie 里，所以此时是只能直接从 WKCookie 里读取 cookie 的。
+						if (window.KKJSBridgeConfig.ajaxHook && window.KKJSBridgeConfig.cookieGetHook) {
 							let cookieJson: any = window.KKJSBridge.syncCall(_KKJSBridgeCOOKIE.moduleName, 'cookie', {
 								"url" : window.location.href
 							});
@@ -31,7 +33,7 @@ export class _KKJSBridgeCOOKIE {
 					},
 					set: function (val) {
 						// console.log('setCookie');
-						if (window.KKJSBridgeConfig.cookieHook) {// 如果开启 cookie hook，则需要把 cookie 同步给 Native
+						if (window.KKJSBridgeConfig.cookieSetHook) {// 如果开启 cookie set hook，则需要把 cookie 同步给 Native
 							window.KKJSBridge.call(_KKJSBridgeCOOKIE.moduleName, 'setCookie', {
 								"cookie" : val
 							});

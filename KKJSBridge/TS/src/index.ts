@@ -16,7 +16,8 @@ var init = function() {
    */
   class KKJSBridgeConfig {
     public static ajaxHook: boolean = false;
-    public static cookieHook: boolean = true;
+    public static cookieSetHook: boolean = true;
+    public static cookieGetHook: boolean = true;
     
     /**
      * 开启 ajax hook
@@ -32,10 +33,17 @@ var init = function() {
     };
 
     /**
-     * 开启 cookie hook
+     * 开启 cookie set hook
      */
-    public static enableCookieHook: Function = (enable: boolean) => {
-      KKJSBridgeConfig.cookieHook = enable;
+    public static enableCookieSetHook: Function = (enable: boolean) => {
+      KKJSBridgeConfig.cookieSetHook = enable;
+    };
+
+    /**
+     * 开启 cookie get hook
+     */
+    public static enableCookieGetHook: Function = (enable: boolean) => {
+      KKJSBridgeConfig.cookieGetHook = enable;
     };
 
     /**

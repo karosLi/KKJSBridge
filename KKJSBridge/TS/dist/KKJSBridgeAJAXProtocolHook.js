@@ -1022,7 +1022,9 @@
                       enumerable: true,
                       get: function () {
                           // console.log('getCookie');
-                          if (window.KKJSBridgeConfig.cookieHook) { // 如果开启 cookie hook，则从 Native 读取 cookie
+                          // 当同时开启了 ajax hook 和 cookie get hook，才需要把 document.cookie 的读取通过同步 JSBridge 调用从 NSHTTPCookieStorage 中读取 cookie。
+                          // 因为当非 ajax hook 情况下，说明是纯 WKWebView 的场景，此时是可以直接从 WKCookie 里读取 cookie 的。
+                          if (window.KKJSBridgeConfig.ajaxHook && window.KKJSBridgeConfig.cookieGetHook) {
                               var cookieJson = window.KKJSBridge.syncCall(_KKJSBridgeCOOKIE.moduleName, 'cookie', {
                                   "url": window.location.href
                               });
@@ -1032,7 +1034,7 @@
                       },
                       set: function (val) {
                           // console.log('setCookie');
-                          if (window.KKJSBridgeConfig.cookieHook) { // 如果开启 cookie hook，则需要把 cookie 同步给 Native
+                          if (window.KKJSBridgeConfig.cookieSetHook) { // 如果开启 cookie set hook，则需要把 cookie 同步给 Native
                               window.KKJSBridge.call(_KKJSBridgeCOOKIE.moduleName, 'setCookie', {
                                   "cookie": val
                               });
@@ -1308,7 +1310,8 @@
           function KKJSBridgeConfig() {
           }
           KKJSBridgeConfig.ajaxHook = false;
-          KKJSBridgeConfig.cookieHook = true;
+          KKJSBridgeConfig.cookieSetHook = true;
+          KKJSBridgeConfig.cookieGetHook = true;
           /**
            * 开启 ajax hook
            */
@@ -1323,10 +1326,16 @@
               }
           };
           /**
-           * 开启 cookie hook
+           * 开启 cookie set hook
            */
-          KKJSBridgeConfig.enableCookieHook = function (enable) {
-              KKJSBridgeConfig.cookieHook = enable;
+          KKJSBridgeConfig.enableCookieSetHook = function (enable) {
+              KKJSBridgeConfig.cookieSetHook = enable;
+          };
+          /**
+           * 开启 cookie get hook
+           */
+          KKJSBridgeConfig.enableCookieGetHook = function (enable) {
+              KKJSBridgeConfig.cookieGetHook = enable;
           };
           /**
            * bridge Ready

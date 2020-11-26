@@ -27,12 +27,14 @@ static id<KKJSBridgeAjaxDelegateManager> globalAjaxDelegateManager;
 - (instancetype)initWithEngine:(KKJSBridgeEngine *)engine {
     if (self = [super init]) {
         _engine = engine;
-        _enableCookieHook = YES;
+        _enableCookieSetHook = YES;
+        _enableCookieGetHook = YES;
     }
     
     return self;
 }
 
+#pragma mark - public
 - (void)setEnableAjaxHook:(BOOL)enableAjaxHook {
     _enableAjaxHook = enableAjaxHook;
     
@@ -47,32 +49,40 @@ static id<KKJSBridgeAjaxDelegateManager> globalAjaxDelegateManager;
 #endif
     
     NSString *script = [NSString stringWithFormat:@"window.KKJSBridgeConfig.enableAjaxHook(%@)", [NSNumber numberWithBool:enableAjaxHook]];
-    if (self.engine.isBridgeReady) {
-        [KKJSBridgeJSExecutor evaluateJavaScript:script inWebView:self.engine.webView completionHandler:nil];
-    } else {
-        WKUserScript *userScript = [[WKUserScript alloc] initWithSource:script injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:NO];
-        [self.engine.webView.configuration.userContentController addUserScript:userScript];
-    }
+    [self evaluateConfigScript:script];
 }
 
-- (void)setEnableCookieHook:(BOOL)enableCookieHook {
-    _enableCookieHook = enableCookieHook;
+- (void)setEnableCookieSetHook:(BOOL)enableCookieSetHook {
+    _enableCookieSetHook = enableCookieSetHook;
     
-    NSString *script = [NSString stringWithFormat:@"window.KKJSBridgeConfig.enableCookieHook(%@)", [NSNumber numberWithBool:enableCookieHook]];
-    if (self.engine.isBridgeReady) {
-        [KKJSBridgeJSExecutor evaluateJavaScript:script inWebView:self.engine.webView completionHandler:nil];
-    } else {
-        WKUserScript *userScript = [[WKUserScript alloc] initWithSource:script injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:NO];
-        [self.engine.webView.configuration.userContentController addUserScript:userScript];
-    }
+    NSString *script = [NSString stringWithFormat:@"window.KKJSBridgeConfig.enableCookieSetHook(%@)", [NSNumber numberWithBool:enableCookieSetHook]];
+    [self evaluateConfigScript:script];
 }
 
+- (void)setEnableCookieGetHook:(BOOL)enableCookieGetHook {
+    _enableCookieGetHook = enableCookieGetHook;
+    
+    NSString *script = [NSString stringWithFormat:@"window.KKJSBridgeConfig.enableCookieGetHook(%@)", [NSNumber numberWithBool:enableCookieGetHook]];
+    [self evaluateConfigScript:script];
+}
+
+#pragma mark - public static
 + (void)setAjaxDelegateManager:(id<KKJSBridgeAjaxDelegateManager>)ajaxDelegateManager {
     globalAjaxDelegateManager = ajaxDelegateManager;
 }
 
 + (id<KKJSBridgeAjaxDelegateManager>)ajaxDelegateManager {
     return globalAjaxDelegateManager;
+}
+
+#pragma mark - private
+- (void)evaluateConfigScript:(NSString *)script {
+    if (self.engine.isBridgeReady) {
+        [KKJSBridgeJSExecutor evaluateJavaScript:script inWebView:self.engine.webView completionHandler:nil];
+    } else {
+        WKUserScript *userScript = [[WKUserScript alloc] initWithSource:script injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:NO];
+        [self.engine.webView.configuration.userContentController addUserScript:userScript];
+    }
 }
 
 @end
