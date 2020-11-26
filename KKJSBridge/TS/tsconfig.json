@@ -24,10 +24,15 @@
       "dom"
     ],
   },
+  "formatCodeOptions": {
+    "indentSize": 2,
+    "tabSize": 2
+  },
   "include": [
     "src/**/*.ts", "types/**/*.d.ts",
   ],
   "exclude": [
     "node_modules"
-  ]
+  ],
+  
 }

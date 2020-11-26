@@ -1,4 +1,5 @@
 /// <reference path="../../types/index.d.ts" />
+import { _KKJSBridgeFormData } from "../hook/KKJSBridgeFormDataHook"
 
 /**
  * KKJSBridge 工具
@@ -27,23 +28,11 @@ export class KKJSBridgeUtil {
 	 */
 	public static convertFormDataToJson(formData: any, callback: (json: any) => void) {
 		let allPromise: Array<Promise<Array<any>>> = [];
-		if (formData._entries) { // 低版本的 iOS 系统，并不支持 entries() 方法，所以这里做兼容处理
-			for (let i = 0; i < formData._entries.length; i++) {
-				let pair = formData._entries[i];
-				let key: string = pair[0];
-				let value: any = pair[1];
-				let fileName = pair.length > 2 ? pair[2] : null;
-				allPromise.push(KKJSBridgeUtil.convertSingleFormDataRecordToArray(key, value, fileName));
-			}
-		} else {
-			// JS 里 FormData 表单实际上也是一个键值对
-			for(let pair of formData.entries()) {
-				let key: string = pair[0];
-				let value: any = pair[1];
-				allPromise.push(KKJSBridgeUtil.convertSingleFormDataRecordToArray(key, value));
-			}
-		}
 		
+		_KKJSBridgeFormData.traversalEntries(formData, (key: string, value: any, fileName?: string) => {
+			allPromise.push(KKJSBridgeUtil.convertSingleFormDataRecordToArray(key, value, fileName));
+		});
+
 		Promise.all(allPromise).then((formDatas: Array<Array<any>>) => {
 			let formDataJson: any = {};
 			let formDataFileKeys = [];

@@ -605,6 +605,66 @@
       };
   }
 
+  var _KKJSBridgeFormData = /** @class */ (function () {
+      function _KKJSBridgeFormData() {
+      }
+      /**
+       * Hook FormData，由于低版本的 FormData 没有支持 entries() 等遍历 api，所以只是在 ajax send 里遍历，是无法获取到具体的值的，
+       * 所以针对低版本的 iOS 系统做 Hook FormData 处理。
+       */
+      _KKJSBridgeFormData.setupHook = function () {
+          var originAppend = window.FormData.prototype['append'];
+          var originEntries = window.FormData.prototype['entries'];
+          if (!originEntries) {
+              window.FormData.prototype['append'] = function () {
+                  if (!this._entries) {
+                      this._entries = [];
+                  }
+                  this._entries.push(arguments);
+                  return originAppend.apply(this, arguments);
+              };
+          }
+      };
+      /**
+       * 遍历表单记录
+       */
+      _KKJSBridgeFormData.traversalEntries = function (formData, traversal) {
+          var e_1, _a;
+          if (formData._entries) { // 低版本的 iOS 系统，并不支持 entries() 方法，所以这里做兼容处理
+              for (var i = 0; i < formData._entries.length; i++) {
+                  var pair = formData._entries[i];
+                  var key = pair[0];
+                  var value = pair[1];
+                  var fileName = pair.length > 2 ? pair[2] : null;
+                  if (traversal) {
+                      traversal(key, value, fileName);
+                  }
+              }
+          }
+          else {
+              try {
+                  // JS 里 FormData 表单实际上也是一个键值对
+                  for (var _b = __values(formData.entries()), _c = _b.next(); !_c.done; _c = _b.next()) {
+                      var pair = _c.value;
+                      var key = pair[0];
+                      var value = pair[1];
+                      if (traversal) {
+                          traversal(key, value, null);
+                      }
+                  }
+              }
+              catch (e_1_1) { e_1 = { error: e_1_1 }; }
+              finally {
+                  try {
+                      if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                  }
+                  finally { if (e_1) throw e_1.error; }
+              }
+          }
+      };
+      return _KKJSBridgeFormData;
+  }());
+
   /// <reference path="../../types/index.d.ts" />
   /**
    * KKJSBridge 工具
@@ -632,35 +692,10 @@
        * @param callback
        */
       KKJSBridgeUtil.convertFormDataToJson = function (formData, callback) {
-          var e_1, _a;
           var allPromise = [];
-          if (formData._entries) { // 低版本的 iOS 系统，并不支持 entries() 方法，所以这里做兼容处理
-              for (var i = 0; i < formData._entries.length; i++) {
-                  var pair = formData._entries[i];
-                  var key = pair[0];
-                  var value = pair[1];
-                  var fileName = pair.length > 2 ? pair[2] : null;
-                  allPromise.push(KKJSBridgeUtil.convertSingleFormDataRecordToArray(key, value, fileName));
-              }
-          }
-          else {
-              try {
-                  // JS 里 FormData 表单实际上也是一个键值对
-                  for (var _b = __values(formData.entries()), _c = _b.next(); !_c.done; _c = _b.next()) {
-                      var pair = _c.value;
-                      var key = pair[0];
-                      var value = pair[1];
-                      allPromise.push(KKJSBridgeUtil.convertSingleFormDataRecordToArray(key, value));
-                  }
-              }
-              catch (e_1_1) { e_1 = { error: e_1_1 }; }
-              finally {
-                  try {
-                      if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                  }
-                  finally { if (e_1) throw e_1.error; }
-              }
-          }
+          _KKJSBridgeFormData.traversalEntries(formData, function (key, value, fileName) {
+              allPromise.push(KKJSBridgeUtil.convertSingleFormDataRecordToArray(key, value, fileName));
+          });
           Promise.all(allPromise).then(function (formDatas) {
               var formDataJson = {};
               var formDataFileKeys = [];
@@ -974,29 +1009,6 @@
       return KKJSBridge;
   }());
 
-  var _KKJSBridgeFormData = /** @class */ (function () {
-      function _KKJSBridgeFormData() {
-      }
-      /**
-       * Hook FormData，由于低版本的 FormData 没有支持 entries() 等遍历 api，所以只是在 ajax send 里遍历，是无法获取到具体的值的，
-       * 所以针对低版本的 iOS 系统做 Hook FormData 处理。
-       */
-      _KKJSBridgeFormData.setupHook = function () {
-          var originAppend = window.FormData.prototype['append'];
-          var originEntries = window.FormData.prototype['entries'];
-          if (!originEntries) {
-              window.FormData.prototype['append'] = function () {
-                  if (!this._entries) {
-                      this._entries = [];
-                  }
-                  this._entries.push(arguments);
-                  return originAppend.apply(this, arguments);
-              };
-          }
-      };
-      return _KKJSBridgeFormData;
-  }());
-
   /// <reference path="../../types/index.d.ts" />
   /**
    * hook document.cookie
@@ -1023,7 +1035,7 @@
                       get: function () {
                           // console.log('getCookie');
                           // 当同时开启了 ajax hook 和 cookie get hook，才需要把 document.cookie 的读取通过同步 JSBridge 调用从 NSHTTPCookieStorage 中读取 cookie。
-                          // 因为当非 ajax hook 情况下，说明是纯 WKWebView 的场景，此时是可以直接从 WKCookie 里读取 cookie 的。
+                          // 因为当非 ajax hook 情况下，说明是纯 WKWebView 的场景，那么 ajax 响应头里 Set-Cookie 只会存储在 WKCookie 里，所以此时是只能直接从 WKCookie 里读取 cookie 的。
                           if (window.KKJSBridgeConfig.ajaxHook && window.KKJSBridgeConfig.cookieGetHook) {
                               var cookieJson = window.KKJSBridge.syncCall(_KKJSBridgeCOOKIE.moduleName, 'cookie', {
                                   "url": window.location.href
