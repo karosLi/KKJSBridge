@@ -29,7 +29,7 @@ typedef NS_ENUM(NSInteger, KKJSBridgeMessageType) {
 /// 用于H5调用回调
 @property (nonatomic, copy, nullable) NSString *callbackId;
 /// 用于本地调用回调
-@property (nonatomic, copy, nullable) void (^callback)(NSDictionary *responseData);
+@property (nonatomic, copy, nullable) void (^callback)(NSDictionary * _Nullable responseData);
 
 #pragma mark - event 相关
 @property (nonatomic, copy, nullable) NSString *eventName;

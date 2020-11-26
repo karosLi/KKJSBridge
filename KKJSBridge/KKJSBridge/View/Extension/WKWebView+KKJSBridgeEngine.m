@@ -45,14 +45,22 @@
     NSString *method = body[@"method"];
     NSDictionary *data = body[@"data"];
     [self.kk_engine dispatchCall:module method:method data:data callback:^(NSDictionary * _Nullable responseData) {
-        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:responseData options:kNilOptions error:NULL];
-        if (!jsonData) {
-            completionHandler ? completionHandler(nil) : nil;
+        if (nil == completionHandler) {
             return;
         }
-
+        
+        if (nil == responseData || 0 == responseData.count) {
+            return completionHandler(nil);
+        }
+        
+        NSError *error;
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:responseData options:kNilOptions error:&error];
+        if (nil != error || nil == jsonData) {
+            return completionHandler(nil);
+        }
+        
         NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-        completionHandler ? completionHandler(jsonString) : nil;
+        completionHandler(jsonString);
     }];
     
     return YES;
