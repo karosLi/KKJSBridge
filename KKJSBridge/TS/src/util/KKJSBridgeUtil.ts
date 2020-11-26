@@ -36,11 +36,11 @@ export class KKJSBridgeUtil {
 		Promise.all(allPromise).then((formDatas: Array<Array<any>>) => {
 			let formDataJson: any = {};
 			let formDataFileKeys = [];
-			for(let i = 0; i < formDatas.length; i++) {
+			for (let i = 0; i < formDatas.length; i++) {
 				let singleKeyValue: Array<any> = formDatas[i];
 				// 只要不是字符串，那就是一个类文件对象，需要加入到 formDataFileKeys 里，方便 native 做编码转换
 				if (singleKeyValue.length > 1 && !(typeof singleKeyValue[1] == "string")) {
-				formDataFileKeys.push(singleKeyValue[0]);
+					formDataFileKeys.push(singleKeyValue[0]);
 				}
 			}
 			formDataJson['fileKeys'] = formDataFileKeys;
