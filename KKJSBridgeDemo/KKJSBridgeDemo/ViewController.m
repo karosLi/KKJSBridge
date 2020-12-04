@@ -62,7 +62,8 @@
 //        NSString *path = [[NSBundle mainBundle] pathForResource:@"ajaxHookTestLocalFile" ofType:@"html"];
 //        url = [NSString stringWithFormat:@"file://%@", path];
     }
-    
+    url = @"https://h5.leoao.com/fit-m/#/pages/pt/index";
+    url = @"https://h5.leoao.com/multiple/coach/cert.html#/certEdit";
     WebViewController *web = [[WebViewController alloc] initWithUrl:url];
     [self.navigationController pushViewController:web animated:YES];
 }
