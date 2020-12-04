@@ -1498,7 +1498,7 @@
                   enableFetchHook(true);
               }
               else {
-                  window._KKJSBridgeXHR.enableFetchHook(false);
+                  window._KKJSBridgeXHR.enableAjaxHook(false);
                   enableFetchHook(false);
               }
           };

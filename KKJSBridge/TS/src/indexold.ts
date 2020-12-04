@@ -26,7 +26,7 @@ var init = function() {
         window._KKJSBridgeXHR.enableAjaxHook(true);
         FetchHook.enableFetchHook(true);
       } else {
-        window._KKJSBridgeXHR.enableFetchHook(false);
+        window._KKJSBridgeXHR.enableAjaxHook(false);
         FetchHook.enableFetchHook(false);
       }
     };
