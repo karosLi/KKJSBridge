@@ -1148,6 +1148,14 @@
           return newUrl;
       };
       /**
+       * 是否是非正常的 http 请求。比如 url: blob:https:// 场景下，去发送 XMLHTTPRequest，会导致请求失败
+       */
+      _KKJSBridgeXHR.isNonNormalHttpRequest = function (url, httpMethod) {
+          var pattern = /^((http|https):\/\/)/;
+          var isNonNormalRequest = !pattern.test(url) && httpMethod === "GET";
+          return isNonNormalRequest;
+      };
+      /**
        * 发送 body 到 native 侧缓存起来
        * @param xhr
        * @param originMethod
@@ -1220,6 +1228,9 @@
               xhr.requestHref = document.location.href;
               xhr.requestMethod = method;
               xhr.requestAsync = async;
+              if (_KKJSBridgeXHR.isNonNormalHttpRequest(url, method)) { // 如果是非正常请求，则调用原始 open
+                  return originOpen.apply(xhr, args);
+              }
               if (!window.KKJSBridgeConfig.ajaxHook) { // 如果没有开启 ajax hook，则调用原始 open
                   return originOpen.apply(xhr, args);
               }
@@ -1238,6 +1249,9 @@
                   bodyType: "String",
                   value: null
               };
+              if (_KKJSBridgeXHR.isNonNormalHttpRequest(xhr.requestUrl, xhr.requestMethod)) { // 如果是非正常请求，则调用原始 send
+                  return originSend.apply(xhr, args);
+              }
               if (!window.KKJSBridgeConfig.ajaxHook) { // 如果没有开启 ajax hook，则调用原始 send
                   return originSend.apply(xhr, args);
               }
