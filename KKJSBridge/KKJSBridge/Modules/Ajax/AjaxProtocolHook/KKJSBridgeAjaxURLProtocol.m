@@ -104,11 +104,14 @@ static NSString * const kKKJSBridgeAjaxResponseHeaderAC = @"Access-Control-Allow
      */
     [KKWebViewCookieManager syncRequestCookie:mutableReqeust];
     
-    // 设置 body
-    NSDictionary *bodyReqeust = [KKJSBridgeXMLBodyCacheRequest getRequestBody:requestId];
-    if (bodyReqeust) {
-        // 从把缓存的 body 设置给 request
-        [KKJSBridgeAjaxBodyHelper setBodyRequest:bodyReqeust toRequest:mutableReqeust];
+    // 设置 body，针对没有 body 的方法，做一道拦截，不去设置 body，保持跟原生 WebView 一致的处理
+    NSArray<NSString *> *methods = @[@"GET"];
+    if (mutableReqeust.HTTPMethod.length > 0 && ![methods containsObject:mutableReqeust.HTTPMethod]) {
+        NSDictionary *bodyReqeust = [KKJSBridgeXMLBodyCacheRequest getRequestBody:requestId];
+        if (bodyReqeust) {
+            // 从把缓存的 body 设置给 request
+            [KKJSBridgeAjaxBodyHelper setBodyRequest:bodyReqeust toRequest:mutableReqeust];
+        }
     }
     
     if (KKJSBridgeConfig.ajaxDelegateManager && [KKJSBridgeConfig.ajaxDelegateManager respondsToSelector:@selector(dataTaskWithRequest:callbackDelegate:)]) {
