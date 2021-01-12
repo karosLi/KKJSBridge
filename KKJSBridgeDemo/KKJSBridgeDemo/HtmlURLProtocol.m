@@ -47,6 +47,10 @@ static NSString * const kKKJSBridgeNSURLProtocolKey = @"kKKJSBridgeNSURLProtocol
     if ([NSURLProtocol propertyForKey:kKKJSBridgeNSURLProtocolKey inRequest:request]) {
         return NO;
     }
+    
+    if ([request.URL.host hasPrefix:@"redirect.simba.taobao.com"]) {
+        return NO;
+    }
   
     NSLog(@"HtmlURLProtocol %@", request.URL.absoluteString);
     return YES;
