@@ -11,7 +11,8 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface HtmlURLProtocol : NSURLProtocol
-
++ (void)HtmlURLProtocolRegisterScheme:(NSString *)scheme;
++ (void)HtmlURLProtocolUnregisterScheme:(NSString *)scheme;
 @end
 
 NS_ASSUME_NONNULL_END

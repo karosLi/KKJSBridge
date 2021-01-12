@@ -22,6 +22,9 @@ Pod::Spec.new do |s|
     sub.source_files  = "KKJSBridge/KKJSBridge/Modules/Ajax/AjaxHook/**/*.{h,m}"
     sub.resources = "KKJSBridge/KKJSBridge/JS/KKJSBridgeAJAXHook.js"
     sub.dependency "KKJSBridge/Core"
+    sub.user_target_xcconfig = {
+        'GCC_PREPROCESSOR_DEFINITIONS' => '$(inherited) KKAjaxHook=1'
+    }
     sub.pod_target_xcconfig = {
         'GCC_PREPROCESSOR_DEFINITIONS' => 'KKAjaxHook=1'
     }
@@ -31,6 +34,9 @@ Pod::Spec.new do |s|
     sub.source_files  = "KKJSBridge/KKJSBridge/Modules/Ajax/AjaxProtocolHook/**/*.{h,m}"
     sub.resources = "KKJSBridge/KKJSBridge/JS/KKJSBridgeAJAXProtocolHook.js"
     sub.dependency "KKJSBridge/Core"
+    sub.user_target_xcconfig = {
+        'GCC_PREPROCESSOR_DEFINITIONS' => '$(inherited) KKAjaxProtocolHook=1'
+    }
     sub.pod_target_xcconfig = {
         'GCC_PREPROCESSOR_DEFINITIONS' => 'KKAjaxProtocolHook=1'
     }

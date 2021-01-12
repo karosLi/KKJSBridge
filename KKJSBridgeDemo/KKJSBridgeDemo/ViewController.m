@@ -24,6 +24,10 @@
     NSLog(@"libraryPath = %@", libraryPath);
     
     // 注册 HtmlURLProtocol，使用离线包
+#ifndef KKAjaxProtocolHook
+    [HtmlURLProtocol HtmlURLProtocolRegisterScheme:@"http"];
+    [HtmlURLProtocol HtmlURLProtocolRegisterScheme:@"https"];
+#endif
     [NSURLProtocol registerClass:HtmlURLProtocol.class];
 }
 

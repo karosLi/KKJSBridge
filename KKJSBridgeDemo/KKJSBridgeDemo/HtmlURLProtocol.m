@@ -7,6 +7,28 @@
 //
 
 #import "HtmlURLProtocol.h"
+#import <WebKit/WebKit.h>
+
+// https://github.com/WebKit/webkit/blob/989f1ffc97f6b168687cbfc6f98d35880fdd29de/Source/WebKit/UIProcess/API/Cocoa/WKBrowsingContextController.mm
+Class HtmlURLProtocol_WKWebView_ContextControllerClass() {
+    static Class cls;
+    if (!cls) {
+        if (@available(iOS 8.0, *)) {
+            cls = [[[WKWebView new] valueForKey:@"browsingContextController"] class];
+        } else {
+            
+        }
+    }
+    return cls;
+}
+//customSchemes
+SEL HtmlURLProtocol_WKWebView_RegisterSchemeSelector() {
+    return NSSelectorFromString(@"registerSchemeForCustomProtocol:");
+}
+
+SEL HtmlURLProtocol_WKWebView_UnregisterSchemeSelector() {
+    return NSSelectorFromString(@"unregisterSchemeForCustomProtocol:");
+}
 
 static NSString * const kKKJSBridgeNSURLProtocolKey = @"kKKJSBridgeNSURLProtocolKey1";
 
@@ -80,6 +102,30 @@ static NSString * const kKKJSBridgeNSURLProtocolKey = @"kKKJSBridgeNSURLProtocol
 
 - (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data {
     [self.client URLProtocol:self didLoadData:data];
+}
+
+#pragma mark - 协议注册
+
++ (void)HtmlURLProtocolRegisterScheme:(NSString *)scheme {
+    Class cls = HtmlURLProtocol_WKWebView_ContextControllerClass();
+    SEL sel = HtmlURLProtocol_WKWebView_RegisterSchemeSelector();
+    if ([(id)cls respondsToSelector:sel]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+        [(id)cls performSelector:sel withObject:scheme];
+#pragma clang diagnostic pop
+    }
+}
+
++ (void)HtmlURLProtocolUnregisterScheme:(NSString *)scheme {
+    Class cls = HtmlURLProtocol_WKWebView_ContextControllerClass();
+    SEL sel = HtmlURLProtocol_WKWebView_UnregisterSchemeSelector();
+    if ([(id)cls respondsToSelector:sel]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+        [(id)cls performSelector:sel withObject:scheme];
+#pragma clang diagnostic pop
+    }
 }
 
 @end
