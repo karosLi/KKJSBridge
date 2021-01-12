@@ -15,5 +15,8 @@
 #import "KKWebView.h"
 #import "KKWebViewPool.h"
 #import "KKWebViewCookieManager.h"
+#ifdef KKAjaxProtocolHook
+#import "NSURLProtocol+KKJSBridgeWKWebView.h"
+#endif
 
 #endif /* KKJSBridge_h */
