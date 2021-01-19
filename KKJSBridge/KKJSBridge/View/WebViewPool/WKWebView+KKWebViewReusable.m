@@ -66,6 +66,7 @@
 - (void)componentViewWillEnterPool {
     self.holderObject = nil;
     self.kk_engine = nil;
+    self.hidden = NO;
     self.scrollView.delegate = nil;
     self.scrollView.scrollEnabled = YES;
     [self stopLoading];
