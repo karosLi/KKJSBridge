@@ -289,13 +289,6 @@ console.log('receive vc title：', res.title);
 - 支持 ajax 请求外部代理
 
 
-## 特别鸣谢
-非常感谢下面同学提的问题和建议
-
-[![](https://github.com/wjiuxing.png?size=50)](https://github.com/wjiuxing)
-[![](https://github.com/ZhangKejun.png?size=50)](https://github.com/ZhangKejun)
-
-
 ## 参考
 
 - [Ajax-hook](https://github.com/wendux/Ajax-hook)
