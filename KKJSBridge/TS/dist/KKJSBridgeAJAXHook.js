@@ -1,8 +1,8 @@
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
   typeof define === 'function' && define.amd ? define('lib/fetch.js', factory) :
-  (global = global || self, global.KKJSBridge = factory());
-}(this, (function () { 'use strict';
+  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.KKJSBridge = factory());
+})(this, (function () { 'use strict';
 
   var support = {
     searchParams: 'URLSearchParams' in self,
@@ -580,29 +580,41 @@
   }
 
   /*! *****************************************************************************
-  Copyright (c) Microsoft Corporation. All rights reserved.
-  Licensed under the Apache License, Version 2.0 (the "License"); you may not use
-  this file except in compliance with the License. You may obtain a copy of the
-  License at http://www.apache.org/licenses/LICENSE-2.0
+  Copyright (c) Microsoft Corporation.
 
-  THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-  KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
-  WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
-  MERCHANTABLITY OR NON-INFRINGEMENT.
+  Permission to use, copy, modify, and/or distribute this software for any
+  purpose with or without fee is hereby granted.
 
-  See the Apache Version 2.0 License for specific language governing permissions
-  and limitations under the License.
+  THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+  REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+  AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+  INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+  LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+  OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+  PERFORMANCE OF THIS SOFTWARE.
   ***************************************************************************** */
 
+  var __assign = function() {
+      __assign = Object.assign || function __assign(t) {
+          for (var s, i = 1, n = arguments.length; i < n; i++) {
+              s = arguments[i];
+              for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+          }
+          return t;
+      };
+      return __assign.apply(this, arguments);
+  };
+
   function __values(o) {
-      var m = typeof Symbol === "function" && o[Symbol.iterator], i = 0;
+      var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
       if (m) return m.call(o);
-      return {
+      if (o && typeof o.length === "number") return {
           next: function () {
               if (o && i >= o.length) o = void 0;
               return { value: o && o[i++], done: !o };
           }
       };
+      throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
   }
 
   var _KKJSBridgeFormData = /** @class */ (function () {
@@ -1067,7 +1079,7 @@
   /**
    * AJAX 相关方法
    */
-  var _KKJSBridgeXHR = /** @class */ (function () {
+  var _KKJSBridgeXHR$1 = /** @class */ (function () {
       function _KKJSBridgeXHR() {
       }
       // 静态属性和方法
@@ -1476,6 +1488,327 @@
       return _KKJSBridgeXHR;
   }());
 
+  /**
+   * AJAX 相关方法
+   */
+  var _KKJSBridgeXHR = /** @class */ (function () {
+      function _KKJSBridgeXHR() {
+      }
+      /**
+      * 统一处理 body 内容
+      */
+      _KKJSBridgeXHR.resolveRequestBody = function (body) {
+          return new Promise(function (res) {
+              if (!body) {
+                  res({});
+              }
+              else if (body instanceof ArrayBuffer) {
+                  res({
+                      bodyType: 'ArrayBuffer',
+                      // 说明是 ArrayBuffer，转成 base64
+                      value: KKJSBridgeUtil.convertArrayBufferToBase64(body)
+                  });
+              }
+              else if (body instanceof Blob) {
+                  var bodyType_1 = 'Blob';
+                  var fileReader = new FileReader();
+                  fileReader.onload = function (ev) {
+                      // 说明是 Blob，转成 base64
+                      var base64 = ev.target.result;
+                      res({
+                          value: base64,
+                          bodyType: bodyType_1
+                      });
+                  };
+                  fileReader.readAsDataURL(body);
+              }
+              else if (body instanceof FormData) {
+                  // 说明是表单
+                  KKJSBridgeUtil.convertFormDataToJson(body, function (json) {
+                      res({
+                          bodyType: 'FormData',
+                          formEnctype: 'multipart/form-data',
+                          value: json
+                      });
+                  });
+              }
+              else if (body instanceof URLSearchParams) {
+                  res({
+                      bodyType: 'String',
+                      formEnctype: 'application/x-www-form-urlencoded',
+                      value: body.toString()
+                  });
+              }
+              else {
+                  // 说明是字符串或者json
+                  res({
+                      bodyType: 'String',
+                      value: body
+                  });
+              }
+          });
+      };
+      // 静态属性和方法
+      _KKJSBridgeXHR.moduleName = 'ajax';
+      _KKJSBridgeXHR.globalId = Math.floor(Math.random() * 100000);
+      _KKJSBridgeXHR.callbackCache = [];
+      /**
+       * 生成 ajax 请求唯一id
+       */
+      _KKJSBridgeXHR.generateXHRRequestId = function () {
+          return (new Date).getTime() + "" + _KKJSBridgeXHR.globalId++; // 时间戳 + 当前上下文唯一id，生成请求id
+      };
+      /**
+       * 给表单生成新的 action
+       */
+      _KKJSBridgeXHR.generateNewActionForForm = function (form, requestId) {
+          var orignAction = form.action;
+          form.action = _KKJSBridgeXHR.generateNewUrlWithRequestId(orignAction, requestId);
+      };
+      /**
+       * 利用 requestId 生成新的 url
+       */
+      _KKJSBridgeXHR.generateNewUrlWithRequestId = function (url, requestId) {
+          var orignAction = url;
+          // 通过 a 标签来辅助拼接新的 action
+          var aTag = document.createElement("a");
+          aTag.href = orignAction;
+          var search = aTag.search ? aTag.search : "";
+          var hash = aTag.hash ? aTag.hash : "";
+          if (/KKJSBridge-RequestId/.test(orignAction)) { // 防止重复追加 requestId
+              aTag.search = aTag.search.replace(/KKJSBridge-RequestId=(\d+)/, "KKJSBridge-RequestId=" + requestId);
+          }
+          else if (aTag.search && aTag.search.length > 0) {
+              var s = aTag.search;
+              if (/KKJSBridge-RequestId/.test(s)) { // 防止重复追加 requestId
+                  aTag.search = s.replace(/KKJSBridge-RequestId=(\d+)/, "KKJSBridge-RequestId=" + requestId);
+              }
+              else {
+                  aTag.search = s + "&KKJSBridge-RequestId=" + requestId;
+              }
+          }
+          else {
+              aTag.search = "?KKJSBridge-RequestId=" + requestId;
+          }
+          url = orignAction.replace(search, "").replace(hash, "");
+          if ("#" === url.trim()) {
+              url = "";
+          }
+          var newAction = url + aTag.search + aTag.hash;
+          return newAction;
+      };
+      /**
+       * 给 open url 生成带请求 id 的新 url
+       */
+      _KKJSBridgeXHR.generateNewOpenUrlWithRequestId = function (url, requestId) {
+          var getOpenUrlReuestId = function (requestId) {
+              return "^^^^" + requestId + "^^^^";
+          };
+          var openUrlReuestReg = /\^\^\^\^(\d+)\^\^\^\^/;
+          // 通过 a 标签来辅助拼接新的 action
+          var aTag = document.createElement("a");
+          aTag.href = url;
+          var hash = aTag.hash ? aTag.hash : "";
+          if (openUrlReuestReg.test(aTag.hash)) {
+              aTag.hash = aTag.hash.replace(openUrlReuestReg, getOpenUrlReuestId(requestId));
+          }
+          else if (aTag.hash && aTag.hash.length > 0) {
+              aTag.hash = aTag.hash + getOpenUrlReuestId(requestId);
+          }
+          else {
+              aTag.hash = getOpenUrlReuestId(requestId);
+          }
+          url = url.replace(hash, "");
+          if ("#" === url.trim()) {
+              url = "";
+          }
+          var newUrl = url + aTag.hash;
+          return newUrl;
+      };
+      /**
+       * 是否是非正常的 http 请求。比如 url: blob:https:// 场景下，去发送 XMLHTTPRequest，会导致请求失败
+       */
+      _KKJSBridgeXHR.isNonNormalHttpRequest = function (url, httpMethod) {
+          var pattern = /^((http|https):\/\/)/;
+          var isNonNormalRequest = !pattern.test(url) && httpMethod === "GET";
+          return isNonNormalRequest;
+      };
+      /**
+       * 发送 body 到 native 侧缓存起来
+       * @param xhr
+       * @param originMethod
+       * @param originArguments
+       * @param body
+       */
+      _KKJSBridgeXHR.sendBodyToNativeForCache = function (targetType, target, originMethod, originArguments, request, requestAsync) {
+          /*
+              ajax 同步请求只支持纯文本数据，不支持 Blob 和 FormData 数据。
+              如果要支持的话，必须使用 FileReaderSync 对象，但是该对象只在 workers 里可用，
+              因为在主线程里进行同步 I/O 操作可能会阻塞用户界面。
+              https://developer.mozilla.org/zh-CN/docs/Web/API/FileReaderSync
+          */
+          if (requestAsync === void 0) { requestAsync = true; }
+          var requestId = target.requestId;
+          var cacheCallback = {
+              requestId: requestId,
+              callback: function () {
+                  // if (targetType === "AJAX") {// ajax
+                  //   // 发送之前设置自定义请求头，好让 native 拦截并从缓存里获取 body
+                  //   target.setRequestHeader("KKJSBridge-RequestId", requestId);
+                  // }
+                  if (targetType === "FORM") { // 表单 submit
+                      // 发送之前修改 action，让 action 带上 requestId
+                      _KKJSBridgeXHR.generateNewActionForForm(target, requestId);
+                  }
+                  // 调用原始 send 方法 
+                  return originMethod.apply(target, originArguments);
+              }
+          };
+          if (requestAsync) { // 异步请求
+              // 缓存 callbcak
+              _KKJSBridgeXHR.callbackCache[requestId] = cacheCallback;
+              // 发送 body 请求到 native
+              window.KKJSBridge.call(_KKJSBridgeXHR.moduleName, 'cacheAJAXBody', request, function (message) {
+                  // 处理 native 侧缓存完毕后的消息
+                  var callbackFromNative = message;
+                  var requestId = callbackFromNative.requestId;
+                  // 通过请求 id，找到原始 send 方法并调用
+                  if (_KKJSBridgeXHR.callbackCache[requestId]) {
+                      var callbackFromNative_1 = _KKJSBridgeXHR.callbackCache[requestId];
+                      if (callbackFromNative_1 && callbackFromNative_1.callback && typeof callbackFromNative_1.callback == "function") {
+                          callbackFromNative_1.callback();
+                      }
+                      delete _KKJSBridgeXHR.callbackCache[requestId];
+                  }
+              });
+              return;
+          }
+          // 同步请求
+          // 发送 body 请求到 native
+          window.KKJSBridge.syncCall(_KKJSBridgeXHR.moduleName, 'cacheAJAXBody', request);
+          // 发送完成后继续请求原始 send 方法
+          cacheCallback.callback();
+      };
+      /**
+       * 安装 AJAX Proxy
+       */
+      _KKJSBridgeXHR.setupHook = function () {
+          /**
+           * 只 hook open/send 方法
+           */
+          var originOpen = XMLHttpRequest.prototype.open;
+          XMLHttpRequest.prototype.open = function (method, url, async, username, password) {
+              var args = [].slice.call(arguments);
+              var xhr = this;
+              // 生成唯一请求id
+              xhr.requestId = _KKJSBridgeXHR.generateXHRRequestId();
+              xhr.requestUrl = url;
+              xhr.requestHref = document.location.href;
+              xhr.requestMethod = method;
+              xhr.requestAsync = async;
+              if (_KKJSBridgeXHR.isNonNormalHttpRequest(url, method)) { // 如果是非正常请求，则调用原始 open
+                  return originOpen.apply(xhr, args);
+              }
+              if (!window.KKJSBridgeConfig.ajaxHook) { // 如果没有开启 ajax hook，则调用原始 open
+                  return originOpen.apply(xhr, args);
+              }
+              // 生成新的 url
+              args[1] = _KKJSBridgeXHR.generateNewUrlWithRequestId(url, xhr.requestId);
+              originOpen.apply(xhr, args);
+          };
+          var originSend = XMLHttpRequest.prototype.send;
+          XMLHttpRequest.prototype.send = function (body) {
+              var args = [].slice.call(arguments);
+              var xhr = this;
+              var requestRaw = {
+                  requestId: xhr.requestId,
+                  requestHref: xhr.requestHref,
+                  requestUrl: xhr.requestUrl,
+                  bodyType: "String",
+                  value: null
+              };
+              if (_KKJSBridgeXHR.isNonNormalHttpRequest(xhr.requestUrl, xhr.requestMethod)) { // 如果是非正常请求，则调用原始 send
+                  return originSend.apply(xhr, args);
+              }
+              if (!window.KKJSBridgeConfig.ajaxHook) { // 如果没有开启 ajax hook，则调用原始 send
+                  return originSend.apply(xhr, args);
+              }
+              if (!body || body instanceof Document) {
+                  // 没有 body 或 body 是 Document，调用原始 send
+                  return originSend.apply(xhr, args);
+              }
+              else {
+                  _KKJSBridgeXHR.resolveRequestBody(body).then(function (req) {
+                      var request = __assign(__assign({}, requestRaw), req);
+                      // 发送到 native 缓存起来
+                      _KKJSBridgeXHR.sendBodyToNativeForCache('AJAX', xhr, originSend, args, request);
+                  });
+              }
+          };
+          /**
+           * hook form submit 方法
+           */
+          var originSubmit = HTMLFormElement.prototype.submit;
+          HTMLFormElement.prototype.submit = function () {
+              var args = [].slice.call(arguments);
+              var form = this;
+              form.requestId = _KKJSBridgeXHR.generateXHRRequestId();
+              form.requestUrl = form.action;
+              form.requestHref = document.location.href;
+              var request = {
+                  requestId: form.requestId,
+                  requestHref: form.requestHref,
+                  requestUrl: form.requestUrl,
+                  bodyType: "FormData",
+                  formEnctype: form.enctype,
+                  value: null
+              };
+              if (!window.KKJSBridgeConfig.ajaxHook) { // 如果没有开启 ajax hook，则调用原始 submit
+                  return originSubmit.apply(form, args);
+              }
+              var action = form.action;
+              if (!action) { // 如果 action 本身是空，则调用原始 submit
+                  return originSubmit.apply(form, args);
+              }
+              var formData = new FormData(form);
+              KKJSBridgeUtil.convertFormDataToJson(formData, function (json) {
+                  request.value = json;
+                  _KKJSBridgeXHR.sendBodyToNativeForCache("FORM", form, originSubmit, args, request);
+              });
+          };
+      };
+      return _KKJSBridgeXHR;
+  }());
+
+  var _KKJSBridgeSendBeaconHook = /** @class */ (function () {
+      function _KKJSBridgeSendBeaconHook() {
+      }
+      _KKJSBridgeSendBeaconHook.setupHook = function () {
+          if (typeof window.navigator.sendBeacon === 'function') {
+              var originalBeaconImpl_1 = window.navigator.sendBeacon;
+              window.navigator.sendBeacon = function (url, data) {
+                  if (!data) {
+                      return originalBeaconImpl_1(url, data);
+                  }
+                  var requestId = _KKJSBridgeXHR.generateXHRRequestId();
+                  var requestUrl = _KKJSBridgeXHR.generateNewUrlWithRequestId(url, requestId);
+                  var requestRaw = {
+                      requestId: requestId,
+                      requestHref: location.href,
+                      requestUrl: url,
+                      bodyType: 'String',
+                      value: null
+                  };
+                  _KKJSBridgeXHR.resolveRequestBody(data).then(function (request) {
+                      _KKJSBridgeXHR.sendBodyToNativeForCache('AJAX', window.navigator, originalBeaconImpl_1, [requestUrl, data], __assign(__assign({}, requestRaw), request));
+                  });
+                  return true;
+              };
+          }
+      };
+      return _KKJSBridgeSendBeaconHook;
+  }());
+
   /// <reference path="../types/index.d.ts" />
   var init = function () {
       if (window.KKJSBridge) {
@@ -1531,7 +1864,7 @@
       // 设置 KKJSBridgeConfig 为全局对象
       window.KKJSBridgeConfig = KKJSBridgeConfig;
       // 设置 _KKJSBridgeXHR 为全局对象
-      window._KKJSBridgeXHR = _KKJSBridgeXHR;
+      window._KKJSBridgeXHR = _KKJSBridgeXHR$1;
       // iframe 内处理来自父 window 的消息
       KKJSBridgeIframe.addMessageListener();
       KKJSBridgeIframe.addAjaxMessageListener();
@@ -1541,8 +1874,10 @@
       _KKJSBridgeFormData.setupHook();
       // 安装 cookie hook
       _KKJSBridgeCOOKIE.setupHook();
+      // 安装 sendBeacon hook
+      _KKJSBridgeSendBeaconHook.setupHook();
       // 安装 ajax hook
-      _KKJSBridgeXHR.setupHook();
+      _KKJSBridgeXHR$1.setupHook();
       // JSBridge 安装完毕
       window.KKJSBridgeConfig.bridgeReady();
   };
@@ -1551,4 +1886,4 @@
 
   return indexold;
 
-})));
+}));

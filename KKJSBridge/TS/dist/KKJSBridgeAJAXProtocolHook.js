@@ -1,8 +1,8 @@
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
   typeof define === 'function' && define.amd ? define('lib/fetch.js', factory) :
-  (global = global || self, global.KKJSBridge = factory());
-}(this, (function () { 'use strict';
+  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.KKJSBridge = factory());
+})(this, (function () { 'use strict';
 
   var support = {
     searchParams: 'URLSearchParams' in self,
@@ -580,29 +580,41 @@
   }
 
   /*! *****************************************************************************
-  Copyright (c) Microsoft Corporation. All rights reserved.
-  Licensed under the Apache License, Version 2.0 (the "License"); you may not use
-  this file except in compliance with the License. You may obtain a copy of the
-  License at http://www.apache.org/licenses/LICENSE-2.0
+  Copyright (c) Microsoft Corporation.
 
-  THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-  KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
-  WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
-  MERCHANTABLITY OR NON-INFRINGEMENT.
+  Permission to use, copy, modify, and/or distribute this software for any
+  purpose with or without fee is hereby granted.
 
-  See the Apache Version 2.0 License for specific language governing permissions
-  and limitations under the License.
+  THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+  REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+  AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+  INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+  LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+  OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+  PERFORMANCE OF THIS SOFTWARE.
   ***************************************************************************** */
 
+  var __assign = function() {
+      __assign = Object.assign || function __assign(t) {
+          for (var s, i = 1, n = arguments.length; i < n; i++) {
+              s = arguments[i];
+              for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+          }
+          return t;
+      };
+      return __assign.apply(this, arguments);
+  };
+
   function __values(o) {
-      var m = typeof Symbol === "function" && o[Symbol.iterator], i = 0;
+      var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
       if (m) return m.call(o);
-      return {
+      if (o && typeof o.length === "number") return {
           next: function () {
               if (o && i >= o.length) o = void 0;
               return { value: o && o[i++], done: !o };
           }
       };
+      throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
   }
 
   var _KKJSBridgeFormData = /** @class */ (function () {
@@ -1063,13 +1075,66 @@
       return _KKJSBridgeCOOKIE;
   }());
 
-  /// <reference path="../../types/index.d.ts" />
   /**
    * AJAX 相关方法
    */
   var _KKJSBridgeXHR = /** @class */ (function () {
       function _KKJSBridgeXHR() {
       }
+      /**
+      * 统一处理 body 内容
+      */
+      _KKJSBridgeXHR.resolveRequestBody = function (body) {
+          return new Promise(function (res) {
+              if (!body) {
+                  res({});
+              }
+              else if (body instanceof ArrayBuffer) {
+                  res({
+                      bodyType: 'ArrayBuffer',
+                      // 说明是 ArrayBuffer，转成 base64
+                      value: KKJSBridgeUtil.convertArrayBufferToBase64(body)
+                  });
+              }
+              else if (body instanceof Blob) {
+                  var bodyType_1 = 'Blob';
+                  var fileReader = new FileReader();
+                  fileReader.onload = function (ev) {
+                      // 说明是 Blob，转成 base64
+                      var base64 = ev.target.result;
+                      res({
+                          value: base64,
+                          bodyType: bodyType_1
+                      });
+                  };
+                  fileReader.readAsDataURL(body);
+              }
+              else if (body instanceof FormData) {
+                  // 说明是表单
+                  KKJSBridgeUtil.convertFormDataToJson(body, function (json) {
+                      res({
+                          bodyType: 'FormData',
+                          formEnctype: 'multipart/form-data',
+                          value: json
+                      });
+                  });
+              }
+              else if (body instanceof URLSearchParams) {
+                  res({
+                      bodyType: 'String',
+                      formEnctype: 'application/x-www-form-urlencoded',
+                      value: body.toString()
+                  });
+              }
+              else {
+                  // 说明是字符串或者json
+                  res({
+                      bodyType: 'String',
+                      value: body
+                  });
+              }
+          });
+      };
       // 静态属性和方法
       _KKJSBridgeXHR.moduleName = 'ajax';
       _KKJSBridgeXHR.globalId = Math.floor(Math.random() * 100000);
@@ -1242,7 +1307,7 @@
           XMLHttpRequest.prototype.send = function (body) {
               var args = [].slice.call(arguments);
               var xhr = this;
-              var request = {
+              var requestRaw = {
                   requestId: xhr.requestId,
                   requestHref: xhr.requestHref,
                   requestUrl: xhr.requestUrl,
@@ -1255,39 +1320,17 @@
               if (!window.KKJSBridgeConfig.ajaxHook) { // 如果没有开启 ajax hook，则调用原始 send
                   return originSend.apply(xhr, args);
               }
-              if (!body) { // 没有 body，调用原始 send
+              if (!body || body instanceof Document) {
+                  // 没有 body 或 body 是 Document，调用原始 send
                   return originSend.apply(xhr, args);
               }
-              else if (body instanceof ArrayBuffer) { // 说明是 ArrayBuffer，转成 base64
-                  request.bodyType = "ArrayBuffer";
-                  request.value = KKJSBridgeUtil.convertArrayBufferToBase64(body);
-              }
-              else if (body instanceof Blob) { // 说明是 Blob，转成 base64
-                  request.bodyType = "Blob";
-                  var fileReader = new FileReader();
-                  fileReader.onload = function (ev) {
-                      var base64 = ev.target.result;
-                      request.value = base64;
-                      _KKJSBridgeXHR.sendBodyToNativeForCache("AJAX", xhr, originSend, args, request);
-                  };
-                  fileReader.readAsDataURL(body);
-                  return;
-              }
-              else if (body instanceof FormData) { // 说明是表单
-                  request.bodyType = "FormData";
-                  request.formEnctype = "multipart/form-data";
-                  KKJSBridgeUtil.convertFormDataToJson(body, function (json) {
-                      request.value = json;
-                      _KKJSBridgeXHR.sendBodyToNativeForCache("AJAX", xhr, originSend, args, request);
+              else {
+                  _KKJSBridgeXHR.resolveRequestBody(body).then(function (req) {
+                      var request = __assign(__assign({}, requestRaw), req);
+                      // 发送到 native 缓存起来
+                      _KKJSBridgeXHR.sendBodyToNativeForCache('AJAX', xhr, originSend, args, request);
                   });
-                  return;
               }
-              else { // 说明是字符串或者json
-                  request.bodyType = "String";
-                  request.value = body;
-              }
-              // 发送到 native 缓存起来
-              _KKJSBridgeXHR.sendBodyToNativeForCache("AJAX", xhr, originSend, args, request, xhr.requestAsync);
           };
           /**
            * hook form submit 方法
@@ -1322,6 +1365,35 @@
           };
       };
       return _KKJSBridgeXHR;
+  }());
+
+  var _KKJSBridgeSendBeaconHook = /** @class */ (function () {
+      function _KKJSBridgeSendBeaconHook() {
+      }
+      _KKJSBridgeSendBeaconHook.setupHook = function () {
+          if (typeof window.navigator.sendBeacon === 'function') {
+              var originalBeaconImpl_1 = window.navigator.sendBeacon;
+              window.navigator.sendBeacon = function (url, data) {
+                  if (!data) {
+                      return originalBeaconImpl_1(url, data);
+                  }
+                  var requestId = _KKJSBridgeXHR.generateXHRRequestId();
+                  var requestUrl = _KKJSBridgeXHR.generateNewUrlWithRequestId(url, requestId);
+                  var requestRaw = {
+                      requestId: requestId,
+                      requestHref: location.href,
+                      requestUrl: url,
+                      bodyType: 'String',
+                      value: null
+                  };
+                  _KKJSBridgeXHR.resolveRequestBody(data).then(function (request) {
+                      _KKJSBridgeXHR.sendBodyToNativeForCache('AJAX', window.navigator, originalBeaconImpl_1, [requestUrl, data], __assign(__assign({}, requestRaw), request));
+                  });
+                  return true;
+              };
+          }
+      };
+      return _KKJSBridgeSendBeaconHook;
   }());
 
   /// <reference path="../types/index.d.ts" />
@@ -1389,6 +1461,8 @@
       _KKJSBridgeFormData.setupHook();
       // 安装 cookie hook
       _KKJSBridgeCOOKIE.setupHook();
+      // 安装 sendBeacon hook
+      _KKJSBridgeSendBeaconHook.setupHook();
       // 安装 ajax hook
       _KKJSBridgeXHR.setupHook();
       // JSBridge 安装完毕
@@ -1399,4 +1473,4 @@
 
   return index;
 
-})));
+}));

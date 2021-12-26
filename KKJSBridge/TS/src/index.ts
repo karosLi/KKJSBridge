@@ -5,6 +5,7 @@ import { KKJSBridge } from "./bridge/KKJSBridge"
 import { _KKJSBridgeFormData } from "./hook/KKJSBridgeFormDataHook"
 import { _KKJSBridgeCOOKIE } from "./hook/KKJSBridgeCookieHook"
 import { _KKJSBridgeXHR } from "./hook/KKJSBridgeAjaxProtocolHook"
+import { _KKJSBridgeSendBeaconHook } from "./hook/KKJSBridgeSendBeaconHook"
 
 var init = function() {
   if (window.KKJSBridge) {
@@ -75,6 +76,9 @@ var init = function() {
 
   // 安装 cookie hook
   _KKJSBridgeCOOKIE.setupHook();
+
+  // 安装 sendBeacon hook
+  _KKJSBridgeSendBeaconHook.setupHook();
 
   // 安装 ajax hook
   _KKJSBridgeXHR.setupHook();
