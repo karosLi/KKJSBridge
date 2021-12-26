@@ -90,6 +90,56 @@ export class _KKJSBridgeXHR {
 	}
 
 	/**
+	 * 统一处理 body 内容
+ 	 */
+	public static resolveRequestBody(body?: BodyInit): Promise<Partial<KK.AJAXBodyCacheRequest>> {
+        return new Promise(res => {
+            if (!body) {
+                res({});
+            } else if (body instanceof ArrayBuffer) {
+                res({
+                    bodyType: 'ArrayBuffer',
+                    // 说明是 ArrayBuffer，转成 base64
+                    value: KKJSBridgeUtil.convertArrayBufferToBase64(body)
+                });
+            } else if (body instanceof Blob) {
+                const bodyType: KK.AJAXBodyCacheRequest['bodyType'] = 'Blob';
+                const fileReader: FileReader = new FileReader();
+                fileReader.onload = function (this: FileReader, ev: ProgressEvent) {
+                    // 说明是 Blob，转成 base64
+                    const base64: string = (ev.target as any).result;
+                    res({
+                        value: base64,
+                        bodyType
+                    });
+                };
+                fileReader.readAsDataURL(body);
+            } else if (body instanceof FormData) {
+                // 说明是表单
+                KKJSBridgeUtil.convertFormDataToJson(body, (json: string) => {
+                    res({
+                        bodyType: 'FormData',
+                        formEnctype: 'multipart/form-data',
+                        value: json
+                    });
+                });
+            } else if (body instanceof URLSearchParams) {
+                res({
+                    bodyType: 'String',
+                    formEnctype: 'application/x-www-form-urlencoded',
+                    value: body.toString()
+                });
+            } else {
+                // 说明是字符串或者json
+                res({
+                    bodyType: 'String',
+                    value: body
+                });
+            }
+        });
+    }
+
+	/**
 	 * 是否是非正常的 http 请求。比如 url: blob:https:// 场景下，去发送 XMLHTTPRequest，会导致请求失败
 	 */
 	public static isNonNormalHttpRequest: Function = (url: string, httpMethod: string) => {
@@ -197,56 +247,39 @@ export class _KKJSBridgeXHR {
 
     let originSend = XMLHttpRequest.prototype.send;
     XMLHttpRequest.prototype.send = function(body?: string | Document | Blob | ArrayBufferView | ArrayBuffer | FormData | URLSearchParams | ReadableStream<Uint8Array>) {
-      let args: any = [].slice.call(arguments);
-      let xhr: XMLHttpRequest = this;
-      let request: KK.AJAXBodyCacheRequest = {
-        requestId: xhr.requestId,
-        requestHref: xhr.requestHref,
-        requestUrl: xhr.requestUrl,
-        bodyType: "String",
-        value: null
-			};
-			
-			if (_KKJSBridgeXHR.isNonNormalHttpRequest(xhr.requestUrl, xhr.requestMethod)) {// 如果是非正常请求，则调用原始 send
-				return originSend.apply(xhr, args);
-			}
-      
-      if (!window.KKJSBridgeConfig.ajaxHook) {// 如果没有开启 ajax hook，则调用原始 send
-        return originSend.apply(xhr, args);
-      }
+		let args: any = [].slice.call(arguments);
+		let xhr: XMLHttpRequest = this;
+		let requestRaw: KK.AJAXBodyCacheRequest = {
+				requestId: xhr.requestId,
+				requestHref: xhr.requestHref,
+				requestUrl: xhr.requestUrl,
+				bodyType: "String",
+				value: null
+		};
+				
+		if (_KKJSBridgeXHR.isNonNormalHttpRequest(xhr.requestUrl, xhr.requestMethod)) {// 如果是非正常请求，则调用原始 send
+			return originSend.apply(xhr, args);
+		}
+		
+		if (!window.KKJSBridgeConfig.ajaxHook) {// 如果没有开启 ajax hook，则调用原始 send
+			return originSend.apply(xhr, args);
+		}
 
-      if (!body) {// 没有 body，调用原始 send
-        return originSend.apply(xhr, args);
-      } else if (body instanceof ArrayBuffer) {// 说明是 ArrayBuffer，转成 base64
-        request.bodyType = "ArrayBuffer";
-        request.value = KKJSBridgeUtil.convertArrayBufferToBase64(body);
-      } else if (body instanceof Blob) {// 说明是 Blob，转成 base64
-        request.bodyType = "Blob";
-        let fileReader: FileReader = new FileReader();
-        fileReader.onload = function(this: FileReader, ev: ProgressEvent) {
-          let base64: string = (ev.target as any).result;
-          request.value = base64;
-          _KKJSBridgeXHR.sendBodyToNativeForCache("AJAX", xhr, originSend, args, request);
-        };
+		if (!body || body instanceof Document) {
+			// 没有 body 或 body 是 Document，调用原始 send
+			return originSend.apply(xhr, args);
+		} else {
+			_KKJSBridgeXHR.resolveRequestBody(body).then(req => {
+				const request = {
+					...requestRaw,
+					...req
+				};
 
-        fileReader.readAsDataURL(body);
-        return;
-      } else if (body instanceof FormData) {// 说明是表单
-        request.bodyType = "FormData";
-        request.formEnctype = "multipart/form-data";
-        KKJSBridgeUtil.convertFormDataToJson(body, (json: any) => {
-          request.value = json; 
-          _KKJSBridgeXHR.sendBodyToNativeForCache("AJAX", xhr, originSend, args, request);
-        });
-        return;
-      } else {// 说明是字符串或者json
-        request.bodyType = "String";
-        request.value = body;
-      } 
-      
-      // 发送到 native 缓存起来
-      _KKJSBridgeXHR.sendBodyToNativeForCache("AJAX", xhr, originSend, args, request, xhr.requestAsync);
-    } as any;
+				// 发送到 native 缓存起来
+				_KKJSBridgeXHR.sendBodyToNativeForCache('AJAX', xhr, originSend, args, request);
+			});
+		}
+    };
 
     /**
      * hook form submit 方法
