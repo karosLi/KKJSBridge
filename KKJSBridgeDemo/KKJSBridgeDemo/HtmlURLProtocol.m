@@ -9,24 +9,22 @@
 #import "HtmlURLProtocol.h"
 #import <WebKit/WebKit.h>
 
-// https://github.com/WebKit/webkit/blob/989f1ffc97f6b168687cbfc6f98d35880fdd29de/Source/WebKit/UIProcess/API/Cocoa/WKBrowsingContextController.mm
-Class HtmlURLProtocol_WKWebView_ContextControllerClass() {
+// https://github.com/WebKit/WebKit/blob/main/Source/WebKit/UIProcess/API/Cocoa/WKBrowsingContextController.mm
+static Class HtmlURLProtocol_WKWebView_ContextControllerClass(void) {
     static Class cls;
     if (!cls) {
         if (@available(iOS 8.0, *)) {
             cls = [[[WKWebView new] valueForKey:@"browsingContextController"] class];
-        } else {
-            
         }
     }
     return cls;
 }
 //customSchemes
-SEL HtmlURLProtocol_WKWebView_RegisterSchemeSelector() {
+static SEL HtmlURLProtocol_WKWebView_RegisterSchemeSelector(void) {
     return NSSelectorFromString(@"registerSchemeForCustomProtocol:");
 }
 
-SEL HtmlURLProtocol_WKWebView_UnregisterSchemeSelector() {
+static SEL HtmlURLProtocol_WKWebView_UnregisterSchemeSelector(void) {
     return NSSelectorFromString(@"unregisterSchemeForCustomProtocol:");
 }
 
